@@ -1,0 +1,30 @@
+jwt:
+  secret: 1234567890abcdef1234567890abcdef
+  access-expiration: 900000
+  refresh-expiration: 604800000
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/programmize
+    username: root
+    password: memelord1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trunghiennguyen71@gmail.com
+    password: doqizjclsjyolgzh
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
