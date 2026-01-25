@@ -14,9 +14,11 @@ export default function ModernUserProfile() {
     username: "",
     fullName: "",
     email: "",
-    avatarUrl: "",
+    avatarUrl: ""
   });
   const [newData, setNewData] = useState({});
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
 
   async function fetchUser() {
     const res = await authFetch("http://localhost:8080/users/me", {
@@ -27,6 +29,14 @@ export default function ModernUserProfile() {
     });
     const data = await res.json();
     setOriginalData(data);
+  }
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   }
 
   useEffect(() => {
@@ -55,12 +65,14 @@ export default function ModernUserProfile() {
   };
 
   const saveProfile = async () => {
+    const formData = new FormData();
+    formData.append("data", new Blob([JSON.stringify({...newData})], {type: "application/json"}));
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
     const res = await authFetch("http://localhost:8080/users/me", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...newData }),
+      body: formData,
     });
     const data = await res.json();
 
@@ -92,15 +104,11 @@ export default function ModernUserProfile() {
       setMessage("New Password must be different from Current Password!");
       return;
     }
+    const formData = new FormData();
+    formData.append("data", new Blob([JSON.stringify({currentPassword: passwordData.currentPassword, newPassword: passwordData.newPassword})], {type: "application/json"}));
     const res = await authFetch("http://localhost:8080/users/me", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      }),
+      body: formData
     });
     const data = await res.json();
 
@@ -156,7 +164,7 @@ export default function ModernUserProfile() {
                   <div className={s.avatar}>
                     <div className={s.avatarWrapper}>
                       <img
-                        src={originalData.avatarUrl}
+                        src={avatarPreview || originalData.avatarUrl}
                         alt="Avatar"
                         className={s.avatarImg}
                       />
@@ -167,6 +175,7 @@ export default function ModernUserProfile() {
                             type="file"
                             accept="image/*"
                             style={{ display: "none" }}
+                            onChange={handleAvatarChange}
                           />
                         </label>
                       )}

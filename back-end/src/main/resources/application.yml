@@ -28,3 +28,7 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+cloudinary:
+  cloud-name: dlecit4kf
+  api-key: 918872146712184
+  api-secret: kWyR4EfEzxBfPMWMEijl600yNmI

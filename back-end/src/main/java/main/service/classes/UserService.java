@@ -1,6 +1,7 @@
 package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
+import main.configuration.CloudinaryService;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
 import main.entity.Setting;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
     private final SettingRepository settingRepository;
 
     @Override
@@ -41,7 +44,7 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public void updateMe(Integer userId, UpdateUserRequest request) {
+    public void updateMe(Integer userId, UpdateUserRequest request, MultipartFile avatar) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -85,6 +88,12 @@ public class UserService implements IUserService {
             }
 
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            updated = true;
+        }
+
+        if (avatar != null && !avatar.isEmpty()) {
+            String avatarUrl = cloudinaryService.uploadUserAvatar(avatar, userId);
+            user.setAvatarUrl(avatarUrl);
             updated = true;
         }
 

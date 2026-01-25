@@ -301,7 +301,7 @@ function PublicCoursesPage() {
 
           {/* Results Count */}
           <div className={s.courses__results}>
-            Showing {from} of {to} courses
+            Showing {from} to {to} courses
           </div>
 
           {/* Courses Grid */}

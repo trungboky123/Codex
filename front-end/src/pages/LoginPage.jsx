@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import s from "../css/Login.module.scss";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
   const [isSignedIn, setIsSignedIn] = useState(false);
-
+  const from = location.state?.from?.pathname || "/"
   const [user, setUser] = useState({
     usernameOrEmail: "",
     password: "",
@@ -50,7 +50,7 @@ function LoginPage() {
         sessionStorage.setItem("accessToken", data.accessToken);
       }
       setTimeout(() => {
-        navigate("/home");
+        navigate(from, {replace: true});
       }, 2000);
     }
   }

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import s from "../css/PublicCourseDetails.module.scss";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 
 export default function PublicCourseDetailsPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [expandedChapters, setExpandedChapters] = useState({});
   const { id } = useParams();
   const [course, setCourse] = useState({
@@ -21,223 +23,27 @@ export default function PublicCourseDetailsPage() {
     description: "",
   });
   const [chapters, setChapters] = useState([]);
+  const [chapterHeights, setChapterHeights] = useState({});
   const [totalChapters, setTotalChapters] = useState(0);
   const [totalLessons, setTotalLessons] = useState(0);
-
-  // Fixed data - bạn sẽ thay bằng data từ API
-  const courseData = {
-    name: "Complete Web Development Bootcamp 2024",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
-    listedPrice: 2999000,
-    salePrice: 399000,
-    categories: ["Web Development", "Programming", "JavaScript", "React"],
-    description: `Learn web development from scratch with this comprehensive bootcamp. 
-    This course covers everything from HTML, CSS, JavaScript to advanced frameworks like React and Node.js. 
-    You'll build real-world projects and gain practical experience that will help you land your dream job as a web developer.
-    
-    By the end of this course, you will be able to build fully functional web applications from front-end to back-end. 
-    This includes responsive design, database management, authentication, and deployment.`,
-    instructor: "John Doe",
-    instructorAvatarUrl: "https://i.pravatar.cc/150?img=12",
-    courseContent: {
-      numberOfChapters: 12,
-      numberOfLessons: 156,
-      totalDuration: "42h 30m",
-      chapters: [
-        {
-          id: 1,
-          title: "Introduction to Web Development",
-          duration: "2h 15m",
-          lessons: [
-            {
-              id: 1,
-              title: "What is Web Development?",
-              duration: "15:30",
-              isPreview: true,
-            },
-            {
-              id: 2,
-              title: "Setting Up Your Environment",
-              duration: "20:45",
-              isPreview: true,
-            },
-            {
-              id: 3,
-              title: "Understanding HTTP and HTTPS",
-              duration: "18:20",
-              isPreview: false,
-            },
-            {
-              id: 4,
-              title: "Introduction to HTML",
-              duration: "25:30",
-              isPreview: false,
-            },
-            {
-              id: 5,
-              title: "HTML Structure and Tags",
-              duration: "30:10",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: 2,
-          title: "HTML Fundamentals",
-          duration: "4h 30m",
-          lessons: [
-            {
-              id: 6,
-              title: "HTML Forms and Input Types",
-              duration: "35:20",
-              isPreview: false,
-            },
-            {
-              id: 7,
-              title: "Semantic HTML",
-              duration: "28:15",
-              isPreview: false,
-            },
-            {
-              id: 8,
-              title: "HTML Tables and Lists",
-              duration: "22:40",
-              isPreview: false,
-            },
-            {
-              id: 9,
-              title: "HTML Media Elements",
-              duration: "30:25",
-              isPreview: false,
-            },
-            {
-              id: 10,
-              title: "HTML Best Practices",
-              duration: "25:10",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: 3,
-          title: "CSS Styling and Layout",
-          duration: "5h 45m",
-          lessons: [
-            {
-              id: 11,
-              title: "CSS Basics and Selectors",
-              duration: "32:15",
-              isPreview: false,
-            },
-            {
-              id: 12,
-              title: "Box Model and Positioning",
-              duration: "40:30",
-              isPreview: false,
-            },
-            {
-              id: 13,
-              title: "Flexbox Layout",
-              duration: "45:20",
-              isPreview: false,
-            },
-            {
-              id: 14,
-              title: "CSS Grid Layout",
-              duration: "50:15",
-              isPreview: false,
-            },
-            {
-              id: 15,
-              title: "Responsive Design",
-              duration: "38:25",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: 4,
-          title: "JavaScript Fundamentals",
-          duration: "6h 20m",
-          lessons: [
-            {
-              id: 16,
-              title: "Variables and Data Types",
-              duration: "35:10",
-              isPreview: false,
-            },
-            {
-              id: 17,
-              title: "Functions and Scope",
-              duration: "42:30",
-              isPreview: false,
-            },
-            {
-              id: 18,
-              title: "Arrays and Objects",
-              duration: "38:45",
-              isPreview: false,
-            },
-            {
-              id: 19,
-              title: "DOM Manipulation",
-              duration: "45:20",
-              isPreview: false,
-            },
-            {
-              id: 20,
-              title: "Event Handling",
-              duration: "40:15",
-              isPreview: false,
-            },
-          ],
-        },
-        {
-          id: 5,
-          title: "Advanced JavaScript",
-          duration: "7h 10m",
-          lessons: [
-            {
-              id: 21,
-              title: "Async JavaScript and Promises",
-              duration: "48:30",
-              isPreview: false,
-            },
-            {
-              id: 22,
-              title: "ES6+ Features",
-              duration: "52:15",
-              isPreview: false,
-            },
-            {
-              id: 23,
-              title: "Modules and Import/Export",
-              duration: "35:40",
-              isPreview: false,
-            },
-            {
-              id: 24,
-              title: "Error Handling",
-              duration: "30:25",
-              isPreview: false,
-            },
-            {
-              id: 25,
-              title: "JavaScript Design Patterns",
-              duration: "55:20",
-              isPreview: false,
-            },
-          ],
-        },
-      ],
-    },
-  };
+  const lessonRefs = useRef({});
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
+    checkLoginStatus();
     fetchCourse();
     fetchChapters();
   }, []);
+
+  useEffect(() => {
+    const heights = {};
+    Object.keys(lessonRefs.current).forEach((chapterId) => {
+      if (lessonRefs.current[chapterId]) {
+        heights[chapterId] = lessonRefs.current[chapterId].scrollHeight;
+      }
+    });
+    setChapterHeights(heights);
+  }, [chapters]);
 
   async function fetchCourse() {
     const res = await fetch(`http://localhost:8080/courses/${id}`, {
@@ -255,6 +61,15 @@ export default function PublicCourseDetailsPage() {
     setChapters(data.content);
     setTotalChapters(data.totalChapters);
     setTotalLessons(data.totalLessons);
+  }
+
+  function checkLoginStatus() {
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+    setIsSignedIn(!!token);
+  }
+
+  function handleLogin() {
+    navigate("/login", { state: {from: location}, replace: true });
   }
 
   const toggleChapter = (chapterId) => {
@@ -364,15 +179,11 @@ export default function PublicCourseDetailsPage() {
                 Course Content
               </h2>
               <div className={s.contentStats}>
-                <span>
-                  {totalChapters} chapters
-                </span>
+                <span>{totalChapters} chapters</span>
                 <span>•</span>
                 <span>{totalLessons} lessons</span>
                 <span>•</span>
-                <span>
-                  {course.duration} total length
-                </span>
+                <span>{course.duration} total length</span>
               </div>
 
               <div className={s.chaptersContainer}>
@@ -384,36 +195,62 @@ export default function PublicCourseDetailsPage() {
                     >
                       <div className={s.chapterTitle}>
                         <i
-                          className={`bi ${expandedChapters[chapter.id] ? "bi-chevron-down" : "bi-chevron-right"}`}
+                          className="bi bi-chevron-right"
+                          style={{
+                            transition: "transform 0.3s",
+                            transform: expandedChapters[chapter.id]
+                              ? "rotate(90deg)"
+                              : "rotate(0deg)",
+                          }}
                         ></i>
-                        <span key={chapter.id}>
+                        <span>
                           Chapter {index + 1}: {chapter.name}
                         </span>
                       </div>
                     </div>
 
-                    {expandedChapters[chapter.id] && (
-                      <div className={s.lessonsContainer}>
-                        {chapter.lessons.map((lesson, index) => (
-                          <div key={lesson.id} className={s.lessonItem}>
-                            <div className={s.lessonLeft}>
-                              <span>{index + 1}.</span>
-                              <span>{lesson.name}</span>
-                            </div>
-                            <div className={s.lessonRight}>
-                              {lesson.isPreview && (
-                                <span className={s.previewBadge}>
-                                  Preview
+                    <div
+                      className={s.lessonsContainer}
+                      style={{
+                        maxHeight: expandedChapters[chapter.id]
+                          ? `${chapterHeights[chapter.id] || 2000}px`
+                          : "0px",
+                        opacity: expandedChapters[chapter.id] ? 1 : 0,
+                      }}
+                    >
+                      <div ref={(el) => (lessonRefs.current[chapter.id] = el)}>
+                        {chapter.lessons && chapter.lessons.length > 0 ? (
+                          chapter.lessons.map((lesson, lessonIndex) => (
+                            <div key={lesson.id} className={s.lessonItem}>
+                              <div className={s.lessonLeft}>
+                                <span>{lessonIndex + 1}.</span>
+                                <span>{lesson.name}</span>
+                              </div>
+                              <div className={s.lessonRight}>
+                                {(lesson.isPreview === 1 ||
+                                  lesson.isPreview === true) && (
+                                  <span className={s.previewBadge}>
+                                    Preview
+                                  </span>
+                                )}
+                                <span className={s.duration}>
+                                  {lesson.duration}
                                 </span>
-                              )}
-                              <span className={s.duration}>
-                                {lesson.duration}
-                              </span>
+                              </div>
                             </div>
+                          ))
+                        ) : (
+                          <div
+                            style={{
+                              padding: "16px 24px 16px 60px",
+                              color: "#64748b",
+                            }}
+                          >
+                            No lessons available
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -436,21 +273,33 @@ export default function PublicCourseDetailsPage() {
                     )}
                   </div>
                   {course.salePrice && (
-                    <div className={s.discount}>
-                      {calculateDiscount()}% OFF
-                    </div>
+                    <div className={s.discount}>{calculateDiscount()}% OFF</div>
                   )}
                 </div>
 
-                <button className={s.enrollBtn}>
-                  <i className="bi bi-cart-plus-fill"></i>
-                  Enroll Now
-                </button>
+                {isSignedIn ? (
+                  <>
+                    <button className={s.enrollBtn}>
+                      <i className="bi bi-cart-plus-fill"></i>
+                      Buy Course Now
+                    </button>
 
-                <button className={s.wishlistBtn}>
-                  <i className="bi bi-heart"></i>
-                  Add to Wishlist
-                </button>
+                    <button
+                      className={s.wishlistBtn}
+                    >
+                      <i className="bi bi-heart"></i>
+                      Add to Wishlist
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className={s.loginToEnrollBtn}
+                    onClick={handleLogin}
+                  >
+                    <i className="bi bi-box-arrow-in-right"></i>
+                    Login to Enroll in This Course
+                  </button>
+                )}
 
                 <div className={s.features}>
                   <div className={s.feature}>
