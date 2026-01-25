@@ -1,0 +1,368 @@
+.profile {
+  &Wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+  }
+
+  &Header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  &Title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 8px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &Subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+  }
+
+  &Card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+}
+
+/* Custom Tabs */
+.customTabs {
+  display: flex;
+  border-bottom: 2px solid #e9ecef;
+  background: #fafafa;
+}
+
+.customTab {
+  flex: 1;
+  padding: 20px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  font-size: 1rem;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #667eea;
+  }
+
+  &Active {
+    color: #667eea;
+    background: white;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+  }
+
+  i {
+    margin-right: 8px;
+    font-size: 1.2rem;
+  }
+}
+
+/* Avatar Section */
+.avatar {
+  text-align: center;
+  margin-bottom: 40px;
+
+  &Wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  &Img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid #667eea;
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s;
+  }
+
+  &Overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.3s;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    i {
+      color: white;
+      font-size: 2.5rem;
+    }
+  }
+
+  &Hint {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 12px;
+  }
+}
+
+/* Form Styles */
+.formLabel {
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.formControl {
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+
+  &:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+  }
+}
+
+/* Input with Icon */
+.input {
+  &Wrapper {
+    position: relative;
+
+    .formControl {
+      padding-left: 48px;
+    }
+
+    .passwordToggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 1;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #667eea;
+      }
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  &Icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.2rem;
+    z-index: 1;
+  }
+}
+
+.withToggle {
+  .formControl {
+    padding-right: 48px;
+  }
+}
+
+/* Buttons */
+.btnGradientPrimary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btnGradientSuccess {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    color: white;
+  }
+}
+
+.btnSecondary {
+  background: #e2e8f0;
+  border: none;
+  color: #475569;
+  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: 12px;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #cbd5e1;
+    color: #334155;
+  }
+}
+
+/* Alert Box */
+.alert {
+  background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+  border-left: 4px solid #667eea;
+  border-radius: 12px;
+  padding: 20px;
+
+  &Title {
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i {
+      color: #667eea;
+      font-size: 1.3rem;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #64748b;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+}
+
+/* Security Card */
+.security {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 24px;
+
+  &Icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      color: #667eea;
+      font-size: 1.8rem;
+    }
+  }
+
+  &Title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+  }
+
+  &Text {
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.message {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+
+    &Error {
+      color: #dc2626;
+    }
+
+    &Success {
+      color: #16a34a;
+    }
+  }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-title {
+    font-size: 2rem;
+  }
+
+  .custom-tab {
+    padding: 16px;
+    font-size: 0.9rem;
+  }
+
+  .custom-tab span {
+    display: none;
+  }
+
+  .custom-tab i {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .avatar-img {
+    width: 120px;
+    height: 120px;
+  }
+}

@@ -1,0 +1,322 @@
+.verify {
+  &__container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+
+  &__image {
+    flex: 1.5;
+    background: url("https://codequotient.com/blog/wp-content/uploads/2020/12/6-Reasons-Why-Having-a-Professional-Coder-Certification-Is-Crucial.jpg");
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  &__card-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 40px;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 450px;
+    animation: fadeIn 0.6s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px auto;
+  }
+
+  &__logo-container {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  &__logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #111827;
+  }
+
+  &__subtitle {
+    text-align: center;
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 30px;
+  }
+
+  &__email {
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+    color: #475569;
+  }
+
+  &__email-text {
+    color: #667eea;
+    font-weight: 700;
+  }
+
+  &__otp-container {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  &__otp-input {
+    width: 55px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s;
+    background-color: white;
+
+    &:focus {
+      border-color: #667eea !important;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+    }
+
+    &[data-filled="true"] {
+      border-color: #4caf50 !important;
+      background-color: #f0fdf4 !important;
+
+      &:focus {
+        border-color: #667eea !important;
+        background-color: white !important;
+      }
+    }
+  }
+
+  &__message {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__error-message {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+    color: #dc2626;
+  }
+
+  &__success-message {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+    color: #16a34a;
+  }
+
+  &__submit-button {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    margin-top: 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__resend-container {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+
+  &__resend-link {
+    color: #667eea;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      color: #5568d3;
+    }
+  }
+
+  &__resend-disabled {
+    color: #cbd5e1;
+    cursor: not-allowed;
+    text-decoration: none;
+    pointer-events: none;
+  }
+
+  &__countdown {
+    color: #64748b;
+  }
+
+  &__countdown-number {
+    color: #667eea;
+    font-weight: 600;
+  }
+
+  &__back-link-container {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  &__back-link {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #667eea;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__otp-input {
+      width: 45px;
+      height: 50px;
+      font-size: 20px;
+    }
+
+    &__otp-container {
+      gap: 8px;
+    }
+
+    &__email {
+      font-size: 0.85rem;
+      padding: 12px;
+    }
+  }
+
+  &__success-card {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+    padding: 20px;
+  }
+
+  &__success-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    animation: bounce 0.6s ease;
+
+    i {
+      font-size: 3rem;
+      color: white;
+    }
+  }
+
+  &__success-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 15px;
+  }
+
+  &__success-subtitle {
+    color: #6b7280;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  &__back-to-login-btn {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
