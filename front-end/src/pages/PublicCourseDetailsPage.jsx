@@ -94,14 +94,14 @@ export default function PublicCourseDetailsPage() {
   };
 
   return (
-    <div className={s.courseDetailsWrapper}>
+    <div className={s.course}>
       <div className="container">
         <div className="row g-4">
           {/* Main Content */}
           <div className="col-lg-8">
             {/* Course Header */}
             <div className={s.courseHeader}>
-              <div className={s.breadcrumb}>
+              <div className={s.courseBreadcrumb}>
                 <Link to={"/home"} style={{ color: "black" }}>
                   Home
                 </Link>
@@ -110,14 +110,14 @@ export default function PublicCourseDetailsPage() {
                   Public Courses
                 </Link>
                 <i className="bi bi-chevron-right"></i>
-                <span className={s.current}>{course.name}</span>
+                <span className={s.courseBreadcrumbCurrent}>{course.name}</span>
               </div>
 
               <h1 className={s.courseTitle}>{course.name}</h1>
 
-              <div className={s.categories}>
+              <div className={s.courseCategories}>
                 {course.categories.map((category) => (
-                  <span key={category.id} className={s.categoryBadge}>
+                  <span key={category.id} className={s.courseCategoriesBadge}>
                     {category.name}
                   </span>
                 ))}
@@ -125,35 +125,35 @@ export default function PublicCourseDetailsPage() {
             </div>
 
             {/* Description */}
-            <div className={s.sectionCard}>
+            <div className={s.section}>
               <h2 className={s.sectionTitle}>
                 <i className="bi bi-book-fill"></i>
                 Course Description
               </h2>
 
               {/* Thumbnail */}
-              <div className={s.thumbnailWrapper}>
+              <div className={s.thumbnail}>
                 <img
                   src={course.thumbnailUrl}
                   alt={course.name}
-                  className={s.courseThumbnail}
+                  className={s.thumbnailImg}
                 />
-                <div className={s.playOverlay}>
+                <div className={s.thumbnailOverlay}>
                   <i className="bi bi-play-circle-fill"></i>
                   <span>Preview this course</span>
                 </div>
               </div>
 
-              <div className={s.description}>{course.description}</div>
+              <div className={s.courseDescription}>{course.description}</div>
             </div>
 
             {/* Instructor */}
-            <div className={s.sectionCard}>
+            <div className={s.section}>
               <h2 className={s.sectionTitle}>
                 <i className="bi bi-person-fill"></i>
                 Instructor
               </h2>
-              <div className={s.instructorCard}>
+              <div className={s.instructor}>
                 <img
                   src={course.instructor.avatarUrl}
                   alt={course.instructor.fullName}
@@ -173,7 +173,7 @@ export default function PublicCourseDetailsPage() {
             </div>
 
             {/* Course Content */}
-            <div className={s.sectionCard}>
+            <div className={s.section}>
               <h2 className={s.sectionTitle}>
                 <i className="bi bi-list-ul"></i>
                 Course Content
@@ -186,14 +186,14 @@ export default function PublicCourseDetailsPage() {
                 <span>{course.duration} total length</span>
               </div>
 
-              <div className={s.chaptersContainer}>
+              <div className={s.chapters}>
                 {chapters.map((chapter, index) => (
-                  <div key={chapter.id} className={s.chapterItem}>
+                  <div key={chapter.id} className={s.chaptersItem}>
                     <div
-                      className={s.chapterHeader}
+                      className={s.chaptersHeader}
                       onClick={() => toggleChapter(chapter.id)}
                     >
-                      <div className={s.chapterTitle}>
+                      <div className={s.chaptersTitle}>
                         <i
                           className="bi bi-chevron-right"
                           style={{
@@ -210,7 +210,7 @@ export default function PublicCourseDetailsPage() {
                     </div>
 
                     <div
-                      className={s.lessonsContainer}
+                      className={s.lessons}
                       style={{
                         maxHeight: expandedChapters[chapter.id]
                           ? `${chapterHeights[chapter.id] || 2000}px`
@@ -221,19 +221,19 @@ export default function PublicCourseDetailsPage() {
                       <div ref={(el) => (lessonRefs.current[chapter.id] = el)}>
                         {chapter.lessons && chapter.lessons.length > 0 ? (
                           chapter.lessons.map((lesson, lessonIndex) => (
-                            <div key={lesson.id} className={s.lessonItem}>
-                              <div className={s.lessonLeft}>
+                            <div key={lesson.id} className={s.lessonsItem}>
+                              <div className={s.lessonsLeft}>
                                 <span>{lessonIndex + 1}.</span>
                                 <span>{lesson.name}</span>
                               </div>
-                              <div className={s.lessonRight}>
+                              <div className={s.lessonsRight}>
                                 {(lesson.isPreview === 1 ||
                                   lesson.isPreview === true) && (
                                   <span className={s.previewBadge}>
                                     Preview
                                   </span>
                                 )}
-                                <span className={s.duration}>
+                                <span className={s.lessonsDuration}>
                                   {lesson.duration}
                                 </span>
                               </div>
@@ -260,20 +260,20 @@ export default function PublicCourseDetailsPage() {
           {/* Sidebar */}
           <div className="col-lg-4">
             <div className={s.sidebar}>
-              <div className={s.priceCard}>
+              <div className={s.price}>
                 <div className={s.priceHeader}>
-                  <div className={s.prices}>
-                    <span className={s.salePrice}>
+                  <div className={s.priceCard}>
+                    <span className={s.priceSale}>
                       {formatPrice(course.salePrice || course.listedPrice)}
                     </span>
                     {course.salePrice && (
-                      <span className={s.listedPrice}>
+                      <span className={s.priceListed}>
                         {formatPrice(course.listedPrice)}
                       </span>
                     )}
                   </div>
                   {course.salePrice && (
-                    <div className={s.discount}>{calculateDiscount()}% OFF</div>
+                    <div className={s.priceDiscount}>{calculateDiscount()}% OFF</div>
                   )}
                 </div>
 
@@ -301,29 +301,29 @@ export default function PublicCourseDetailsPage() {
                   </button>
                 )}
 
-                <div className={s.features}>
-                  <div className={s.feature}>
+                <div className={s.feature}>
+                  <div className={s.featureItem}>
                     <i className="bi bi-infinity"></i>
                     <span>Lifetime Access</span>
                   </div>
-                  <div className={s.feature}>
+                  <div className={s.featureItem}>
                     <i className="bi bi-phone"></i>
                     <span>Access on Mobile & TV</span>
                   </div>
-                  <div className={s.feature}>
+                  <div className={s.featureItem}>
                     <i className="bi bi-award"></i>
                     <span>Certificate of Completion</span>
                   </div>
-                  <div className={s.feature}>
+                  <div className={s.featureItem}>
                     <i className="bi bi-arrow-clockwise"></i>
                     <span>30-Day Money-Back Guarantee</span>
                   </div>
                 </div>
               </div>
 
-              <div className={s.shareCard}>
+              <div className={s.share}>
                 <h3>Share this course</h3>
-                <div className={s.shareButtons}>
+                <div className={s.shareWrapper}>
                   <button className={s.shareBtn}>
                     <i className="bi bi-facebook"></i>
                   </button>

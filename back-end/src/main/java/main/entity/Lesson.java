@@ -2,12 +2,12 @@ package main.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "lesson")
 @Data
+
 public class Lesson {
     @Id
     @Column(name = "lesson_id")
