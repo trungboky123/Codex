@@ -46,8 +46,6 @@ public class SecurityConfig {
                         .requestMatchers("/chapters/**").permitAll()
                         .requestMatchers("/lessons/**").permitAll()
                         .requestMatchers("/classes/public").permitAll()
-                        .requestMatchers("/users/create").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/*").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // UserDetailsService

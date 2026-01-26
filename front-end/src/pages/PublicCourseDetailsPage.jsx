@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import s from "../css/PublicCourseDetails.module.scss";
+import authFetch from "../function/authFetch";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 
 export default function PublicCourseDetailsPage() {
@@ -28,8 +29,10 @@ export default function PublicCourseDetailsPage() {
   const [totalLessons, setTotalLessons] = useState(0);
   const lessonRefs = useRef({});
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
 
   useEffect(() => {
+    checkInWishlist();
     checkLoginStatus();
     fetchCourse();
     fetchChapters();
@@ -64,12 +67,33 @@ export default function PublicCourseDetailsPage() {
   }
 
   function checkLoginStatus() {
-    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+    const token =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
     setIsSignedIn(!!token);
   }
 
+  async function checkInWishlist() {
+    const itemId = id;
+    const type = "course";
+
+    const res = await authFetch(
+      `http://localhost:8080/wishlist/find?itemId=${itemId}&type=${type}`,
+      {
+        method: "GET"
+      }
+    );
+
+    if (!res.ok) {
+      setInWishlist(false);
+      return;
+    }
+
+    setInWishlist(true);
+  }
+
   function handleLogin() {
-    navigate("/login", { state: {from: location}, replace: true });
+    navigate("/login", { state: { from: location }, replace: true });
   }
 
   const toggleChapter = (chapterId) => {
@@ -91,6 +115,31 @@ export default function PublicCourseDetailsPage() {
     const discount =
       ((course.listedPrice - course.salePrice) / course.listedPrice) * 100;
     return Math.round(discount);
+  };
+
+  const handleAddToWishlist = async () => {
+    const type = "course";
+    const itemId = course.id;
+    const itemName = course.name;
+    const listedPrice = course.listedPrice;
+    const salePrice = course.salePrice;
+
+    const res = await authFetch("http://localhost:8080/wishlist/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: type,
+        itemId: itemId,
+        itemName: itemName,
+        listedPrice: listedPrice,
+        salePrice: salePrice,
+      }),
+    });
+
+    const data = await res.json();
+    alert(data.message);
   };
 
   return (
@@ -273,7 +322,9 @@ export default function PublicCourseDetailsPage() {
                     )}
                   </div>
                   {course.salePrice && (
-                    <div className={s.priceDiscount}>{calculateDiscount()}% OFF</div>
+                    <div className={s.priceDiscount}>
+                      {calculateDiscount()}% OFF
+                    </div>
                   )}
                 </div>
 
@@ -284,18 +335,26 @@ export default function PublicCourseDetailsPage() {
                       Buy Course Now
                     </button>
 
-                    <button
-                      className={s.wishlistBtn}
-                    >
-                      <i className="bi bi-heart"></i>
-                      Add to Wishlist
-                    </button>
+                    {inWishlist ? (
+                      <button
+                        className={s.wishlistBtn}
+                        onClick={() => navigate("/wishlist")}
+                      >
+                        <i className="bi bi-check-square-fill"></i>
+                        View Wishlist
+                      </button>
+                    ) : (
+                      <button
+                        className={s.wishlistBtn}
+                        onClick={handleAddToWishlist}
+                      >
+                        <i className="bi bi-heart"></i>
+                        Add to Wishlist
+                      </button>
+                    )}
                   </>
                 ) : (
-                  <button
-                    className={s.loginToEnrollBtn}
-                    onClick={handleLogin}
-                  >
+                  <button className={s.loginToEnrollBtn} onClick={handleLogin}>
                     <i className="bi bi-box-arrow-in-right"></i>
                     Login to Enroll in This Course
                   </button>
