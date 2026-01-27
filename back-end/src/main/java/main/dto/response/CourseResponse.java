@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class CourseResponse {
-    private String id;
+    private Integer id;
     private String name;
     private BigDecimal listedPrice;
     private List<SettingResponse> categories;

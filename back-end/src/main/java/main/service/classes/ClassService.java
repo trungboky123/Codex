@@ -1,5 +1,6 @@
 package main.service.classes;
 
+import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import main.dto.response.ClassResponse;
 import main.entity.Class;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class ClassService implements IClassService {
     private final ClassRepository classRepository;
     private final ModelMapper modelMapper;
+    private final Slugify slugify;
 
     @Override
     public Page<ClassResponse> getAllClasses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
@@ -29,6 +31,18 @@ public class ClassService implements IClassService {
             classes = classRepository.findByFilter(categoryId, keyword, pageable);
         }
 
-        return classes.map(c -> modelMapper.map(c, ClassResponse.class));
+        return classes.map(c -> {
+            ClassResponse response = modelMapper.map(c, ClassResponse.class);
+            response.setSlug(slugify.slugify(response.getName()));
+            return response;
+        });
+    }
+
+    @Override
+    public ClassResponse getClassById(Integer id) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found!"));
+        ClassResponse response = modelMapper.map(clazz, ClassResponse.class);
+        response.setSlug(response.getName());
+        return response;
     }
 }

@@ -30,9 +30,6 @@ public class Class {
     @Column(name = "number_of_students", nullable = false)
     private int numberOfStudents;
 
-    @Column(name = "total_hours")
-    private int totalHours;
-
     @ManyToOne
     @JoinColumn(name = "instructor_id")
     private User instructor;

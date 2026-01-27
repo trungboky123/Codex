@@ -145,7 +145,8 @@ function PublicClassesPage() {
   };
 
   const handleViewDetails = (classId) => {
-    navigate(`/public-class-details?id=${classId}`);
+    const clazz = classes.find((c) => c.id === classId)
+    navigate(`/public-class-details/${clazz.slug}/${classId}`);
   };
 
   const formatPrice = (price) => {
@@ -353,7 +354,7 @@ function PublicClassesPage() {
                     <div className={s.card__schedule}>
                       <i className="bi bi-calendar-event"></i>
                       <span>
-                        Starts at {" "}
+                        Starts in {" "}
                         {new Date(c.startDate).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",

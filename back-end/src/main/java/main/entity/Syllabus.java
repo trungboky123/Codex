@@ -3,6 +3,7 @@ package main.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "syllabus")
@@ -37,4 +38,13 @@ public class Syllabus {
 
     @Column(name = "objectives")
     private String objectives;
+
+    @ElementCollection(targetClass = DaysOfWeek.class)
+    @CollectionTable(
+            name = "syllabus_days",
+            joinColumns = @JoinColumn(name = "syllabus_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "day_of_week")
+    private List<DaysOfWeek> daysOfWeek;
 }

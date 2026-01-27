@@ -1,0 +1,625 @@
+.course {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 40px 20px;
+  margin-top: 70px;
+
+  &Header {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+  }
+
+  &Breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+
+    i {
+      font-size: 0.7rem;
+    }
+
+    &Current {
+      color: #667eea;
+      font-weight: 500;
+    }
+  }
+
+  &Title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  &Categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    &Badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      color: #667eea;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid #667eea30;
+    }
+  }
+
+  &Description {
+    color: #475569;
+    line-height: 1.8;
+    font-size: 1rem;
+
+    p {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Section Card
+.section {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+
+  &Title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+      color: #667eea;
+      font-size: 1.3rem;
+    }
+  }
+}
+
+// Description
+.thumbnail {
+  position: relative;
+  width: 100%;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+
+  &:hover &Overlay {
+    opacity: 1;
+  }
+
+  &Img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  &Overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+
+    i {
+      font-size: 4rem;
+      color: white;
+    }
+
+    span {
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Instructor
+.instructor {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+
+  &Avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  &Info {
+    flex: 1;
+  }
+
+  &Name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+
+  &Title {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+
+  &Email {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #475569;
+    font-size: 0.95rem;
+
+    i {
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    span {
+      color: #667eea;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+  }
+}
+
+// Schedule Section
+.contentStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.scheduleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scheduleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.scheduleDay {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  &Icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.5rem;
+      color: white;
+    }
+  }
+
+  &Info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &Name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  &Label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+.scheduleTime {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  &Block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+
+    i {
+      font-size: 1.2rem;
+      color: #667eea;
+    }
+  }
+
+  &Info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &Label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  &Value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &Divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.2rem;
+      color: #94a3b8;
+    }
+  }
+}
+
+.scheduleEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+
+  i {
+    font-size: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+// Sidebar
+.sidebar {
+  position: sticky;
+  top: 20px;
+}
+
+.price {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+  &Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  &Card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &Sale {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+  }
+
+  &Listed {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    text-decoration: line-through;
+  }
+
+  &Discount {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+}
+
+.enrollBtn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  i {
+    font-size: 1.3rem;
+  }
+}
+
+.wishlistBtn {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover {
+    background: #667eea;
+    color: white;
+  }
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+.loginToEnrollBtn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  i {
+    font-size: 1.3rem;
+  }
+}
+
+.feature {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+
+  &Item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    color: #475569;
+    font-size: 0.95rem;
+
+    i {
+      color: #667eea;
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// Share Card
+.share {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 16px;
+  }
+
+  &Wrapper {
+    display: flex;
+    gap: 12px;
+  }
+
+  &Btn {
+    flex: 1;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    i {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .sidebar {
+    position: static;
+  }
+
+  .scheduleItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .scheduleTime {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .courseTitle {
+    font-size: 1.8rem;
+  }
+
+  .instructor {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .instructorAvatar {
+    margin: 0 auto;
+  }
+
+  .priceSale {
+    font-size: 2rem;
+  }
+
+  .scheduleItem {
+    padding: 20px;
+  }
+
+  .scheduleDay {
+    width: 100%;
+
+    &Icon {
+      width: 48px;
+      height: 48px;
+
+      i {
+        font-size: 1.3rem;
+      }
+    }
+
+    &Name {
+      font-size: 1.1rem;
+    }
+  }
+
+  .scheduleTime {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+
+    &Block {
+      width: 100%;
+    }
+
+    &Divider {
+      transform: rotate(90deg);
+    }
+  }
+
+  .shareWrapper {
+    flex-wrap: wrap;
+  }
+
+  .shareBtn {
+    flex: 0 0 calc(25% - 9px);
+  }
+}

@@ -26,4 +26,10 @@ public class ClassController {
         Page<ClassResponse> classes = classService.getAllClasses(pageable, categoryId, sortByPrice, keyword);
         return ResponseEntity.ok(classes);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getClassById(@PathVariable Integer id) {
+        ClassResponse clazz = classService.getClassById(id);
+        return ResponseEntity.ok(clazz);
+    }
 }

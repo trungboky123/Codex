@@ -6,4 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface IClassService {
     Page<ClassResponse> getAllClasses(Pageable pageable, Long categoryId, String sortByPrice, String keyword);
+    ClassResponse getClassById(Integer id);
 }

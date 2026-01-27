@@ -43,9 +43,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/verify-code").permitAll()
                         .requestMatchers("/settings/categories").permitAll()
                         .requestMatchers("/courses/**").permitAll()
+                        .requestMatchers("/classes/**").permitAll()
                         .requestMatchers("/chapters/**").permitAll()
                         .requestMatchers("/lessons/**").permitAll()
-                        .requestMatchers("/classes/public").permitAll()
                         .anyRequest().authenticated()
                 )
                 // UserDetailsService
