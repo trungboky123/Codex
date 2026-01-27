@@ -401,8 +401,6 @@ function PublicClassesPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }

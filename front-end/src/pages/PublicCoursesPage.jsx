@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import s from "../css/PublicCourses.module.scss";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 function PublicCoursesPage() {
   const navigate = useNavigate();
@@ -385,8 +384,6 @@ function PublicCoursesPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }

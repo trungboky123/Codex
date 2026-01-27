@@ -16,6 +16,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import PublicCoursesPage from './pages/PublicCoursesPage';
 import PublicClassesPage from './pages/PublicClassesPage';
 import PublicCourseDetailsPage from './pages/PublicCourseDetailsPage';
+import WishlistPage from './pages/WishlistPage';
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
   {
     path: "/public-classes",
     element: <PublicClassesPage/>
+  },
+  {
+    path: "wishlist",
+    element: <WishlistPage/>
   },
   {
     path: "/draft",

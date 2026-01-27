@@ -24,11 +24,17 @@ function HomePage() {
     const course = courses.find((c) => c.id === courseId);
     navigate(`/public-course-details/${course.slug}/${course.id}`);
   };
+
+  const handleBannerClick =  (courseId) => {
+    const course = banners.find((c) => c.courseId === courseId);
+    navigate(`/public-course-details/${course.slug}/${courseId}`);
+  }
   
   const banners = [
     {
       id: 1,
       courseName: "Java Advanced",
+      slug: "java-advanced",
       courseId: 35,
       bgImage:
         "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=500&fit=crop",
@@ -38,6 +44,7 @@ function HomePage() {
     {
       id: 2,
       courseName: "Python Programming",
+      slug: "python-programming",
       courseId: 1,
       bgImage:
         "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=500&fit=crop",
@@ -90,7 +97,7 @@ function HomePage() {
                     <h2>{banner.courseName}</h2>
                     <button
                       className="btn btn-more"
-                      onClick={() => handleCourseClick(banner.courseId)}
+                      onClick={() => handleBannerClick(banner.courseId)}
                     >
                       More
                     </button>

@@ -54,6 +54,8 @@ public class CourseService implements ICourseService {
     @Override
     public CourseResponse getCourseById(Integer id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
-        return modelMapper.map(course, CourseResponse.class);
+        CourseResponse response = modelMapper.map(course, CourseResponse.class);
+        response.setSlug(slugify.slugify(response.getName()));
+        return response;
     }
 }

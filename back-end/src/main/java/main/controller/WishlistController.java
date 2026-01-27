@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,7 +37,6 @@ public class WishlistController {
 
     @GetMapping("/find")
     public ResponseEntity<?> findItem(Authentication authentication, @RequestParam Integer itemId, @RequestParam String type) {
-        System.out.println(authentication);
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -45,5 +45,29 @@ public class WishlistController {
         Integer userId = userDetails.getId();
         WishlistResponse response = wishlistService.findItem(userId, itemId, type);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<?> findAll(Authentication authentication, @RequestParam(required = false) String keyword, @RequestParam(required = false) String sortBy) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = userDetails.getId();
+        List<WishlistResponse> items = wishlistService.findByUserId(userId, keyword, sortBy);
+        return ResponseEntity.ok(items);
+    }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<?> removeItem(Authentication authentication, @RequestParam Integer itemId, String type) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userId = userDetails.getId();
+        wishlistService.deleteItem(userId, itemId, type);
+        return ResponseEntity.ok().build();
     }
 }

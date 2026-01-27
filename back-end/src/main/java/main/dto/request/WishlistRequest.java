@@ -11,4 +11,5 @@ public class WishlistRequest {
     private String itemName;
     private BigDecimal listedPrice;
     private BigDecimal salePrice;
+    private String thumbnailUrl;
 }

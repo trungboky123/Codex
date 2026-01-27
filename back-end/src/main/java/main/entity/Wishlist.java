@@ -34,6 +34,9 @@ public class Wishlist {
     @Column(name = "sale_price")
     private BigDecimal salePrice;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "added_at", updatable = false)
     private LocalDateTime addedAt;
 }

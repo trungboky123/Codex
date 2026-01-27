@@ -59,4 +59,7 @@ public class Class {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Setting> categories;
+
+    @OneToOne(mappedBy = "clazz")
+    private Syllabus syllabus;
 }
