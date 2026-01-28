@@ -18,11 +18,33 @@ import PublicClassesPage from './pages/PublicClassesPage';
 import PublicCourseDetailsPage from './pages/PublicCourseDetailsPage';
 import PublicClassDetailsPage from './pages/PublicClassDetailsPage';
 import WishlistPage from './pages/WishlistPage';
+import AdminRoute from './routes/AdminRoute';
+import DashboardPage from './admin pages/DashboardPage';
+import ErrorPage from './error page/ErrorPage';
+import StartUpRoot from './routes/StartUpRoute';
 
 const router = createBrowserRouter([
   {
+    path: "/error",
+    element: <ErrorPage/>
+  },
+  {
+    path: "/admin",
+    element: <AdminRoute/>,
+    children: [
+      {
+        path: "",
+        element: <Navigate to={"dashboard"} replace/>
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage/>
+      }
+    ]
+  },
+  {
     path: "/", 
-    element: <Navigate to="/home" replace />
+    element: <StartUpRoot />
   },
   {
     path: "/home",

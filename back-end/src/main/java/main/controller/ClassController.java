@@ -9,6 +9,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -31,5 +33,13 @@ public class ClassController {
     public ResponseEntity<?> getClassById(@PathVariable Integer id) {
         ClassResponse clazz = classService.getClassById(id);
         return ResponseEntity.ok(clazz);
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<?> getTotalCourses() {
+        Long count = classService.getTotalClasses();
+        return ResponseEntity.ok(Map.of(
+                "totalClasses", count
+        ));
     }
 }

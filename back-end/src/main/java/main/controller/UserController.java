@@ -54,4 +54,12 @@ public class UserController {
                 "message", "Updated Successfully!"
         ));
     }
+
+    @GetMapping("/total")
+    public ResponseEntity<?> getTotalUsers() {
+        Long count = userService.getTotalUsers();
+        return ResponseEntity.ok(Map.of(
+                "totalUsers", count
+        ));
+    }
 }

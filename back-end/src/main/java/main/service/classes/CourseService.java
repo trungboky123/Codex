@@ -58,4 +58,9 @@ public class CourseService implements ICourseService {
         response.setSlug(slugify.slugify(response.getName()));
         return response;
     }
+
+    @Override
+    public Long getTotalCourses() {
+        return courseRepository.count();
+    }
 }

@@ -10,4 +10,5 @@ public interface ICourseService {
     List<CourseResponse> getHighlightedCourses();
     Page<CourseResponse> getAllCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword);
     CourseResponse getCourseById(Integer id);
+    Long getTotalCourses();
 }

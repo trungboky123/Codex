@@ -89,7 +89,6 @@ export default function WishlistPage() {
 
   function handleTabChange(tab) {
     setActiveTab(tab);
-    setSortBy("date-desc");
   }
 
   async function handleRemove(itemId, type) {

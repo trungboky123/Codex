@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import s from "../css/Login.module.scss";
+import { jwtDecode } from "jwt-decode";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -49,8 +50,18 @@ function LoginPage() {
       } else {
         sessionStorage.setItem("accessToken", data.accessToken);
       }
+
+      const role = jwtDecode(data.accessToken).roles;
       setTimeout(() => {
-        navigate(from, {replace: true});
+        if (role.includes("ROLE_ADMIN")) {
+          navigate("/admin/dashboard", {replace: true});
+        }
+        else if (role.includes("ROLE_INSTRUCTOR")) {
+          navigate("/instructor/course-list", {replace: true});
+        }
+        else {
+          navigate(from, {replace: true});
+        }
       }, 2000);
     }
   }

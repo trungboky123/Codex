@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,5 +40,13 @@ public class CourseController {
     public ResponseEntity<?> getCourseById(@PathVariable Integer id) {
         CourseResponse course = courseService.getCourseById(id);
         return ResponseEntity.ok(course);
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<?> getTotalCourses() {
+        Long count = courseService.getTotalCourses();
+        return ResponseEntity.ok(Map.of(
+                "totalCourses", count
+        ));
     }
 }

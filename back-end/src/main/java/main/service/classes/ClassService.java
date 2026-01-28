@@ -45,4 +45,9 @@ public class ClassService implements IClassService {
         response.setSlug(response.getName());
         return response;
     }
+
+    @Override
+    public Long getTotalClasses() {
+        return classRepository.count();
+    }
 }

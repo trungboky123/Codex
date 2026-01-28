@@ -46,6 +46,12 @@ public class SecurityConfig {
                         .requestMatchers("/classes/**").permitAll()
                         .requestMatchers("/chapters/**").permitAll()
                         .requestMatchers("/lessons/**").permitAll()
+                        .requestMatchers("/users/total").hasRole("ADMIN")
+                        .requestMatchers("/courses/total").hasRole("ADMIN")
+                        .requestMatchers("/classes/total").hasRole("ADMIN")
+                        .requestMatchers("/enrollments/total-revenue").hasRole("ADMIN")
+                        .requestMatchers("/enrollments/top-courses").hasRole("ADMIN")
+                        .requestMatchers("/enrollments/top-classes").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // UserDetailsService

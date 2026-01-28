@@ -9,4 +9,5 @@ public interface IUserService {
     User getUserByUsername(String username);
     void register(RegisterRequest request);
     void updateMe(Integer userId, UpdateUserRequest request, MultipartFile avatar);
+    Long getTotalUsers();
 }

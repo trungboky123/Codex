@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import s from "./css/AdminSideBar.module.scss";
+import s from "../css/AdminSideBar.module.scss";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onCollapseChange }) {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -13,27 +13,27 @@ export default function AdminSidebar() {
       label: "Dashboard",
     },
     {
-      path: "/admin/accounts",
+      path: "/admin/account-list",
       icon: "bi-people-fill",
       label: "Accounts",
     },
     {
-      path: "/admin/courses",
+      path: "/admin/course-list",
       icon: "bi-book-fill",
       label: "Courses",
     },
     {
-      path: "/admin/classes",
+      path: "/admin/class-list",
       icon: "bi-laptop",
       label: "Classes",
     },
     {
-      path: "/admin/settings",
+      path: "/admin/setting-list",
       icon: "bi-gear-fill",
       label: "Settings",
     },
     {
-      path: "/admin/posters",
+      path: "/admin/poster-list",
       icon: "bi-file-earmark-text-fill",
       label: "Posters",
     },
@@ -44,15 +44,28 @@ export default function AdminSidebar() {
   };
 
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+
+    // Notify parent component about collapse state change
+    if (onCollapseChange) {
+      onCollapseChange(newState);
+    }
   };
+
+  // Notify parent on mount
+  useEffect(() => {
+    if (onCollapseChange) {
+      onCollapseChange(isCollapsed);
+    }
+  }, []);
 
   return (
     <aside className={`${s.sidebar} ${isCollapsed ? s.collapsed : ""}`}>
       {/* Header */}
       <div className={s.header}>
         <div className={s.logo}>
-          {!isCollapsed && <span className={s.logoText}>Programmize</span>}
+          {!isCollapsed && <span className={s.logoText}>Code X</span>}
         </div>
         <button onClick={toggleSidebar} className={s.toggleBtn}>
           <i className="bi bi-list"></i>
