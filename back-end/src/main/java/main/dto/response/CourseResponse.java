@@ -17,4 +17,5 @@ public class CourseResponse {
     private int duration;
     private String description;
     private String slug;
+    private boolean status;
 }

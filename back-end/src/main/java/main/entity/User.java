@@ -35,9 +35,6 @@ public class User {
     @Column(name = "status")
     private boolean status;
 
-    @Column(name = "remember_token")
-    private String rememberToken;
-
     @OneToMany(mappedBy = "instructor")
     private List<Course> courses;
 

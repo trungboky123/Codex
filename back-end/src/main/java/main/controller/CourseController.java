@@ -26,13 +26,13 @@ public class CourseController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<?> getAllCourses(
+    public ResponseEntity<?> getPublicCourses(
             @PageableDefault(size = 12) Pageable pageable,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String sortByPrice,
             @RequestParam(required = false) String keyword
     ) {
-        Page<CourseResponse> courses = courseService.getAllCourses(pageable, categoryId, sortByPrice, keyword);
+        Page<CourseResponse> courses = courseService.getPublicCourses(pageable, categoryId, sortByPrice, keyword);
         return ResponseEntity.ok(courses);
     }
 
@@ -48,5 +48,16 @@ public class CourseController {
         return ResponseEntity.ok(Map.of(
                 "totalCourses", count
         ));
+    }
+
+    @GetMapping("/admin/getAll")
+    public ResponseEntity<?> getAllCourses(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer instructorId,
+            @RequestParam(required = false) Boolean status
+    ) {
+        List<CourseResponse> courses = courseService.getAllCourses(keyword, categoryId, instructorId, status);
+        return ResponseEntity.ok(courses);
     }
 }

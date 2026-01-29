@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CloudinaryService;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
+import main.dto.response.UserResponse;
 import main.entity.Setting;
 import main.entity.User;
 import main.repository.SettingRepository;
@@ -16,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -106,5 +109,24 @@ public class UserService implements IUserService {
     @Override
     public Long getTotalUsers() {
         return userRepository.count();
+    }
+
+    @Override
+    public List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status) {
+        List<User> users = userRepository.findByFiltered(keyword, roleId, status);
+        return users.stream().map(user -> modelMapper.map(user, UserResponse.class)).toList();
+    }
+
+    @Transactional
+    @Override
+    public void updateStatus(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        user.setStatus(!user.isStatus());
+    }
+
+    @Override
+    public List<UserResponse> getAllInstructors() {
+        List<User> instructors = userRepository.findByRole_Name("Instructor");
+        return instructors.stream().map(instructor -> modelMapper.map(instructor, UserResponse.class)).toList();
     }
 }

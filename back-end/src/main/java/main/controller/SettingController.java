@@ -22,4 +22,10 @@ public class SettingController {
         List<SettingResponse> categories = settingService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
+
+    @GetMapping("/roles")
+    public ResponseEntity<?> getAllRoles() {
+        List<SettingResponse> roles = settingService.getAllRoles();
+        return ResponseEntity.ok(roles);
+    }
 }

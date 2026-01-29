@@ -20,8 +20,10 @@ import PublicClassDetailsPage from './pages/PublicClassDetailsPage';
 import WishlistPage from './pages/WishlistPage';
 import AdminRoute from './routes/AdminRoute';
 import DashboardPage from './admin pages/DashboardPage';
+import AccountListPage from './admin pages/AccountListPage';
 import ErrorPage from './error page/ErrorPage';
 import StartUpRoot from './routes/StartUpRoute';
+import CourseListPage from './admin pages/CourseListPage';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,14 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: <DashboardPage/>
+      },
+      {
+        path: "account-list",
+        element: <AccountListPage/>
+      },
+      {
+        path: "course-list",
+        element: <CourseListPage/>
       }
     ]
   },

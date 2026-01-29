@@ -284,7 +284,7 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className={s.header}>
             <div>
-              <h1 className={s.title}>Admin Dashboard</h1>
+              <h1 className={s.title}>Dashboard</h1>
               <p className={s.subtitle}>
                 Welcome back! Here's what's happening today.
               </p>

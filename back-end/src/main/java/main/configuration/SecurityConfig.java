@@ -42,6 +42,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/send-code").permitAll()
                         .requestMatchers("/auth/verify-code").permitAll()
                         .requestMatchers("/settings/categories").permitAll()
+                        .requestMatchers("/settings/roles").hasRole("ADMIN")
+                        .requestMatchers("/courses/admin/getAll").hasRole("ADMIN")
                         .requestMatchers("/courses/**").permitAll()
                         .requestMatchers("/classes/**").permitAll()
                         .requestMatchers("/chapters/**").permitAll()
@@ -52,6 +54,9 @@ public class SecurityConfig {
                         .requestMatchers("/enrollments/total-revenue").hasRole("ADMIN")
                         .requestMatchers("/enrollments/top-courses").hasRole("ADMIN")
                         .requestMatchers("/enrollments/top-classes").hasRole("ADMIN")
+                        .requestMatchers("/users/findAll").hasRole("ADMIN")
+                        .requestMatchers("/users/status/*").hasRole("ADMIN")
+                        .requestMatchers("/users/instructors/getAll").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // UserDetailsService

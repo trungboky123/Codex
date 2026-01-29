@@ -32,7 +32,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public Page<CourseResponse> getAllCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
+    public Page<CourseResponse> getPublicCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
         Page<Course> courses;
         if ("asc".equalsIgnoreCase(sortByPrice)) {
             courses = courseRepository.findByCategorySortByPriceAsc(categoryId, keyword, pageable);
@@ -62,5 +62,11 @@ public class CourseService implements ICourseService {
     @Override
     public Long getTotalCourses() {
         return courseRepository.count();
+    }
+
+    @Override
+    public List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status) {
+        List<Course> courses = courseRepository.findAllCourses(keyword, categoryId, instructorId, status);
+        return courses.stream().map(course -> modelMapper.map(course, CourseResponse.class)).toList();
     }
 }

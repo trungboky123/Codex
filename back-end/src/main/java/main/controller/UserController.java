@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -61,5 +62,27 @@ public class UserController {
         return ResponseEntity.ok(Map.of(
                 "totalUsers", count
         ));
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer roleId,
+            @RequestParam(required = false) Boolean status
+    ) {
+        List<UserResponse> users = userService.getAllUsers(keyword, roleId, status);
+        return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Integer id) {
+        userService.updateStatus(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/instructors/getAll")
+    public ResponseEntity<?> getAllInstructors() {
+        List<UserResponse> instructors = userService.getAllInstructors();
+        return ResponseEntity.ok(instructors);
     }
 }

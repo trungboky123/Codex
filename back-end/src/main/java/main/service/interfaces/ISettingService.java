@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface ISettingService {
     List<SettingResponse> getAllCategories();
+    List<SettingResponse> getAllRoles();
 }

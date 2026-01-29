@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface ICourseService {
     List<CourseResponse> getHighlightedCourses();
-    Page<CourseResponse> getAllCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword);
+    Page<CourseResponse> getPublicCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword);
     CourseResponse getCourseById(Integer id);
     Long getTotalCourses();
+    List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status);
 }

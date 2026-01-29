@@ -20,4 +20,10 @@ public class SettingService implements ISettingService {
         List<Setting> categories = settingRepository.findAllByParent_Name("Category");
         return categories.stream().map(category -> modelMapper.map(category, SettingResponse.class)).toList();
     }
+
+    @Override
+    public List<SettingResponse> getAllRoles() {
+        List<Setting> roles = settingRepository.findAllByParent_Name("Role");
+        return roles.stream().map(role -> modelMapper.map(role, SettingResponse.class)).toList();
+    }
 }
