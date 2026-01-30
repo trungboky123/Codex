@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/settings/categories").permitAll()
                         .requestMatchers("/settings/roles").hasRole("ADMIN")
                         .requestMatchers("/courses/admin/getAll").hasRole("ADMIN")
+                        .requestMatchers("/courses/status/*").hasRole("ADMIN")
                         .requestMatchers("/courses/**").permitAll()
                         .requestMatchers("/classes/**").permitAll()
                         .requestMatchers("/chapters/**").permitAll()

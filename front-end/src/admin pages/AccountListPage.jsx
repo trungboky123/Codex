@@ -10,6 +10,8 @@ export default function AdminAccounts() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sortBy, setSortBy] = useState("id");
+  const [sortDir, setSortDir] = useState("asc");
 
   // Filters
   const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
@@ -28,7 +30,7 @@ export default function AdminAccounts() {
 
   useEffect(() => {
     getAllUsers();
-  }, [searchTerm, selectedRole, selectedStatus]);
+  }, [searchTerm, selectedRole, selectedStatus, sortBy, sortDir]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -49,9 +51,11 @@ export default function AdminAccounts() {
     if (selectedRoleName) params.set("role", selectedRoleName);
     if (searchTerm) params.set("keyword", searchTerm);
     if (selectedStatusName) params.set("status", selectedStatusName);
+    if (sortBy) params.set("sortBy", sortBy);
+    if (sortDir) params.set("sortDir", sortDir);
 
     setSearchParams(params, {replace: true});
-  }, [searchTerm, selectedRole, selectedStatus])
+  }, [searchTerm, selectedRole, selectedStatus, sortBy, sortDir])
 
   async function getAllUsers() {
     const params = new URLSearchParams();
@@ -64,6 +68,8 @@ export default function AdminAccounts() {
     if (selectedStatus !== "all") {
       params.set("status", selectedStatus);
     }
+    if (sortBy) params.set("sortBy", sortBy);
+    if (sortDir) params.set("sortDir", sortDir);
     const res = await authFetch(`http://localhost:8080/users/findAll?${params.toString()}`, {
       method: "GET"
     });
@@ -104,6 +110,16 @@ export default function AdminAccounts() {
   const handleSidebarCollapse = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc")
+    }
+    else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+  }
 
   const handleAddAccount = () => {
     console.log("Add new account");
@@ -273,11 +289,11 @@ export default function AdminAccounts() {
             <table className={s.table}>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th onClick={() => handleSort("id")} style={{cursor: "pointer"}}>ID</th>
                   <th>Avatar</th>
-                  <th>Full Name</th>
-                  <th>Username</th>
-                  <th>Email</th>
+                  <th onClick={() => handleSort("fullName")} style={{cursor: "pointer"}}>Full Name</th>
+                  <th onClick={() => handleSort("username")} style={{cursor: "pointer"}}>Username</th>
+                  <th onClick={() => handleSort("email")} style={{cursor: "pointer"}}>Email</th>
                   <th>Role</th>
                   <th>Status</th>
                   <th>Actions</th>

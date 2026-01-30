@@ -19,13 +19,13 @@ public class ClassController {
     private final IClassService classService;
 
     @GetMapping("/public")
-    public ResponseEntity<?> getAllClasses(
+    public ResponseEntity<?> getPublicClasses(
             @PageableDefault(size = 12) Pageable pageable,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String sortByPrice,
             @RequestParam(required = false) String keyword
     ) {
-        Page<ClassResponse> classes = classService.getAllClasses(pageable, categoryId, sortByPrice, keyword);
+        Page<ClassResponse> classes = classService.getPublicClasses(pageable, categoryId, sortByPrice, keyword);
         return ResponseEntity.ok(classes);
     }
 

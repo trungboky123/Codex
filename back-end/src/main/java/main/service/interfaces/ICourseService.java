@@ -11,5 +11,6 @@ public interface ICourseService {
     Page<CourseResponse> getPublicCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword);
     CourseResponse getCourseById(Integer id);
     Long getTotalCourses();
-    List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status);
+    List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir);
+    void updateStatus(Integer id);
 }

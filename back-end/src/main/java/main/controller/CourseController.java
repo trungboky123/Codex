@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -55,9 +54,17 @@ public class CourseController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) Integer instructorId,
-            @RequestParam(required = false) Boolean status
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        List<CourseResponse> courses = courseService.getAllCourses(keyword, categoryId, instructorId, status);
+        List<CourseResponse> courses = courseService.getAllCourses(keyword, categoryId, instructorId, status, sortBy, sortDir);
         return ResponseEntity.ok(courses);
+    }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Integer id) {
+        courseService.updateStatus(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -13,7 +13,7 @@ public interface IUserService {
     void register(RegisterRequest request);
     void updateMe(Integer userId, UpdateUserRequest request, MultipartFile avatar);
     Long getTotalUsers();
-    List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status);
+    List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status, String sortBy, String sortDir);
     void updateStatus(Integer id);
     List<UserResponse> getAllInstructors();
 }

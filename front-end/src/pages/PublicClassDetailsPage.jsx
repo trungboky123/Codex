@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
 import s from "../css/PublicClassDetails.module.scss";
 import authFetch from "../function/authFetch";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import Header from "../components/Header";
 
 export default function PublicClassDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id, slug } = useParams();
+  const [notFound, setNotFound] = useState(false);
   const [classData, setClassData] = useState({
     id: "",
     name: "",
@@ -22,12 +29,13 @@ export default function PublicClassDetailsPage() {
       avatarUrl: "",
       email: "",
     },
+    slug: "",
     description: "",
     syllabus: {
       startTime: "",
       endTime: "",
       totalHours: "",
-      daysOfWeek: []
+      daysOfWeek: [],
     },
   });
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -37,22 +45,23 @@ export default function PublicClassDetailsPage() {
     checkInWishlist();
     checkLoginStatus();
     fetchClass();
-  }, [inWishlist]);
+  }, [inWishlist, id, slug]);
 
   async function fetchClass() {
     const res = await fetch(`http://localhost:8080/classes/${id}`, {
       method: "GET",
     });
     const data = await res.json();
-
     if (data.slug !== slug) {
-      navigate(`/public-class-details/${data.slug}/${data.id}`, {
-        replace: true,
-      });
+      setNotFound(true);
       return;
     }
 
     setClassData(data);
+  }
+
+  if (notFound) {
+    return <Navigate to={"/404"} replace/>
   }
 
   function checkLoginStatus() {
@@ -363,23 +372,29 @@ export default function PublicClassDetailsPage() {
                     <div className={s.featureItem}>
                       <i className="bi bi-calendar-check-fill"></i>
                       <span>
-                        Start in: {" "}
-                        {new Date(classData.startDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        Start in:{" "}
+                        {new Date(classData.startDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
                     <div className={s.featureItem}>
                       <i className="bi bi-calendar-check-fill"></i>
                       <span>
-                        End in: {" "}
-                        {new Date(classData.endDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        End in:{" "}
+                        {new Date(classData.endDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
                     <div className={s.featureItem}>

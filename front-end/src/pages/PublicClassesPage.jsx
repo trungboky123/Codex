@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import s from "../css/PublicClasses.module.scss";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 function PublicClassesPage() {
   const navigate = useNavigate();

@@ -24,6 +24,7 @@ import AccountListPage from './admin pages/AccountListPage';
 import ErrorPage from './error page/ErrorPage';
 import StartUpRoot from './routes/StartUpRoute';
 import CourseListPage from './admin pages/CourseListPage';
+import ClassListPage from './admin pages/ClassListPage';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "course-list",
         element: <CourseListPage/>
+      },
+      {
+        path: "class-list",
+        element: <ClassListPage/>
       }
     ]
   },

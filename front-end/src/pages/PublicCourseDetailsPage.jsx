@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import s from "../css/PublicCourseDetails.module.scss";
 import authFetch from "../function/authFetch";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation, Navigate } from "react-router-dom";
 import Header from "../components/Header";
 
 export default function PublicCourseDetailsPage() {
@@ -9,6 +9,7 @@ export default function PublicCourseDetailsPage() {
   const location = useLocation();
   const [expandedChapters, setExpandedChapters] = useState({});
   const { id, slug } = useParams();
+  const [notFound, setNotFound] = useState(false);
   const [course, setCourse] = useState({
     id: "",
     name: "",
@@ -56,13 +57,15 @@ export default function PublicCourseDetailsPage() {
     const data = await res.json();
 
     if (data.slug !== slug) {
-      navigate(`/public-course-details/${data.slug}/${data.id}`, {
-        replace: true,
-      });
+      setNotFound(true);
       return;
     }
 
     setCourse(data);
+  }
+
+  if (notFound) {
+    return <Navigate to={"/404"} replace/>
   }
 
   async function fetchChapters() {

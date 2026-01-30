@@ -9,6 +9,8 @@ export default function CourseListPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [courses, setCourses] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sortBy, setSortBy] = useState("id");
+  const [sortDir, setSortDir] = useState("asc");
 
   // Filters
   const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
@@ -35,12 +37,7 @@ export default function CourseListPage() {
 
   useEffect(() => {
     getAllCourses();
-  }, [
-    searchTerm,
-    selectedCategory,
-    selectedInstructor,
-    selectedStatus,
-  ]);
+  }, [searchTerm, selectedCategory, selectedInstructor, selectedStatus, sortBy, sortDir]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -48,9 +45,11 @@ export default function CourseListPage() {
     if (selectedCategoryName) params.set("category", selectedCategoryName);
     if (selectedInstructorName) params.set("instructor", selectedInstructorName);
     if (selectedStatusName) params.set("status", selectedStatusName);
+    if (sortBy) params.set("sortBy", sortBy);
+    if (sortDir) params.set("sortDir", sortDir);
 
     setSearchParams(params, {replace: true});
-  }, [searchTerm, selectedCategory, selectedInstructor, selectedStatus]);
+  }, [searchTerm, selectedCategory, selectedInstructor, selectedStatus, sortBy, sortDir]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -84,6 +83,8 @@ export default function CourseListPage() {
     if (selectedStatus !== "all") {
       params.set("status", selectedStatus);
     }
+    if (sortBy) params.set("sortBy", sortBy);
+    if (sortDir) params.set("sortDir", sortDir);
     const res = await authFetch(`http://localhost:8080/courses/admin/getAll?${params.toString()}`, {
       method: "GET"
     });
@@ -126,9 +127,49 @@ export default function CourseListPage() {
     setSelectedInstructor(instructorId);
   }
 
-  const handleToggleStatus = (courseId) => {
-    console.log("Toggle course status:", courseId);
-    // Toggle course active/inactive status
+  const handleCategoryChange = (categoryId) => {
+    if (categoryId !== 0) {
+      setSelectedCategoryName(categories.find((c) => c.id === categoryId).name);
+    }
+    else {
+      setSelectedCategoryName("");
+    }
+
+    setSelectedCategory(categoryId);
+  }
+
+  const handleStatusChange = (selectedStatus) => {
+    if (selectedStatus !== "all") {
+      setSelectedStatusName(selectedStatus === "true" ? "Active" : "Inactive");
+    }
+    else {
+      setSelectedStatusName("");
+    }
+
+    setSelectedStatus(selectedStatus);
+  }
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc")
+    }
+    else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+  }
+
+  const toggleStatus = async(courseId) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return;
+
+    const ok = window.confirm(course.status ? "Deactivate this course?" : "Activate this course?");
+    if (!ok) return;
+    await authFetch(`http://localhost:8080/courses/status/${courseId}`, {
+      method: "PUT"
+    });
+
+    getAllCourses();
   };
 
   const formatCurrency = (amount) => {
@@ -184,10 +225,10 @@ export default function CourseListPage() {
               {/* Category Filter */}
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => handleCategoryChange(Number(e.target.value))}
                 className={s.filterSelect}
               >
-                <option value="all">All Categories</option>
+                <option value={0}>All Categories</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -212,7 +253,7 @@ export default function CourseListPage() {
               {/* Status Filter */}
               <select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
+                onChange={(e) => handleStatusChange(e.target.value)}
                 className={s.filterSelect}
               >
                 <option value="all">All Status</option>
@@ -272,13 +313,13 @@ export default function CourseListPage() {
             <table className={s.table}>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th onClick={() => handleSort("id")} style={{cursor: "pointer"}}>ID</th>
                   <th>Thumbnail</th>
-                  <th>Course Name</th>
+                  <th onClick={() => handleSort("name")} style={{cursor: "pointer"}}>Course Name</th>
                   <th>Categories</th>
                   <th>Instructor</th>
-                  <th>Listed Price</th>
-                  <th>Sale Price</th>
+                  <th onClick={() => handleSort("listedPrice")} style={{cursor: "pointer"}}>Listed Price</th>
+                  <th onClick={() => handleSort("salePrice")} style={{cursor: "pointer"}}>Sale Price</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -333,10 +374,10 @@ export default function CourseListPage() {
                           >
                             <i className="bi bi-pencil-fill"></i>
                           </button>
-                          {course.status === "ACTIVE" ? (
+                          {course.status ? (
                             <button
                               className={`${s.actionBtn} ${s.dangerBtn}`}
-                              onClick={() => handleToggleStatus(course.id)}
+                              onClick={() => toggleStatus(course.id)}
                               title="Deactivate course"
                             >
                               <i className="bi bi-x-circle-fill"></i>
@@ -344,7 +385,7 @@ export default function CourseListPage() {
                           ) : (
                             <button
                               className={`${s.actionBtn} ${s.successBtn}`}
-                              onClick={() => handleToggleStatus(course.id)}
+                              onClick={() => toggleStatus(course.id)}
                               title="Activate course"
                             >
                               <i className="bi bi-check-circle-fill"></i>

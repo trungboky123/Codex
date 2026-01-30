@@ -10,7 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -65,8 +67,16 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status) {
-        List<Course> courses = courseRepository.findAllCourses(keyword, categoryId, instructorId, status);
+    public List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        List<Course> courses = courseRepository.findAllCourses(keyword, categoryId, instructorId, status, sort);
         return courses.stream().map(course -> modelMapper.map(course, CourseResponse.class)).toList();
+    }
+
+    @Transactional
+    @Override
+    public void updateStatus(Integer id) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
+        course.setStatus(!course.isStatus());
     }
 }

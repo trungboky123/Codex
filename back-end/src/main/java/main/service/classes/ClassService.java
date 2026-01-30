@@ -19,7 +19,7 @@ public class ClassService implements IClassService {
     private final Slugify slugify;
 
     @Override
-    public Page<ClassResponse> getAllClasses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
+    public Page<ClassResponse> getPublicClasses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
         Page<Class> classes;
         if ("asc".equalsIgnoreCase(sortByPrice)) {
             classes = classRepository.findByCategorySortByPriceAsc(categoryId, keyword, pageable);
@@ -42,7 +42,7 @@ public class ClassService implements IClassService {
     public ClassResponse getClassById(Integer id) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found!"));
         ClassResponse response = modelMapper.map(clazz, ClassResponse.class);
-        response.setSlug(response.getName());
+        response.setSlug(slugify.slugify(response.getName()));
         return response;
     }
 

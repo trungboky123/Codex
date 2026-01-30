@@ -12,6 +12,7 @@ import main.repository.UserRepository;
 import main.service.interfaces.IUserService;
 import main.utils.PasswordUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -112,8 +113,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status) {
-        List<User> users = userRepository.findByFiltered(keyword, roleId, status);
+    public List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        List<User> users = userRepository.findByFiltered(keyword, roleId, status, sort);
         return users.stream().map(user -> modelMapper.map(user, UserResponse.class)).toList();
     }
 

@@ -68,9 +68,11 @@ public class UserController {
     public ResponseEntity<?> getAllUsers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer roleId,
-            @RequestParam(required = false) Boolean status
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        List<UserResponse> users = userService.getAllUsers(keyword, roleId, status);
+        List<UserResponse> users = userService.getAllUsers(keyword, roleId, status, sortBy, sortDir);
         return ResponseEntity.ok(users);
     }
 
