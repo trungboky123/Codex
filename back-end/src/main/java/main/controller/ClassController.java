@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -41,5 +42,24 @@ public class ClassController {
         return ResponseEntity.ok(Map.of(
                 "totalClasses", count
         ));
+    }
+
+    @GetMapping("/admin/getAll")
+    public ResponseEntity<?> getAllClasses(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer instructorId,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        List<ClassResponse> classes = classService.getAllClasses(keyword, categoryId, instructorId, status, sortBy, sortDir);
+        return ResponseEntity.ok(classes);
+    }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Integer id) {
+        classService.updateStatus(id);
+        return ResponseEntity.ok().build();
     }
 }

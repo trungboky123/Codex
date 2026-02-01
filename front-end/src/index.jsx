@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import "./i18n";
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -25,6 +26,7 @@ import ErrorPage from './error page/ErrorPage';
 import StartUpRoot from './routes/StartUpRoute';
 import CourseListPage from './admin pages/CourseListPage';
 import ClassListPage from './admin pages/ClassListPage';
+import QrPage from './pages/QrPage';
 
 const router = createBrowserRouter([
   {
@@ -96,6 +98,10 @@ const router = createBrowserRouter([
   {
     path: "/public-class-details/:slug/:id",
     element: <PublicClassDetailsPage/>
+  },
+  {
+    path: "/payment",
+    element: <QrPage/>
   },
   {
     path: "wishlist",

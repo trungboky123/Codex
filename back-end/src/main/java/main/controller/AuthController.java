@@ -18,6 +18,8 @@ import main.entity.User;
 import main.service.interfaces.IOtpService;
 import main.service.interfaces.IRefreshTokenService;
 import main.service.interfaces.IUserService;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.WebUtils;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -45,12 +48,14 @@ public class AuthController {
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final RegisterCheckService registerCheckService;
+    private final MessageSource messageSource;
     private final JwtService jwtService;
     private final IRefreshTokenService refreshTokenService;
     private final CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        Locale locale = LocaleContextHolder.getLocale();
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsernameOrEmail(), request.getPassword()));
 
@@ -69,11 +74,11 @@ public class AuthController {
             response.addCookie(cookie);
 
             return ResponseEntity.ok(Map.of(
-                    "message", "Login successfully",
+                    "message", messageSource.getMessage("login.success", null, locale),
                     "accessToken", accessToken
             ));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Incorrect Password");
+            throw new BadCredentialsException(messageSource.getMessage("password.incorrect", null, locale));
         }
     }
 

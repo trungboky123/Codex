@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import s from "../css/PublicCourses.module.scss";
 import Header from "../components/Header";
+import { useTranslation } from "react-i18next";
 
 function PublicCoursesPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   // States
   const [courses, setCourses] = useState([]);
@@ -139,11 +141,31 @@ function PublicCoursesPage() {
     navigate(`/public-course-details/${course.slug}/${courseId}`);
   };
 
+  const currencyMap = {
+    vi: { locale: "vi-VN", currency: "VND" },
+    en: { locale: "en-US", currency: "USD" },
+    fr: { locale: "fr-FR", currency: "EUR" },
+  };
+
+  const exchangeRates = {
+    VND_TO_USD: 0.000038,
+    VND_TO_EUR: 0.000032
+  }
+
   const formatPrice = (price) => {
-    return price?.toLocaleString("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    });
+    const lang = localStorage.getItem("lang");
+    const { locale, currency } = currencyMap[lang] || currencyMap.en;
+
+    let convertedPrice = price;
+
+    if (currency === "USD") {
+      convertedPrice = price * exchangeRates.VND_TO_USD;
+    }
+    else if (currency === "EUR") {
+      convertedPrice = price * exchangeRates.VND_TO_EUR;
+    }
+
+    return convertedPrice.toLocaleString(locale, { style: "currency", currency })
   };
 
   const renderPagination = () => {
@@ -246,9 +268,9 @@ function PublicCoursesPage() {
         <div className={s.courses__container}>
           {/* Header Section */}
           <div className={s.courses__header}>
-            <h1 className={s.courses__title}>Public Courses</h1>
+            <h1 className={s.courses__title}>{t("courses.public")}</h1>
             <p className={s.courses__subtitle}>
-              Discover and enroll in courses to enhance your skills
+              {t("courses.subtitle")}
             </p>
           </div>
 
@@ -259,7 +281,7 @@ function PublicCoursesPage() {
               <i className="bi bi-search"></i>
               <input
                 type="text"
-                placeholder="Search courses..."
+                placeholder={t("courses.search")}
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className={s.filters__search_input}
@@ -268,13 +290,13 @@ function PublicCoursesPage() {
 
             {/* Category Filter */}
             <div className={s.filters__category}>
-              <label>Category</label>
+              <label>{t("courses.category")}</label>
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(Number(e.target.value))}
                 className={s.filters__select}
               >
-                <option value={0}>All Categories</option>
+                <option value={0}>{t("courses.category.all")}</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -285,35 +307,35 @@ function PublicCoursesPage() {
 
             {/* Sort Filter */}
             <div className={s.filters__sort}>
-              <label>Price</label>
+              <label>{t("courses.price")}</label>
               <select
                 value={sortBy}
                 onChange={handleSortChange}
                 className={s.filters__select}
               >
-                <option value="default">Default</option>
-                <option value="asc">Low to High</option>
-                <option value="desc">High to Low</option>
+                <option value="default">{t("courses.price.default")}</option>
+                <option value="asc">{t("courses.price.low")}</option>
+                <option value="desc">{t("courses.price.high")}</option>
               </select>
             </div>
           </div>
 
           {/* Results Count */}
           <div className={s.courses__results}>
-            Showing {from} to {to} courses
+            {t("courses.showing")} {from} {t("courses.to")} {to} {t("courses.text")}
           </div>
 
           {/* Courses Grid */}
           {loading ? (
             <div className={s.courses__loading}>
               <div className={s.spinner}></div>
-              <p>Loading courses...</p>
+              <p>{t("courses.loading")}</p>
             </div>
           ) : courses.length === 0 ? (
             <div className={s.courses__empty}>
               <i className="bi bi-inbox"></i>
-              <h3>No courses found</h3>
-              <p>Try adjusting your search or filter criteria</p>
+              <h3>{t("courses.noCourse")}</h3>
+              <p>{t("courses.noCourse.subtitle")}</p>
             </div>
           ) : (
             <div className={s.courses__grid}>
@@ -367,7 +389,7 @@ function PublicCoursesPage() {
                         onClick={() => handleViewDetails(course.id)}
                         className={s.card__button}
                       >
-                        View Details
+                        {t("courses.details")}
                       </button>
                     </div>
                   </div>

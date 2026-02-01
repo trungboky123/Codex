@@ -19,4 +19,5 @@ public class ClassResponse {
     private String description;
     private SyllabusResponse syllabus;
     private String slug;
+    private boolean status;
 }

@@ -30,7 +30,6 @@ export default function CourseListPage() {
   const [instructors, setInstructors] = useState([]);
 
   useEffect(() => {
-    getAllCourses();
     getAllCategories();
     getAllInstructors();
   }, []);

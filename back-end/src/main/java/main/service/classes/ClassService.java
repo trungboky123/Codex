@@ -9,7 +9,10 @@ import main.service.interfaces.IClassService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +52,18 @@ public class ClassService implements IClassService {
     @Override
     public Long getTotalClasses() {
         return classRepository.count();
+    }
+
+    @Override
+    public List<ClassResponse> getAllClasses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        List<Class> classes = classRepository.findAllClasses(keyword, categoryId, instructorId, status, sort);
+        return classes.stream().map(clazz -> modelMapper.map(clazz, ClassResponse.class)).toList();
+    }
+
+    @Override
+    public void updateStatus(Integer id) {
+        Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found!"));
+        clazz.setStatus(!clazz.isStatus());
     }
 }

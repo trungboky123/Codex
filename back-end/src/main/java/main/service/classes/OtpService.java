@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import main.entity.Otp;
 import main.repository.OtpRepository;
 import main.service.interfaces.IOtpService;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -15,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OtpService implements IOtpService {
     private final OtpRepository otpRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MessageSource messageSource;
 
     @Override
     public String generateOtp() {
@@ -28,18 +32,19 @@ public class OtpService implements IOtpService {
 
     @Override
     public void verifyOtp(String email, String code) {
-        Otp otp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email).orElseThrow(() -> new RuntimeException("Code is invalid"));
+        Locale locale = LocaleContextHolder.getLocale();
+        Otp otp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email).orElseThrow(() -> new RuntimeException(messageSource.getMessage("code.invalid", null, locale)));
 
         if (otp.isUsed()) {
-            throw new RuntimeException("Code has been used!");
+            throw new RuntimeException(messageSource.getMessage("code.used", null, locale));
         }
 
         if (otp.getExpiredDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Code has been expired! Please resend new code.");
+            throw new RuntimeException(messageSource.getMessage("code.expired", null, locale));
         }
 
         if (!passwordEncoder.matches(code, otp.getOtpHash())) {
-            throw new RuntimeException("Incorrect code!");
+            throw new RuntimeException(messageSource.getMessage("code.incorrect", null, locale));
         }
 
         otp.setUsed(true);

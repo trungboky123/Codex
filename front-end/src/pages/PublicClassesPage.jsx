@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import s from "../css/PublicClasses.module.scss";
 import Header from "../components/Header";
+import { useTranslation } from "react-i18next";
 
 function PublicClassesPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   // States
   const [classes, setClasses] = useState([]);
@@ -144,14 +146,36 @@ function PublicClassesPage() {
   };
 
   const handleViewDetails = (classId) => {
-    const clazz = classes.find((c) => c.id === classId)
+    const clazz = classes.find((c) => c.id === classId);
     navigate(`/public-class-details/${clazz.slug}/${classId}`);
   };
 
+  const currencyMap = {
+    vi: { locale: "vi-VN", currency: "VND" },
+    en: { locale: "en-US", currency: "USD" },
+    fr: { locale: "fr-FR", currency: "EUR" },
+  };
+
+  const exchangeRates = {
+    VND_TO_USD: 0.000038,
+    VND_TO_EUR: 0.000032,
+  };
+
   const formatPrice = (price) => {
-    return price?.toLocaleString("vi-VN", {
+    const lang = localStorage.getItem("lang");
+    const { locale, currency } = currencyMap[lang] || currencyMap.en;
+
+    let convertedPrice = price;
+
+    if (currency === "USD") {
+      convertedPrice = price * exchangeRates.VND_TO_USD;
+    } else if (currency === "EUR") {
+      convertedPrice = price * exchangeRates.VND_TO_EUR;
+    }
+
+    return convertedPrice.toLocaleString(locale, {
       style: "currency",
-      currency: "VND",
+      currency,
     });
   };
 
@@ -255,9 +279,9 @@ function PublicClassesPage() {
         <div className={s.classes__container}>
           {/* Header Section */}
           <div className={s.classes__header}>
-            <h1 className={s.classes__title}>Public Classes</h1>
+            <h1 className={s.classes__title}>{t("classes.public")}</h1>
             <p className={s.classes__subtitle}>
-              Discover and enroll in classes to enhance your skills
+              {t("classes.subtitle")}
             </p>
           </div>
 
@@ -268,7 +292,7 @@ function PublicClassesPage() {
               <i className="bi bi-search"></i>
               <input
                 type="text"
-                placeholder="Search Classes..."
+                placeholder={t("classes.search")}
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className={s.filters__search_input}
@@ -277,13 +301,13 @@ function PublicClassesPage() {
 
             {/* Category Filter */}
             <div className={s.filters__category}>
-              <label>Category</label>
+              <label>{t("classes.category")}</label>
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(Number(e.target.value))}
                 className={s.filters__select}
               >
-                <option value={0}>All Categories</option>
+                <option value={0}>{t("classes.category.all")}</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -294,35 +318,35 @@ function PublicClassesPage() {
 
             {/* Sort Filter */}
             <div className={s.filters__sort}>
-              <label>Price</label>
+              <label>{t("classes.price")}</label>
               <select
                 value={sortBy}
                 onChange={handleSortChange}
                 className={s.filters__select}
               >
-                <option value="default">Default</option>
-                <option value="asc">Low to High</option>
-                <option value="desc">High to Low</option>
+                <option value="default">{t("classes.price.default")}</option>
+                <option value="asc">{t("classes.price.low")}</option>
+                <option value="desc">{t("classes.price.high")}</option>
               </select>
             </div>
           </div>
 
           {/* Results Count */}
           <div className={s.classes__results}>
-            Showing {from} of {to} Classes
+            {t("classes.showing")} {from} {t("classes.to")} {to} {t("classes.text")}
           </div>
 
           {/* Classes Grid */}
           {loading ? (
             <div className={s.classes__loading}>
               <div className={s.spinner}></div>
-              <p>Loading Classes...</p>
+              <p>{t("classes.loading")}</p>
             </div>
           ) : classes.length === 0 ? (
             <div className={s.classes__empty}>
               <i className="bi bi-inbox"></i>
-              <h3>No Classes found</h3>
-              <p>Try adjusting your search or filter criteria</p>
+              <h3>{t("classes.noClass")}</h3>
+              <p>{t("classes.noClass.subtitle")}</p>
             </div>
           ) : (
             <div className={s.classes__grid}>
@@ -353,7 +377,7 @@ function PublicClassesPage() {
                     <div className={s.card__schedule}>
                       <i className="bi bi-calendar-event"></i>
                       <span>
-                        Starts in {" "}
+                        {t("classes.start")}{" "}
                         {new Date(c.startDate).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",

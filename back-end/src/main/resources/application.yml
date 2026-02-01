@@ -28,7 +28,23 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+  messages:
+    basename: messages
+    encoding: UTF-8
+
 cloudinary:
   cloud-name: dlecit4kf
   api-key: 918872146712184
   api-secret: kWyR4EfEzxBfPMWMEijl600yNmI
+
+payos:
+  client-id: 9785ab93-e2f9-4a44-bd63-a23545c28f4f
+  api-key: c18931ec-4113-4671-8952-4d066a73ef16
+  checksum-key: 1231364de9d8dfdc2654f07b09550458bc36ceb52094bd511105ed2173e0596e
+
+bank:
+  name: Ngân hàng TMCP Quân đội
+  id: 970422
+  account-number: 3068066405
+  account-name: NGUYEN TRUNG HIEN
+  vietqr: https://api.vietqr.io/v2/generate

@@ -40,12 +40,19 @@ export default function PublicClassDetailsPage() {
   });
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
+  const [hasEnrolled, setHasEnrolled] = useState(false);
 
   useEffect(() => {
     checkInWishlist();
     checkLoginStatus();
     fetchClass();
   }, [inWishlist, id, slug]);
+
+  useEffect(() => {
+    if (classData.id && isSignedIn) {
+      checkEnrolled();
+    }
+  }, [classData.id, isSignedIn]);
 
   async function fetchClass() {
     const res = await fetch(`http://localhost:8080/classes/${id}`, {
@@ -61,7 +68,7 @@ export default function PublicClassDetailsPage() {
   }
 
   if (notFound) {
-    return <Navigate to={"/404"} replace/>
+    return <Navigate to={"/404"} replace />;
   }
 
   function checkLoginStatus() {
@@ -94,6 +101,31 @@ export default function PublicClassDetailsPage() {
     navigate("/login", { state: { from: location }, replace: true });
   }
 
+  const handleBuyClass = async (classId) => {
+    const res = await authFetch("http://localhost:8080/payments/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: classId,
+        itemType: "Class",
+        amount: classData.salePrice ?? classData.listedPrice,
+      }),
+    });
+    const data = await res.json();
+    navigate("/payment", {
+      state: {
+        name: classData.name,
+        type: "Course",
+        qrUrl: data.qrUrl,
+        bankName: data.bankName,
+        accountNumber: data.accountNumber,
+        accountName: data.accountName,
+        amount: data.amount,
+        content: data.content,
+      },
+    });
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -108,6 +140,20 @@ export default function PublicClassDetailsPage() {
       100;
     return Math.round(discount);
   };
+
+  async function checkEnrolled() {
+    const res = await authFetch(
+      `http://localhost:8080/enrollments/check/class/${classData.id}`,
+      {
+        method: "GET",
+      },
+    );
+    const data = await res.json();
+
+    if (data.status === "ENROLLED") {
+      setHasEnrolled(true);
+    }
+  }
 
   const handleAddToWishlist = async () => {
     const type = "class";
@@ -155,6 +201,10 @@ export default function PublicClassDetailsPage() {
       return `${hours}h ${minutes}m per session`;
     }
     return `${hours}h per session`;
+  };
+
+  const handleGoToMyClass = () => {
+    navigate("/my-classes");
   };
 
   return (
@@ -334,30 +384,49 @@ export default function PublicClassDetailsPage() {
                   </div>
 
                   {isSignedIn ? (
-                    <>
-                      <button className={s.enrollBtn}>
-                        <i className="bi bi-cart-plus-fill"></i>
-                        Enroll in This Class
-                      </button>
+                    hasEnrolled ? (
+                      <>
+                        <div className={s.enrolledMessage}>
+                          <i className="bi bi-check-circle-fill"></i>
+                          <span>You have already enrolled in this class</span>
+                        </div>
+                        <button
+                          className={s.goToMyClassBtn}
+                          onClick={handleGoToMyClass}
+                        >
+                          <i className="bi bi-collection-play-fill"></i>
+                          Go to My Classes
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className={s.enrollBtn}
+                          onClick={() => handleBuyClass(classData.id)}
+                        >
+                          <i className="bi bi-cart-plus-fill"></i>
+                          Enroll in This Class
+                        </button>
 
-                      {inWishlist ? (
-                        <button
-                          className={s.wishlistBtn}
-                          onClick={() => navigate("/wishlist")}
-                        >
-                          <i className="bi bi-check-square-fill"></i>
-                          View Wishlist
-                        </button>
-                      ) : (
-                        <button
-                          className={s.wishlistBtn}
-                          onClick={handleAddToWishlist}
-                        >
-                          <i className="bi bi-heart"></i>
-                          Add to Wishlist
-                        </button>
-                      )}
-                    </>
+                        {inWishlist ? (
+                          <button
+                            className={s.wishlistBtn}
+                            onClick={() => navigate("/wishlist")}
+                          >
+                            <i className="bi bi-check-square-fill"></i>
+                            View Wishlist
+                          </button>
+                        ) : (
+                          <button
+                            className={s.wishlistBtn}
+                            onClick={handleAddToWishlist}
+                          >
+                            <i className="bi bi-heart"></i>
+                            Add to Wishlist
+                          </button>
+                        )}
+                      </>
+                    )
                   ) : (
                     <button
                       className={s.loginToEnrollBtn}

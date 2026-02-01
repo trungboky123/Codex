@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import s from "../css/VerifyEmail.module.scss";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state?.email;
 
+  const { t } = useTranslation();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(60);
@@ -119,7 +121,7 @@ export default function VerifyEmailPage() {
     });
 
     if (res.ok) {
-      setMessage("New code sent to your email!");
+      setMessage(t("verify.newCode"));
       setIsError(false);
       setOtp(["", "", "", "", "", ""]);
       setCountdown(60);
@@ -161,7 +163,7 @@ export default function VerifyEmailPage() {
                       style={{ width: "150px", margin: "0" }}
                     />
                   </Link>
-                  <h1 className={s["verify__title"]}>Verify Email</h1>
+                  <h1 className={s["verify__title"]}>{t("verify.email")}</h1>
                   <p className={s["verify__subtitle"]}>
                     Enter the 6-digit code sent to your email
                   </p>

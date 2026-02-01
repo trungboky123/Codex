@@ -3,13 +3,37 @@ import "../css/HomePage.css";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function HomePage() {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const currencyMap = {
+    vi: { locale: "vi-VN", currency: "VND" },
+    en: { locale: "en-US", currency: "USD" },
+    fr: { locale: "fr-FR", currency: "EUR" },
+  };
+
+  const exchangeRates = {
+    VND_TO_USD: 0.000038,
+    VND_TO_EUR: 0.000032
+  }
 
   const formatPrice = (price) => {
-    return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    const lang = localStorage.getItem("lang");
+    const { locale, currency } = currencyMap[lang] || currencyMap.en;
+
+    let convertedPrice = price;
+
+    if (currency === "USD") {
+      convertedPrice = price * exchangeRates.VND_TO_USD;
+    }
+    else if (currency === "EUR") {
+      convertedPrice = price * exchangeRates.VND_TO_EUR;
+    }
+
+    return convertedPrice.toLocaleString(locale, { style: "currency", currency })
   };
 
   useEffect(() => {
@@ -25,11 +49,11 @@ function HomePage() {
     navigate(`/public-course-details/${course.slug}/${course.id}`);
   };
 
-  const handleBannerClick =  (courseId) => {
+  const handleBannerClick = (courseId) => {
     const course = banners.find((c) => c.courseId === courseId);
     navigate(`/public-course-details/${course.slug}/${courseId}`);
-  }
-  
+  };
+
   const banners = [
     {
       id: 1,
@@ -77,7 +101,6 @@ function HomePage() {
       <Header />
 
       <div style={{ minHeight: "100vh", background: "#f8f9fa" }}>
-      
         <div className="banner-carousel">
           <div
             className="banner-slides-wrapper"
@@ -99,7 +122,7 @@ function HomePage() {
                       className="btn btn-more"
                       onClick={() => handleBannerClick(banner.courseId)}
                     >
-                      More
+                      {t("home.banner.more")}
                     </button>
                   </div>
                 </div>
@@ -129,7 +152,7 @@ function HomePage() {
           className="container"
           style={{ maxWidth: "1200px", paddingBottom: "100px" }}
         >
-          <h1 className="section-title">Highlighted Courses</h1>
+          <h1 className="section-title">{t("home.highlightedCourses")}</h1>
 
           <div className="row g-4">
             {courses.map((course) => (

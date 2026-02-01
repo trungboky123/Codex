@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import "../css/Footer.css";
+import { useTranslation } from "react-i18next";
 
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer>
       <div className="footer-container">
         <div className="footer-column">
-          <strong>Contact</strong>
+          <strong>{t("footer.contact")}</strong>
           <div className="contact-item">
             <span>📧</span>
             <span>trunghiennguyen71@gmail.com</span>
@@ -22,20 +24,20 @@ function Footer() {
         </div>
 
         <div class="footer-column">
-          <strong>About Us</strong>
+          <strong>{t("footer.aboutUs")}</strong>
           <Link className="social-item" to="#">
-            Online Learning
+            {t("footer.onlineLearning")}
           </Link>
           <Link className="social-item" to="#">
-            Certified Courses
+            {t("footer.certifiedCourses")}
           </Link>
           <Link className="social-item" to="#">
-            Trusted by Students
+            {t("footer.trustedByStudents")}
           </Link>
         </div>
 
         <div className="footer-column">
-          <strong>Follow Us</strong>
+          <strong>{t("footer.followUs")}</strong>
           <Link to="https://www.facebook.com/buihien.tiensi.58/" className="social-item" target="blank">
             Facebook
           </Link>
@@ -49,7 +51,7 @@ function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>Copyright © 2026 <b>Code X</b>. All rights reserved.</p>
+        <p>{t("footer.copyright")} © 2026 <b>Code X</b>. {t("footer.rightsReserved")}</p>
       </div>
     </footer>
   );

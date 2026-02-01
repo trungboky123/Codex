@@ -51,23 +51,15 @@ export default function AdminDashboard() {
   // Top selling classes - Replace with API fetch
   const [topClasses, setTopClasses] = useState([]);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
-    // TODO: Replace with actual API calls
-    // const statsRes = await fetch('/api/admin/stats');
-    // const revenueRes = await fetch('/api/admin/monthly-revenue');
-    // const coursesRes = await fetch('/api/admin/top-courses');
-    // const classesRes = await fetch('/api/admin/top-classes');
+    const res = await authFetch("http://localhost:8080/enrollments/monthly-revenue", {
+      method: "GET"
+    });
+    const data = await res.json();
 
-    // Mock data - Replace with actual API data
+    const revenueData = data.map(item => Number(item.totalRevenue));
 
-    setMonthlyRevenueData([
-      45000000, 52000000, 48000000, 61000000, 58000000, 72000000, 85000000,
-      91000000, 88000000, 95000000, 102000000, 125000000,
-    ]);
+    setMonthlyRevenueData(revenueData);
   };
 
   const handleSidebarCollapse = (collapsed) => {
@@ -205,6 +197,7 @@ export default function AdminDashboard() {
     getTotalRevenue();
     getTopSoldCourses();
     getTopSoldClasses();
+    fetchDashboardData();
   }, [])
 
   async function getTotalUsers() {

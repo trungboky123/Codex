@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import s from "../css/Login.module.scss";
 import { jwtDecode } from "jwt-decode";
+import { useTranslation } from "react-i18next";
 
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -29,7 +31,8 @@ function LoginPage() {
     const password = user.password.trim();
     e.preventDefault();
 
-    const res = await fetch("http://localhost:8080/auth/login", {
+    const lang = localStorage.getItem("lang") || "en";
+    const res = await fetch(`http://localhost:8080/auth/login?lang=${lang}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,28 +84,28 @@ function LoginPage() {
                   className={s["login__logo-img"]}
                 />
               </Link>
-              <h1 className={s["login__title"]}>Login</h1>
+              <h1 className={s["login__title"]}>{t("login.text")}</h1>
               <p className={s["login__subtitle"]}>
-                Welcome back! Please login to your account.
+                {t("login.subtitle")}
               </p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className={s["login__form-group"]}>
-                <label className={s["login__label"]}>Username or Email</label>
+                <label className={s["login__label"]}>{t("login.usernameOrEmail")}</label>
                 <input
                   type="text"
                   name="usernameOrEmail"
                   className={s["login__input"]}
                   value={user.usernameOrEmail}
-                  placeholder="Enter your username or email"
+                  placeholder={t("login.usernameOrEmail.placeholder")}
                   onChange={handleChange}
                   required
                 />
               </div>
 
               <div className={s["login__form-group"]}>
-                <label className={s["login__label"]}>Password</label>
+                <label className={s["login__label"]}>{t("login.password")}</label>
                 <div className={s["login__password"]}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -111,7 +114,7 @@ function LoginPage() {
                       s["login__input"] + " " + s["login__input--password"]
                     }
                     value={user.password}
-                    placeholder="Enter your password"
+                    placeholder={t("login.password.placeholder")}
                     onChange={handleChange}
                     onKeyDown={(e) => {
                       e.key === "Enter" && handleSubmit(e);
@@ -170,21 +173,21 @@ function LoginPage() {
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                   />
-                  Remember me
+                  {t("login.rememberMe")}
                 </label>
 
                 <Link to="/forgot-password" className={s["login__forgot"]}>
-                  Forgot Password?
+                  {t("login.forgotPassword")}
                 </Link>
               </div>
 
               <button className={s["login__button"]} type="submit">
-                Login
+                {t("login.text")}
               </button>
 
               <div className={s["login__register"]}>
-                Don’t have an account?
-                <Link to="/register"> Register</Link>
+                {t("login.noAccount")}
+                <Link to="/register"> {t("register.text")}</Link>
               </div>
             </form>
           </div>

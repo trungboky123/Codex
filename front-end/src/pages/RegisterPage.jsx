@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import s from "../css/Register.module.scss";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation();
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [isRegistered, setIsRegistered] = useState(false);
@@ -33,11 +35,13 @@ function RegisterPage() {
     const confirmPassword = user.confirmPassword.trim();
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match!");
+      setMessage(t("register.password.notMatch"));
       setIsRegistered(false);
       return;
     }
-    const res = await fetch("http://localhost:8080/auth/send-code", {
+
+    const lang = localStorage.getItem("lang") || "en";
+    const res = await fetch(`http://localhost:8080/auth/send-code?lang=${lang}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -78,20 +82,20 @@ function RegisterPage() {
                   style={{ width: "150px", margin: "0" }}
                 />
               </Link>
-              <h1 className={s["register__title"]}>Register</h1>
+              <h1 className={s["register__title"]}>{t("register.text")}</h1>
               <p className={s["register__subtitle"]}>
-                Create an account to get started.
+                {t("register.subtitle")}
               </p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className={s["register__form-group"]}>
-                <label className={s["register__label"]}>Full Name</label>
+                <label className={s["register__label"]}>{t("register.fullName")}</label>
                 <input
                   type="text"
                   name="fullName"
                   className={s["register__input"]}
-                  placeholder="Enter your full name"
+                  placeholder={t("register.fullName.placeholder")}
                   value={user.fullName}
                   onChange={handleChange}
                   required
@@ -99,12 +103,12 @@ function RegisterPage() {
               </div>
 
               <div className={s["register__form-group"]}>
-                <label className={s["register__label"]}>Username</label>
+                <label className={s["register__label"]}>{t("register.username")}</label>
                 <input
                   type="text"
                   name="username"
                   className={s["register__input"]}
-                  placeholder="Enter your username"
+                  placeholder={t("register.username.placeholder")}
                   value={user.username}
                   onChange={handleChange}
                   required
@@ -112,12 +116,12 @@ function RegisterPage() {
               </div>
 
               <div className={s["register__form-group"]}>
-                <label className={s["register__label"]}>Email</label>
+                <label className={s["register__label"]}>{t("register.email")}</label>
                 <input
                   type="text"
                   name="email"
                   className={s["register__input"]}
-                  placeholder="Enter your email"
+                  placeholder={t("register.email.placeholder")}
                   value={user.email}
                   onChange={handleChange}
                   required
@@ -125,7 +129,7 @@ function RegisterPage() {
               </div>
 
               <div className={s["register__form-group"]}>
-                <label className={s["register__label"]}>Password</label>
+                <label className={s["register__label"]}>{t("register.password")}</label>
                 <div className={s["register__password-wrapper"]}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -135,7 +139,7 @@ function RegisterPage() {
                       " " +
                       s["register__input--password"]
                     }
-                    placeholder="Enter your password"
+                    placeholder={t("register.password.placeholder")}
                     value={user.password}
                     onChange={handleChange}
                     required
@@ -172,7 +176,7 @@ function RegisterPage() {
               </div>
 
               <div className={s["register__form-group"]}>
-                <label className={s["register__label"]}>Confirm Password</label>
+                <label className={s["register__label"]}>{t("register.confirmPassword")}</label>
                 <div className={s["register__password-wrapper"]}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -182,7 +186,7 @@ function RegisterPage() {
                       " " +
                       s["register__input--password"]
                     }
-                    placeholder="Confirm your password"
+                    placeholder={t("register.confirm.placeholder")}
                     value={user.confirmPassword}
                     onChange={handleChange}
                     required
@@ -245,17 +249,17 @@ function RegisterPage() {
                 type="submit"
                 className={s["register__button"]}
               >
-                Register
+                {t("register.text")}
               </button>
 
               <div className={s["register__link"]}>
-                Already had an account?
+                {t("register.hadAccount")}
                 <Link
                   to="/login"
                   className="text-decoration-none"
                   style={{ marginLeft: "5px" }}
                 >
-                  Login
+                  {t("login.text")}
                 </Link>
               </div>
             </form>
