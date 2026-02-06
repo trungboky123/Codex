@@ -5,8 +5,12 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.UpdateUserRequest;
+import main.dto.response.ImportAccountResponse;
 import main.dto.response.UserResponse;
 import main.service.interfaces.IUserService;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -109,5 +115,49 @@ public class UserController {
         return ResponseEntity.ok(Map.of(
                 "message", "Created Successfully!"
         ));
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<?> downloadTemplate() throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Accounts");
+
+        // Headers style
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        headerStyle.setFont(font);
+
+        // Header row
+        Row header = sheet.createRow(0);
+
+        String[] headers = {"fullName", "username", "email", "role", "password", "status"};
+        for(int i = 0; i < headers.length; i++) {
+            Cell cell = header.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=account_template.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(outputStream.toByteArray());
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importAccounts(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", "File is empty!"
+            ));
+        }
+
+        ImportAccountResponse response = userService.importAccounts(file);
+        return ResponseEntity.ok(response);
     }
 }

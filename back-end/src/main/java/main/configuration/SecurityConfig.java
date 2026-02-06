@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/users/get/*").hasRole("ADMIN")
                         .requestMatchers("/users/update/*").hasRole("ADMIN")
                         .requestMatchers("/users/create").hasRole("ADMIN")
+                        .requestMatchers("users/download-template").hasRole("ADMIN")
+                        .requestMatchers("users/import").hasRole("ADMIN")
                         .requestMatchers("/courses/total").hasRole("ADMIN")
                         .requestMatchers("/classes/total").hasRole("ADMIN")
                         .requestMatchers("/enrollments/total-revenue").hasRole("ADMIN")

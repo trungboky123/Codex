@@ -8,6 +8,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 export default function AdminAccounts() {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success"); // success or error
+  const [importDetails, setImportDetails] = useState({
+    total: "",
+    success: "",
+    failed: "",
+    errors: [],
+  });
+  const [importErrors, setImportErrors] = useState([]);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,15 +24,22 @@ export default function AdminAccounts() {
   const [sortDir, setSortDir] = useState("asc");
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
-  const [selectedRoleName, setSelectedRoleName] = useState(searchParams.get("role") || "");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("keyword") || "",
+  );
+  const [selectedRoleName, setSelectedRoleName] = useState(
+    searchParams.get("role") || "",
+  );
   const [selectedRole, setSelectedRole] = useState(0);
-  const [selectedStatusName, setSelectedStatusName] = useState(searchParams.get("status") || "");
+  const [selectedStatusName, setSelectedStatusName] = useState(
+    searchParams.get("status") || "",
+  );
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   // Dropdown
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     getAllRoles();
@@ -55,8 +71,8 @@ export default function AdminAccounts() {
     if (sortBy) params.set("sortBy", sortBy);
     if (sortDir) params.set("sortDir", sortDir);
 
-    setSearchParams(params, {replace: true});
-  }, [searchTerm, selectedRole, selectedStatus, sortBy, sortDir])
+    setSearchParams(params, { replace: true });
+  }, [searchTerm, selectedRole, selectedStatus, sortBy, sortDir]);
 
   async function getAllUsers() {
     const params = new URLSearchParams();
@@ -71,16 +87,19 @@ export default function AdminAccounts() {
     }
     if (sortBy) params.set("sortBy", sortBy);
     if (sortDir) params.set("sortDir", sortDir);
-    const res = await authFetch(`http://localhost:8080/users/findAll?${params.toString()}`, {
-      method: "GET"
-    });
+    const res = await authFetch(
+      `http://localhost:8080/users/findAll?${params.toString()}`,
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setUsers(data);
   }
 
   async function getAllRoles() {
     const res = await authFetch("http://localhost:8080/settings/roles", {
-      method: "GET"
+      method: "GET",
     });
     const data = await res.json();
     setRoles(data);
@@ -88,25 +107,23 @@ export default function AdminAccounts() {
 
   const handleRoleChange = (roleId) => {
     if (roleId !== 0) {
-      setSelectedRoleName(roles.find((r) => r.id === roleId).name)
-    }
-    else {
+      setSelectedRoleName(roles.find((r) => r.id === roleId).name);
+    } else {
       setSelectedRoleName("");
     }
 
     setSelectedRole(roleId);
-  }
+  };
 
   const handleStatusChange = (selectedStatus) => {
     if (selectedStatus !== "all") {
       setSelectedStatusName(selectedStatus === "true" ? "Active" : "Inactive");
-    }
-    else {
+    } else {
       setSelectedStatusName("");
     }
 
     setSelectedStatus(selectedStatus);
-  }
+  };
 
   const handleSidebarCollapse = (collapsed) => {
     setSidebarCollapsed(collapsed);
@@ -114,36 +131,92 @@ export default function AdminAccounts() {
 
   const handleSort = (field) => {
     if (sortBy === field) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc")
-    }
-    else {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
       setSortBy(field);
       setSortDir("asc");
     }
-  }
-
-  const handleDownloadTemplate = () => {
-    console.log("Download import template");
-    // Download CSV/Excel template
   };
 
-  const handleImportAccounts = () => {
-    console.log("Import accounts");
-    // Open file picker and import accounts
+  const handleDownloadTemplate = async () => {
+    const res = await authFetch(
+      "http://localhost:8080/users/download-template",
+      {
+        method: "GET",
+      },
+    );
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(new Blob([blob]));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "account_template.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImportAccounts = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await authFetch("http://localhost:8080/users/import", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      setMessage(`Import failed: ${errorData.message}`);
+      setMessageType("error");
+      setImportDetails({ total: "", success: "", failed: "", errors: [] });
+      setImportErrors([]);
+      return;
+    }
+
+    const data = await res.json();
+    setImportDetails({
+      total: data.total,
+      success: data.success,
+      failed: data.failed,
+      errors: data.errors,
+    });
+    setMessage(
+      `Successfully imported ${data.success} out of ${data.total} accounts.`,
+    );
+    setMessageType(data.failed > 0 ? "warning" : "success");
+    setImportErrors(data.errors);
+    getAllUsers();
+    e.target.value = "";
+  };
+
+  const handleCloseMessage = () => {
+    setMessage("");
+    setImportDetails({ total: "", success: "", failed: "", errors: [] });
+    setImportErrors([]);
   };
 
   const handleEditAccount = (accountId) => {
-    navigate(`/admin/edit-account?id=${accountId}`)
+    navigate(`/admin/edit-account?id=${accountId}`);
   };
 
-  const toggleStatus = async(accountId) => {
+  const toggleStatus = async (accountId) => {
     const account = users.find((account) => account.id === accountId);
     if (!account) return;
-    const ok = window.confirm(account.status ? "Deactivate this account?" : "Activate this account?");
+    const ok = window.confirm(
+      account.status ? "Deactivate this account?" : "Activate this account?",
+    );
 
     if (!ok) return;
     await authFetch(`http://localhost:8080/users/status/${accountId}`, {
-      method: "PUT"
+      method: "PUT",
     });
 
     getAllUsers();
@@ -184,11 +257,68 @@ export default function AdminAccounts() {
           <div className={s.header}>
             <div>
               <h1 className={s.title}>Account List</h1>
-              <p className={s.subtitle}>
-                Manage all accounts
-              </p>
+              <p className={s.subtitle}>Manage all accounts</p>
             </div>
           </div>
+
+          {/* Import Message */}
+          {message && (
+            <div
+              className={`${s.messageBox} ${s[`message${messageType.charAt(0).toUpperCase() + messageType.slice(1)}`]}`}
+            >
+              <div className={s.messageContent}>
+                <i
+                  className={
+                    messageType === "success"
+                      ? "bi bi-check-circle-fill"
+                      : messageType === "warning"
+                        ? "bi bi-exclamation-triangle-fill"
+                        : "bi bi-x-circle-fill"
+                  }
+                ></i>
+                <div className={s.messageText}>
+                  <p className={s.messageTitle}>{message}</p>
+                  {importDetails.total && (
+                    <div className={s.importStats}>
+                      <span>Total: {importDetails.total}</span>
+                      <span>•</span>
+                      <span className={s.successText}>
+                        Success: {importDetails.success}
+                      </span>
+                      {importDetails.failed > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className={s.failedText}>
+                            Failed: {importDetails.failed}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button className={s.closeBtn} onClick={handleCloseMessage}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+          )}
+
+          {/* Import Errors */}
+          {importErrors.length > 0 && (
+            <div className={s.errorsBox}>
+              <h3 className={s.errorsTitle}>
+                <i className="bi bi-exclamation-circle"></i>
+                Import Errors ({importErrors.length})
+              </h3>
+              <div className={s.errorsList}>
+                {importErrors.map((error, index) => (
+                  <div key={index} className={s.errorItem}>
+                    <span className={s.errorRow}>{error}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Filters & Actions */}
           <div className={s.toolbar}>
@@ -214,7 +344,9 @@ export default function AdminAccounts() {
                 <option value={0}>All Roles</option>
                 {roles.map((role) => {
                   return (
-                    <option value={role.id}>{role.name}</option>
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
                   );
                 })}
               </select>
@@ -256,7 +388,7 @@ export default function AdminAccounts() {
                     </button>
                     <button
                       className={s.dropdownItem}
-                      onClick={handleImportAccounts}
+                      onClick={handleImportClick}
                     >
                       <i className="bi bi-upload"></i>
                       <span>Import Accounts</span>
@@ -265,7 +397,19 @@ export default function AdminAccounts() {
                 )}
               </div>
 
-              <button className={s.addBtn} onClick={() => navigate("/admin/add-account")}>
+              {/* Hidden file input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".xlsx,.xls"
+                onChange={handleImportAccounts}
+                style={{ display: "none" }}
+              />
+
+              <button
+                className={s.addBtn}
+                onClick={() => navigate("/admin/add-account")}
+              >
                 <i className="bi bi-plus-lg"></i>
                 <span>Add Account</span>
               </button>
@@ -281,11 +425,51 @@ export default function AdminAccounts() {
             <table className={s.table}>
               <thead>
                 <tr>
-                  <th onClick={() => handleSort("id")} style={{cursor: "pointer"}}>ID</th>
+                  <th
+                    onClick={() => handleSort("id")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    ID
+                    {sortBy === "id" && (
+                      <i
+                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
+                      ></i>
+                    )}
+                  </th>
                   <th>Avatar</th>
-                  <th onClick={() => handleSort("fullName")} style={{cursor: "pointer"}}>Full Name</th>
-                  <th onClick={() => handleSort("username")} style={{cursor: "pointer"}}>Username</th>
-                  <th onClick={() => handleSort("email")} style={{cursor: "pointer"}}>Email</th>
+                  <th
+                    onClick={() => handleSort("fullName")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Full Name
+                    {sortBy === "fullName" && (
+                      <i
+                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
+                      ></i>
+                    )}
+                  </th>
+                  <th
+                    onClick={() => handleSort("username")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Username
+                    {sortBy === "username" && (
+                      <i
+                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
+                      ></i>
+                    )}
+                  </th>
+                  <th
+                    onClick={() => handleSort("email")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Email
+                    {sortBy === "email" && (
+                      <i
+                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
+                      ></i>
+                    )}
+                  </th>
                   <th>Role</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -331,20 +515,20 @@ export default function AdminAccounts() {
                           </button>
                           {account.status ? (
                             <button
-                            className={`${s.actionBtn} ${s.dangerBtn}`}
-                            onClick={() => toggleStatus(account.id)}
-                            title="Deactivate account"
-                          >
-                            <i className="bi bi-x-circle-fill"></i>
-                          </button>
+                              className={`${s.actionBtn} ${s.dangerBtn}`}
+                              onClick={() => toggleStatus(account.id)}
+                              title="Deactivate account"
+                            >
+                              <i className="bi bi-x-circle-fill"></i>
+                            </button>
                           ) : (
                             <button
-                            className={`${s.actionBtn} ${s.successBtn}`}
-                            onClick={() => toggleStatus(account.id)}
-                            title="Activate account"
-                          >
-                            <i className="bi bi-check-circle-fill"></i>
-                          </button>
+                              className={`${s.actionBtn} ${s.successBtn}`}
+                              onClick={() => toggleStatus(account.id)}
+                              title="Activate account"
+                            >
+                              <i className="bi bi-check-circle-fill"></i>
+                            </button>
                           )}
                         </div>
                       </td>

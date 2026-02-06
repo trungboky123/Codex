@@ -1,10 +1,12 @@
 package main.service.classes;
 
+import jdk.jshell.Snippet;
 import lombok.RequiredArgsConstructor;
 import main.configuration.CloudinaryService;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
+import main.dto.response.ImportAccountResponse;
 import main.dto.response.UserResponse;
 import main.entity.Otp;
 import main.entity.Setting;
@@ -14,6 +16,11 @@ import main.repository.SettingRepository;
 import main.repository.UserRepository;
 import main.service.interfaces.IUserService;
 import main.utils.PasswordUtil;
+import main.utils.XLSXUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -24,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,7 +54,7 @@ public class UserService implements IUserService {
     public void register(RegisterRequest request) {
         User user = modelMapper.map(request, User.class);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Setting setting = settingRepository.findByName("Student");
+        Setting setting = settingRepository.findByName("Student").orElseThrow(() -> new RuntimeException("Role not found!"));
         user.setAvatarUrl("https://i.pinimg.com/736x/21/91/6e/21916e491ef0d796398f5724c313bbe7.jpg");
         user.setRole(setting);
         user.setStatus(true);
@@ -246,6 +254,96 @@ public class UserService implements IUserService {
 
         String avatarUrl = cloudinaryService.uploadUserAvatar(avatar, user.getId());
         user.setAvatarUrl(avatarUrl);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public ImportAccountResponse importAccounts(MultipartFile file) {
+        int total = 0;
+        int success = 0;
+        List<String> errors = new ArrayList<>();
+
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+                total++;
+
+                try {
+                    importSingleRow(row);
+                    success++;
+                } catch (Exception e) {
+                    errors.add("Row " + (i + 1) + ": " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot read Excel file", e);
+        }
+
+        return new ImportAccountResponse(total, success, total - success, errors);
+    }
+
+    private void importSingleRow(Row row) {
+        String fullName = XLSXUtil.getCell(row, 0);
+        String username = XLSXUtil.getCell(row, 1);
+        String email = XLSXUtil.getCell(row, 2);
+        String roleName = XLSXUtil.getCell(row, 3);
+        String password = XLSXUtil.getCell(row, 4);
+        String statusStr = XLSXUtil.getCell(row, 5);
+
+        if (fullName == null || fullName.isBlank()) {
+            throw new RuntimeException("Full name is blank");
+        }
+        if (username == null || username.isBlank()) {
+            throw new RuntimeException("Username is blank");
+        }
+
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        if (email == null || email.isBlank()) {
+            throw new RuntimeException("Email is blank!");
+        }
+
+        if (password == null || password.isBlank()) {
+            throw new RuntimeException("Password is blank!");
+        }
+
+        if (!email.matches(".+@.+\\..+")) {
+            throw new RuntimeException("Email is invalid!");
+        }
+
+        if (!PasswordUtil.isValidPassword(password)) {
+            throw new RuntimeException("Password is invalid!");
+        }
+
+        if (roleName == null || roleName.isBlank()) {
+            throw new RuntimeException("Role is blank!");
+        }
+
+        if (statusStr == null || statusStr.isBlank()) {
+            throw new RuntimeException("Status is blank");
+        }
+
+        if (!statusStr.equalsIgnoreCase("true") &&
+                !statusStr.equalsIgnoreCase("false")) {
+            throw new RuntimeException("Status must be true/false!");
+        }
+
+        String roleStr = roleName.trim().toLowerCase();
+        Setting role = settingRepository.findByName(roleStr.substring(0, 1).toUpperCase() + roleStr.substring(1).toLowerCase()).orElseThrow(() -> new RuntimeException("Role not found"));
+
+        User user = new User();
+        user.setFullName(fullName);
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setRole(role);
+        user.setAvatarUrl(DEFAULT_AVATAR);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setStatus(Boolean.parseBoolean(statusStr));
 
         userRepository.save(user);
     }

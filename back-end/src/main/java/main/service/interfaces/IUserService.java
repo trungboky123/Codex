@@ -3,6 +3,7 @@ package main.service.interfaces;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
+import main.dto.response.ImportAccountResponse;
 import main.dto.response.UserResponse;
 import main.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,4 +23,5 @@ public interface IUserService {
     UserResponse getUserById(Integer id);
     void updateUser(Integer id, UpdateUserRequest request, MultipartFile avatar);
     void createUser(CreateUserRequest request, MultipartFile avatar);
+    ImportAccountResponse importAccounts(MultipartFile file);
 }
