@@ -141,31 +141,8 @@ function PublicCoursesPage() {
     navigate(`/public-course-details/${course.slug}/${courseId}`);
   };
 
-  const currencyMap = {
-    vi: { locale: "vi-VN", currency: "VND" },
-    en: { locale: "en-US", currency: "USD" },
-    fr: { locale: "fr-FR", currency: "EUR" },
-  };
-
-  const exchangeRates = {
-    VND_TO_USD: 0.000038,
-    VND_TO_EUR: 0.000032
-  }
-
   const formatPrice = (price) => {
-    const lang = localStorage.getItem("lang");
-    const { locale, currency } = currencyMap[lang] || currencyMap.en;
-
-    let convertedPrice = price;
-
-    if (currency === "USD") {
-      convertedPrice = price * exchangeRates.VND_TO_USD;
-    }
-    else if (currency === "EUR") {
-      convertedPrice = price * exchangeRates.VND_TO_EUR;
-    }
-
-    return convertedPrice.toLocaleString(locale, { style: "currency", currency })
+    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
   };
 
   const renderPagination = () => {

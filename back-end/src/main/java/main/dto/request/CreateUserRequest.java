@@ -1,11 +1,12 @@
 package main.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UpdateUserRequest {
+public class CreateUserRequest {
     @Size(max = 50, message = "Maximum of full name is 50 characters!")
     private String fullName;
 
@@ -16,12 +17,9 @@ public class UpdateUserRequest {
     @Email(message = "Email is invalid!")
     private String email;
 
-    private String currentPassword;
-    private String newPassword;
-
     private String avatarUrl;
 
+    @NotNull(message = "Role is required")
     private Integer roleId;
     private Boolean status;
-    private Boolean removeAvatar;
 }

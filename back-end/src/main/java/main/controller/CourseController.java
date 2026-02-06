@@ -1,13 +1,18 @@
 package main.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import main.dto.request.UpdateCourseRequest;
 import main.dto.response.CourseResponse;
 import main.service.interfaces.ICourseService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
 
@@ -66,5 +71,13 @@ public class CourseController {
     public ResponseEntity<?> updateStatus(@PathVariable Integer id) {
         courseService.updateStatus(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateCourse(@PathVariable Integer id, @Valid @RequestPart(value = "data", required = false) UpdateCourseRequest request, @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail) {
+        courseService.updateCourse(id, request, thumbnail);
+        return ResponseEntity.ok(Map.of(
+                "message", "Updated Successfully!"
+        ));
     }
 }

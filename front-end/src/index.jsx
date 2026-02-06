@@ -27,6 +27,10 @@ import StartUpRoot from './routes/StartUpRoute';
 import CourseListPage from './admin pages/CourseListPage';
 import ClassListPage from './admin pages/ClassListPage';
 import QrPage from './pages/QrPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import EditAccountPage from './admin pages/EditAccountPage';
+import EditCoursePage from './admin pages/EditCoursePage';
+import AddAccountPage from './admin pages/AddAccountPage';
 
 const router = createBrowserRouter([
   {
@@ -50,8 +54,20 @@ const router = createBrowserRouter([
         element: <AccountListPage/>
       },
       {
+        path: "edit-account",
+        element: <EditAccountPage/>
+      },
+      {
+        path: "add-account",
+        element: <AddAccountPage/>,
+      },
+      {
         path: "course-list",
         element: <CourseListPage/>
+      },
+      {
+        path: "edit-course",
+        element: <EditCoursePage/>
       },
       {
         path: "class-list",
@@ -78,6 +94,10 @@ const router = createBrowserRouter([
   {
     path: "/verify",
     element: <VerifyEmailPage />
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage/>
   },
   {
     path: "/profile",

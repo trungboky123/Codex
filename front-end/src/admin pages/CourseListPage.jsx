@@ -3,9 +3,10 @@ import s from "../css/CourseList.module.scss";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function CourseListPage() {
+  const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [courses, setCourses] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -109,6 +110,10 @@ export default function CourseListPage() {
 
   const getStatus = (status) => {
     return status ? "Active" : "Inactive";
+  }
+
+  const handleEditCourse = (courseId) => {
+    navigate(`/admin/edit-course?id=${courseId}`);
   }
 
   const handleSidebarCollapse = (collapsed) => {
@@ -367,7 +372,8 @@ export default function CourseListPage() {
                       </td>
                       <td>
                         <div className={s.actionBtns}>
-                          <button
+                          <button 
+                            onClick={() => handleEditCourse(course.id)}
                             className={s.actionBtn}
                             title="Edit course"
                           >

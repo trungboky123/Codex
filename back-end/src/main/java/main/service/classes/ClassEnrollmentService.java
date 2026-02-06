@@ -25,7 +25,11 @@ public class ClassEnrollmentService implements IClassEnrollmentService {
 
     @Override
     public BigDecimal getTotalPrice() {
-        return classEnrollmentRepository.sumPricePaid();
+        BigDecimal totalPrice = classEnrollmentRepository.sumPricePaid();
+        if (totalPrice == null) {
+            return BigDecimal.ZERO;
+        }
+        return totalPrice;
     }
 
     @Override

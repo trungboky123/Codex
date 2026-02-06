@@ -5,6 +5,8 @@ import main.configuration.CustomUserDetails;
 import main.dto.response.ClassEnrollmentResponse;
 import main.dto.response.CourseEnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
+import main.entity.Course;
+import main.repository.CourseRepository;
 import main.service.interfaces.IClassEnrollmentService;
 import main.service.interfaces.ICourseEnrollmentService;
 import org.springframework.http.HttpStatus;
@@ -102,5 +104,16 @@ public class EnrollmentController {
         return ResponseEntity.ok(Map.of(
                 "status", "NOT ENROLLED"
         ));
+    }
+
+    @PostMapping("/free-course/{id}")
+    public ResponseEntity<?> enrollFreeCourse(Authentication authentication, @PathVariable Integer id) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        courseEnrollmentService.enrollFreeCourse(userDetails.getId(), id);
+        return ResponseEntity.ok().build();
     }
 }

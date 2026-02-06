@@ -4,6 +4,7 @@ import defaultAvatar from "../images/default-avatar.png";
 import "../css/Header.css";
 import authFetch from "../function/authFetch";
 import { useTranslation } from "react-i18next";
+import { jwtDecode } from "jwt-decode";
 
 function Header() {
   const navigate = useNavigate();
@@ -15,7 +16,14 @@ function Header() {
     username: "",
     avatarUrl: "",
   });
+  const emptyUser = {
+    fullName: "",
+    email: "",
+    username: "",
+    avatarUrl: "",
+  };
   const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
+  const [role, setRole] = useState("");
 
   const languages = [
     { code: "vi", name: `${t("nav.lang.vietnam")}`, flag: "🇻🇳" },
@@ -32,7 +40,8 @@ function Header() {
   const handleLogout = async () => {
     localStorage.removeItem("accessToken");
     sessionStorage.removeItem("accessToken");
-    setUser(null);
+    setUser(emptyUser);
+    setRole("");
 
     await fetch("http://localhost:8080/auth/logout", {
       method: "POST",
@@ -58,6 +67,7 @@ function Header() {
       localStorage.getItem("accessToken") ||
       sessionStorage.getItem("accessToken");
     if (token) {
+      setRole(jwtDecode(token).roles[0]);
       getMe();
     }
   }, [navigate]);
@@ -168,6 +178,89 @@ function Header() {
                   </ul>
                 </div>
               </>
+            ) : role === "ROLE_ADMIN" ? (
+              <>
+                <ul className="navbar-nav">
+                  <li className="navbar-item dropdown">
+                    <Link
+                      to={"/home"}
+                      className="nav-link dropdown-toggle d-flex align-items-center"
+                      data-bs-toggle="dropdown"
+                      id="userDropdown"
+                    >
+                      <img
+                        src={user.avatarUrl || defaultAvatar}
+                        alt="Avatar"
+                        className="rounded-circle me-2"
+                        width={40}
+                        height={40}
+                      />
+                      {user.fullName}
+                    </Link>
+
+                    <ul
+                      className="dropdown-menu dropdown-menu-end"
+                      aria-labelledby="userDropdown"
+                    >
+                      <li>
+                        <Link className="dropdown-item" to="/profile">
+                          {t("nav.profile")}
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/admin/dashboard">
+                          Dashboard
+                        </Link>
+                      </li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={handleLogout}
+                        >
+                          <i className="fa fa-sign-out-alt me-2"></i>
+                          {t("nav.logout")}
+                        </button>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <div className="language-dropdown ms-2">
+                  <button
+                    className="btn btn-link nav-link dropdown-toggle d-flex align-items-center"
+                    data-bs-toggle="dropdown"
+                    id="languageDropdown"
+                  >
+                    <span className="flag-icon me-2">
+                      {getCurrentLanguage()?.flag}
+                    </span>
+                    <span className="language-name">
+                      {getCurrentLanguage()?.name}
+                    </span>
+                  </button>
+
+                  <ul
+                    className="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="languageDropdown"
+                  >
+                    {languages.map((language) => (
+                      <li key={language.code}>
+                        <button
+                          className={`dropdown-item ${selectedLanguage === language.code ? "active" : ""}`}
+                          onClick={() => handleLanguageChange(language.code)}
+                        >
+                          <span className="flag-icon me-2">
+                            {language.flag}
+                          </span>
+                          {language.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
             ) : (
               <>
                 <ul className="navbar-nav">
@@ -194,27 +287,27 @@ function Header() {
                     >
                       <li>
                         <Link className="dropdown-item" to="/profile">
-                          Profile
+                          {t("nav.profile")}
                         </Link>
                       </li>
                       <li>
                         <Link className="dropdown-item" to="/wishlist">
-                          Wishlist
+                          {t("nav.wishlist")}
                         </Link>
                       </li>
                       <li>
                         <Link className="dropdown-item" to="/my-courses">
-                          My Courses
+                          {t("nav.myCourses")}
                         </Link>
                       </li>
                       <li>
                         <Link className="dropdown-item" to="/my-classes">
-                          My Classes
+                          {t("nav.myClasses")}
                         </Link>
                       </li>
                       <li>
                         <Link className="dropdown-item" to="/my-enrollments">
-                          My Enrollments
+                          {t("nav.enrollments")}
                         </Link>
                       </li>
                       <li>
@@ -225,14 +318,14 @@ function Header() {
                           className="dropdown-item text-danger"
                           onClick={handleLogout}
                         >
-                          <i className="fa fa-sign-out-alt me-2"></i>Logout
+                          <i className="fa fa-sign-out-alt me-2"></i>
+                          {t("nav.logout")}
                         </button>
                       </li>
                     </ul>
                   </li>
                 </ul>
 
-                {/* Language Dropdown - After User Dropdown */}
                 <div className="language-dropdown ms-2">
                   <button
                     className="btn btn-link nav-link dropdown-toggle d-flex align-items-center"

@@ -3,9 +3,10 @@ import s from "../css/AccountList.module.scss";
 import AdminHeader from "../components/AdminHeader";
 import AdminSideBar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function AdminAccounts() {
+  const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -121,11 +122,6 @@ export default function AdminAccounts() {
     }
   }
 
-  const handleAddAccount = () => {
-    console.log("Add new account");
-    // Navigate to add account page or open modal
-  };
-
   const handleDownloadTemplate = () => {
     console.log("Download import template");
     // Download CSV/Excel template
@@ -137,8 +133,7 @@ export default function AdminAccounts() {
   };
 
   const handleEditAccount = (accountId) => {
-    console.log("Edit account:", accountId);
-    // Navigate to edit page or open modal
+    navigate(`/admin/edit-account?id=${accountId}`)
   };
 
   const toggleStatus = async(accountId) => {
@@ -270,21 +265,18 @@ export default function AdminAccounts() {
                 )}
               </div>
 
-              {/* Add Account Button */}
-              <button className={s.addBtn} onClick={handleAddAccount}>
+              <button className={s.addBtn} onClick={() => navigate("/admin/add-account")}>
                 <i className="bi bi-plus-lg"></i>
                 <span>Add Account</span>
               </button>
             </div>
           </div>
 
-          {/* Results Info */}
           <div className={s.resultsInfo}>
             Showing {users.length} account
             {users.length !== 1 ? "s" : ""}
           </div>
 
-          {/* Accounts Table */}
           <div className={s.tableWrapper}>
             <table className={s.table}>
               <thead>

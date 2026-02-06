@@ -26,7 +26,11 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
 
     @Override
     public BigDecimal getTotalPrice() {
-        return courseEnrollmentRepository.sumPricePaid();
+        BigDecimal totalPrice = courseEnrollmentRepository.sumPricePaid();
+        if (totalPrice == null) {
+            return BigDecimal.ZERO;
+        }
+        return totalPrice;
     }
 
     @Override
@@ -40,8 +44,8 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
     }
 
     @Override
-    public void enroll(User user, Integer itemId, Long amount) {
-        Course course = courseRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Course not found!"));
+    public void enroll(User user, Integer courseId, Long amount) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found!"));
         CourseEnrollment enrollment = new CourseEnrollment();
         enrollment.setCourse(course);
         enrollment.setUser(user);
@@ -58,5 +62,23 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found!"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
         return courseEnrollmentRepository.existsByCourseAndUser(course, user);
+    }
+
+    @Override
+    public void enrollFreeCourse(Integer userId, Integer courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+        if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0 || course.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
+            throw new RuntimeException("This course is not free!");
+        }
+        CourseEnrollment enrollment = new CourseEnrollment();
+        enrollment.setCourse(course);
+        enrollment.setUser(user);
+        enrollment.setPricePaid(BigDecimal.ZERO);
+        enrollment.setEnrolledAt(LocalDateTime.now());
+        enrollment.setPaymentMethod("FREE");
+        enrollment.setStatus(true);
+
+        courseEnrollmentRepository.save(enrollment);
     }
 }

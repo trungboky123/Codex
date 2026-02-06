@@ -12,6 +12,7 @@ import main.configuration.RegisterCheckService;
 import main.dto.request.LoginRequest;
 import main.dto.request.OtpRequest;
 import main.dto.request.RegisterRequest;
+import main.dto.request.ResetPasswordRequest;
 import main.entity.Otp;
 import main.entity.RefreshToken;
 import main.entity.User;
@@ -149,6 +150,41 @@ public class AuthController {
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyCode(@RequestBody OtpRequest request) {
         otpService.verifyOtp(request.getEmail(), request.getCode());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        boolean result = userService.findUserByEmail(email);
+        if (result) {
+            String code = otpService.generateOtp();
+            String codeHashed = passwordEncoder.encode(code);
+
+            Otp otp = new Otp();
+            otp.setEmail(email);
+            otp.setOtpHash(codeHashed);
+            otp.setCreatedAt(LocalDateTime.now());
+            otp.setExpiredDate(LocalDateTime.now().plusMinutes(5));
+
+            otpService.saveOtp(otp);
+            mailService.sendCode(email, code);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Verification Code has been sent to your email!"
+            ));
+        }
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", "Account not found!"
+        ));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        System.out.println(request.getEmail());
+        System.out.println(request.getCode());
+        System.out.println(request.getNewPassword());
+        userService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
         return ResponseEntity.ok().build();
     }
 }

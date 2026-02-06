@@ -1,8 +1,10 @@
 package main.service.interfaces;
 
+import main.dto.request.UpdateCourseRequest;
 import main.dto.response.CourseResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,4 +15,5 @@ public interface ICourseService {
     Long getTotalCourses();
     List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir);
     void updateStatus(Integer id);
+    void updateCourse(Integer id, UpdateCourseRequest request, MultipartFile thumbnail);
 }

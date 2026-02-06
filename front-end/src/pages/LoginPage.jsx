@@ -176,7 +176,7 @@ function LoginPage() {
                   {t("login.rememberMe")}
                 </label>
 
-                <Link to="/forgot-password" className={s["login__forgot"]}>
+                <Link to="/reset-password" className={s["login__forgot"]}>
                   {t("login.forgotPassword")}
                 </Link>
               </div>

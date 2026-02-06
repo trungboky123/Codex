@@ -18,6 +18,13 @@ export default function QrPage() {
   const amount = location.state?.amount;
   const description = location.state?.description;
 
+  useEffect(() => {
+    if (!location.state) {
+      navigate("/error");
+      return;
+    }
+  }, []);
+  
   const [copied, setCopied] = useState({
     accountNumber: false,
     amount: false,
@@ -51,7 +58,6 @@ export default function QrPage() {
 
   useEffect(() => {
     const orderCode = description.replace(/\D/g, "");
-    console.log(orderCode);
     const timer = setInterval(async () => {
       const res = await authFetch(
         `http://localhost:8080/payments/status/${orderCode}`,
@@ -299,14 +305,20 @@ export default function QrPage() {
                 </p>
                 {type === "Course" ? (
                   <>
-                    <button className={s.homeBtn} onClick={() => navigate("/my-courses")}>
+                    <button
+                      className={s.homeBtn}
+                      onClick={() => navigate("/my-courses")}
+                    >
                       <i className="bi bi-house-door-fill"></i>
                       Go to My Courses
                     </button>
                   </>
                 ) : (
                   <>
-                    <button className={s.homeBtn} onClick={() => navigate("my-classes")}>
+                    <button
+                      className={s.homeBtn}
+                      onClick={() => navigate("my-classes")}
+                    >
                       <i className="bi bi-house-door-fill"></i>
                       Go to My Classes
                     </button>

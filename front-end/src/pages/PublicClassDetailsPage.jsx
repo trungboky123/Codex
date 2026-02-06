@@ -64,7 +64,15 @@ export default function PublicClassDetailsPage() {
       return;
     }
 
-    setClassData(data);
+    setClassData({
+      ...data,
+      syllabus: data.syllabus ?? {
+        startTime: "",
+        endTime: "",
+        totalHours: "",
+        daysOfWeek: [],
+      },
+    });
   }
 
   if (notFound) {
@@ -115,13 +123,13 @@ export default function PublicClassDetailsPage() {
     navigate("/payment", {
       state: {
         name: classData.name,
-        type: "Course",
+        type: "Class",
         qrUrl: data.qrUrl,
         bankName: data.bankName,
         accountNumber: data.accountNumber,
         accountName: data.accountName,
         amount: data.amount,
-        content: data.content,
+        description: data.description,
       },
     });
   };

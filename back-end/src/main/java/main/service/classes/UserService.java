@@ -2,22 +2,27 @@ package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
 import main.configuration.CloudinaryService;
+import main.dto.request.CreateUserRequest;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
 import main.dto.response.UserResponse;
+import main.entity.Otp;
 import main.entity.Setting;
 import main.entity.User;
+import main.repository.OtpRepository;
 import main.repository.SettingRepository;
 import main.repository.UserRepository;
 import main.service.interfaces.IUserService;
 import main.utils.PasswordUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,6 +34,8 @@ public class UserService implements IUserService {
     private final ModelMapper modelMapper;
     private final CloudinaryService cloudinaryService;
     private final SettingRepository settingRepository;
+    private final OtpRepository otpRepository;
+    private static final String DEFAULT_AVATAR = "https://i.pinimg.com/736x/21/91/6e/21916e491ef0d796398f5724c313bbe7.jpg";
 
     @Override
     public User getUserByUsername(String username) {
@@ -40,6 +47,7 @@ public class UserService implements IUserService {
         User user = modelMapper.map(request, User.class);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Setting setting = settingRepository.findByName("Student");
+        user.setAvatarUrl("https://i.pinimg.com/736x/21/91/6e/21916e491ef0d796398f5724c313bbe7.jpg");
         user.setRole(setting);
         user.setStatus(true);
 
@@ -53,6 +61,11 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         boolean updated = false;
+
+        if (Boolean.TRUE.equals(request.getRemoveAvatar())) {
+            user.setAvatarUrl(DEFAULT_AVATAR);
+            updated = true;
+        }
 
         if (request.getFullName() != null) {
             if (request.getFullName().isBlank()) {
@@ -130,5 +143,110 @@ public class UserService implements IUserService {
     public List<UserResponse> getAllInstructors() {
         List<User> instructors = userRepository.findByRole_Name("Instructor");
         return instructors.stream().map(instructor -> modelMapper.map(instructor, UserResponse.class)).toList();
+    }
+
+    @Override
+    public boolean findUserByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void resetPassword(String email, String code, String newPassword) {
+        Otp otp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email).orElseThrow(() -> new RuntimeException("Otp not found!"));
+        if (!passwordEncoder.matches(code, otp.getOtpHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!PasswordUtil.isValidPassword(newPassword)) {
+            throw new RuntimeException("Password must contain at least 8 characters, 1 uppercase, 1 lowercase and 1 special characters");
+        }
+
+        User user = userRepository.findByEmail(otp.getEmail()).orElseThrow(() -> new RuntimeException("User not found!"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse getUserById(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    public void updateUser(Integer id, UpdateUserRequest request, MultipartFile avatar) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean updated = false;
+
+        if (Boolean.TRUE.equals(request.getRemoveAvatar())) {
+            user.setAvatarUrl(DEFAULT_AVATAR);
+            updated = true;
+        }
+
+        if (request.getFullName() != null) {
+            if (request.getFullName().isBlank()) {
+                throw new RuntimeException("Full name cannot be blank");
+            }
+            user.setFullName(request.getFullName());
+            updated = true;
+        }
+
+        if (request.getUsername() != null) {
+            if (request.getUsername().isBlank()) {
+                throw new RuntimeException("Username cannot be blank");
+            }
+            user.setUsername(request.getUsername());
+            updated = true;
+        }
+
+        if (request.getEmail() != null) {
+            if (request.getEmail().isBlank()) {
+                throw new RuntimeException("Email cannot be blank");
+            }
+            user.setEmail(request.getEmail());
+            updated = true;
+        }
+
+        if (avatar != null && !avatar.isEmpty()) {
+            String avatarUrl = cloudinaryService.uploadUserAvatar(avatar, id);
+            user.setAvatarUrl(avatarUrl);
+            updated = true;
+        }
+
+        if (request.getRoleId() != null) {
+            Setting role = settingRepository.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found!"));
+            user.setRole(role);
+            updated = true;
+        }
+
+        if (request.getStatus() != null) {
+            user.setStatus(request.getStatus());
+            updated = true;
+        }
+
+        if (!updated) {
+            throw new RuntimeException("No fields to update");
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public void createUser(CreateUserRequest request, MultipartFile avatar) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setFullName(request.getFullName());
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode("12345678"));
+        user.setStatus(request.getStatus());
+
+        Setting role = settingRepository.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found!"));
+        user.setRole(role);
+
+        userRepository.save(user);
+
+        String avatarUrl = cloudinaryService.uploadUserAvatar(avatar, user.getId());
+        user.setAvatarUrl(avatarUrl);
+
+        userRepository.save(user);
     }
 }

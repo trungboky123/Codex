@@ -11,6 +11,7 @@ public interface ICourseEnrollmentService {
     BigDecimal getTotalPrice();
     List<CourseEnrollmentResponse> getTopSoldCourses();
     List<MonthlyRevenueResponse> getMonthlyRevenue();
-    void enroll(User user, Integer itemId, Long amount);
+    void enroll(User user, Integer courseId, Long amount);
     boolean hasEnrolled(Integer courseId, Integer userId);
+    void enrollFreeCourse(Integer userId, Integer courseId);
 }

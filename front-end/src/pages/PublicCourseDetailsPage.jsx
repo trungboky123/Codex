@@ -52,7 +52,7 @@ export default function PublicCourseDetailsPage() {
     if (course.id && isSignedIn) {
       checkEnrolled();
     }
-  }, [course.id, isSignedIn]);
+  }, [course.id, isSignedIn, hasEnrolled]);
 
   useEffect(() => {
     const heights = {};
@@ -166,6 +166,15 @@ export default function PublicCourseDetailsPage() {
       },
     });
   };
+
+  const handleGetCourse = async(courseId) => {
+    const res = await authFetch(`http://localhost:8080/enrollments/free-course/${courseId}`, {
+      method: "POST"
+    });
+    if (res.ok) {
+      setHasEnrolled(true);
+    }
+  }
 
   const handleGoToMyCourse = () => {
     navigate("/my-courses");
@@ -422,13 +431,23 @@ export default function PublicCourseDetailsPage() {
                     ) : (
                       // Not Enrolled State
                       <>
-                        <button
-                          className={s.enrollBtn}
-                          onClick={() => handleBuyCourse(course.id)}
-                        >
-                          <i className="bi bi-cart-plus-fill"></i>
-                          Buy Course Now
-                        </button>
+                        {course.listedPrice === 0 || course.salePrice === 0 ? (
+                          <button
+                            className={s.enrollBtn}
+                            onClick={() => handleGetCourse(course.id)}
+                          >
+                            <i className="bi bi-cart-plus-fill"></i>
+                            Get Course Now
+                          </button>
+                        ) : (
+                          <button
+                            className={s.enrollBtn}
+                            onClick={() => handleBuyCourse(course.id)}
+                          >
+                            <i className="bi bi-cart-plus-fill"></i>
+                            Buy Course Now
+                          </button>
+                        )}
 
                         {inWishlist ? (
                           <button

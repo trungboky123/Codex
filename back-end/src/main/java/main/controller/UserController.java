@@ -3,6 +3,7 @@ package main.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
+import main.dto.request.CreateUserRequest;
 import main.dto.request.UpdateUserRequest;
 import main.dto.response.UserResponse;
 import main.service.interfaces.IUserService;
@@ -86,5 +87,27 @@ public class UserController {
     public ResponseEntity<?> getAllInstructors() {
         List<UserResponse> instructors = userService.getAllInstructors();
         return ResponseEntity.ok(instructors);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+        UserResponse user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @Valid @RequestPart(value = "data", required = false) UpdateUserRequest request, @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
+        userService.updateUser(id, request, avatar);
+        return ResponseEntity.ok(Map.of(
+                "message", "Updated Successfully!"
+        ));
+    }
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createUser(@Valid @RequestPart(value = "data", required = false) CreateUserRequest request, @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
+        userService.createUser(request, avatar);
+        return ResponseEntity.ok(Map.of(
+                "message", "Created Successfully!"
+        ));
     }
 }

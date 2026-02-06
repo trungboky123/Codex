@@ -313,7 +313,7 @@ export default function AdminDashboard() {
               <div className={s.chartHeader}>
                 <div>
                   <h2 className={s.chartTitle}>Revenue Overview</h2>
-                  <p className={s.chartSubtitle}>Monthly revenue for 2024</p>
+                  <p className={s.chartSubtitle}>Monthly revenue for {new Date().getFullYear()}</p>
                 </div>
                 <div className={s.chartLegend}>
                   <div className={s.legendItem}>
