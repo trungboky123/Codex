@@ -58,7 +58,11 @@ public class ClassService implements IClassService {
     public List<ClassResponse> getAllClasses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         List<Class> classes = classRepository.findAllClasses(keyword, categoryId, instructorId, status, sort);
-        return classes.stream().map(clazz -> modelMapper.map(clazz, ClassResponse.class)).toList();
+        return classes.stream().map(clazz -> {
+            ClassResponse response = modelMapper.map(clazz, ClassResponse.class);
+            response.setSlug(slugify.slugify(response.getName()));
+            return response;
+        }).toList();
     }
 
     @Override

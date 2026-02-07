@@ -12,7 +12,6 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UserProfilePage from './pages/UserProfilePage';
-import Draft from './draft';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import PublicCoursesPage from './pages/PublicCoursesPage';
 import PublicClassesPage from './pages/PublicClassesPage';
@@ -31,6 +30,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import EditAccountPage from './admin pages/EditAccountPage';
 import EditCoursePage from './admin pages/EditCoursePage';
 import AddAccountPage from './admin pages/AddAccountPage';
+import AddCoursePage from './admin pages/AddCoursePage';
 
 const router = createBrowserRouter([
   {
@@ -54,20 +54,24 @@ const router = createBrowserRouter([
         element: <AccountListPage/>
       },
       {
-        path: "edit-account",
+        path: "edit-account/:id",
         element: <EditAccountPage/>
       },
       {
         path: "add-account",
-        element: <AddAccountPage/>,
+        element: <AddAccountPage/>
       },
       {
         path: "course-list",
         element: <CourseListPage/>
       },
       {
-        path: "edit-course",
+        path: "edit-course/:id",
         element: <EditCoursePage/>
+      },
+      {
+        path: "add-course", 
+        element: <AddCoursePage/>
       },
       {
         path: "class-list",
@@ -126,10 +130,6 @@ const router = createBrowserRouter([
   {
     path: "wishlist",
     element: <WishlistPage/>
-  },
-  {
-    path: "/draft",
-    element: <Draft/>
   }
 ]);
 

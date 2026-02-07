@@ -272,7 +272,7 @@ public class UserService implements IUserService {
                 total++;
 
                 try {
-                    importSingleRow(row);
+                    importSingleAccount(row);
                     success++;
                 } catch (Exception e) {
                     errors.add("Row " + (i + 1) + ": " + e.getMessage());
@@ -285,7 +285,7 @@ public class UserService implements IUserService {
         return new ImportAccountResponse(total, success, total - success, errors);
     }
 
-    private void importSingleRow(Row row) {
+    private void importSingleAccount(Row row) {
         String fullName = XLSXUtil.getCell(row, 0);
         String username = XLSXUtil.getCell(row, 1);
         String email = XLSXUtil.getCell(row, 2);
@@ -333,8 +333,8 @@ public class UserService implements IUserService {
             throw new RuntimeException("Status must be true/false!");
         }
 
-        String roleStr = roleName.trim().toLowerCase();
-        Setting role = settingRepository.findByName(roleStr.substring(0, 1).toUpperCase() + roleStr.substring(1).toLowerCase()).orElseThrow(() -> new RuntimeException("Role not found"));
+        String roleStr = XLSXUtil.normalizeName(roleName);
+        Setting role = settingRepository.findByName(roleStr).orElseThrow(() -> new RuntimeException("Role " + roleName + " not found"));
 
         User user = new User();
         user.setFullName(fullName);

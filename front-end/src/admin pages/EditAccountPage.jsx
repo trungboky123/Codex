@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
 import s from "../css/EditAccount.module.scss";
@@ -7,8 +7,7 @@ import authFetch from "../function/authFetch";
 
 export default function EditAccountPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const { id } = useParams();
   const fileInputRef = useRef(null);
   const [roles, setRoles] = useState([]);
   const [newData, setNewData] = useState({});

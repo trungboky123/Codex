@@ -348,7 +348,7 @@ export default function AdminDashboard() {
                       className={s.topItemImage}
                     />
                     <div className={s.topItemInfo}>
-                      <h4 className={s.topItemName}>{course.name}</h4>
+                      <h4 className={s.topItemName}>{course.courseName}</h4>
                       <p className={s.topItemStats}>
                         {course.totalSold} sold • {formatCurrency(course.totalRevenue)}
                       </p>

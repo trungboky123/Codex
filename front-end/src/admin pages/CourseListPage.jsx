@@ -3,7 +3,7 @@ import s from "../css/CourseList.module.scss";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function CourseListPage() {
   const navigate = useNavigate();
@@ -12,19 +12,37 @@ export default function CourseListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState("id");
   const [sortDir, setSortDir] = useState("asc");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
+  const [importDetails, setImportDetails] = useState({
+    total: "",
+    success: "",
+    failed: "",
+    errors: [],
+  });
+  const [importErrors, setImportErrors] = useState([]);
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("keyword") || "",
+  );
   const [selectedCategory, setSelectedCategory] = useState(0);
-  const [selectedCategoryName, setSelectedCategoryName] = useState(searchParams.get("category") || "");
+  const [selectedCategoryName, setSelectedCategoryName] = useState(
+    searchParams.get("category") || "",
+  );
   const [selectedInstructor, setSelectedInstructor] = useState(0);
-  const [selectedInstructorName, setSelectedInstructorName] = useState(searchParams.get("instructor") || "");
+  const [selectedInstructorName, setSelectedInstructorName] = useState(
+    searchParams.get("instructor") || "",
+  );
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedStatusName, setSelectedStatusName] = useState(searchParams.get("status") || "");
+  const [selectedStatusName, setSelectedStatusName] = useState(
+    searchParams.get("status") || "",
+  );
 
   // Dropdown
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Categories and Instructors for filters
   const [categories, setCategories] = useState([]);
@@ -37,19 +55,34 @@ export default function CourseListPage() {
 
   useEffect(() => {
     getAllCourses();
-  }, [searchTerm, selectedCategory, selectedInstructor, selectedStatus, sortBy, sortDir]);
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedInstructor,
+    selectedStatus,
+    sortBy,
+    sortDir,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchTerm) params.set("keyword", searchTerm);
     if (selectedCategoryName) params.set("category", selectedCategoryName);
-    if (selectedInstructorName) params.set("instructor", selectedInstructorName);
+    if (selectedInstructorName)
+      params.set("instructor", selectedInstructorName);
     if (selectedStatusName) params.set("status", selectedStatusName);
     if (sortBy) params.set("sortBy", sortBy);
     if (sortDir) params.set("sortDir", sortDir);
 
-    setSearchParams(params, {replace: true});
-  }, [searchTerm, selectedCategory, selectedInstructor, selectedStatus, sortBy, sortDir]);
+    setSearchParams(params, { replace: true });
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedInstructor,
+    selectedStatus,
+    sortBy,
+    sortDir,
+  ]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -85,92 +118,163 @@ export default function CourseListPage() {
     }
     if (sortBy) params.set("sortBy", sortBy);
     if (sortDir) params.set("sortDir", sortDir);
-    const res = await authFetch(`http://localhost:8080/courses/admin/getAll?${params.toString()}`, {
-      method: "GET"
-    });
+    const res = await authFetch(
+      `http://localhost:8080/courses/admin/getAll?${params.toString()}`,
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setCourses(data);
-  };
+  }
 
   async function getAllCategories() {
     const res = await authFetch("http://localhost:8080/settings/categories", {
-      method: "GET"
+      method: "GET",
     });
     const data = await res.json();
     setCategories(data);
-  };
+  }
 
   async function getAllInstructors() {
-    const res = await authFetch("http://localhost:8080/users/instructors/getAll", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/users/instructors/getAll",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setInstructors(data);
-  };
+  }
 
   const getStatus = (status) => {
     return status ? "Active" : "Inactive";
-  }
+  };
 
   const handleEditCourse = (courseId) => {
-    navigate(`/admin/edit-course?id=${courseId}`);
-  }
+    navigate(`/admin/edit-course/${courseId}`);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current.click();
+  };
 
   const handleSidebarCollapse = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
 
+  const handleDownloadTemplate = async () => {
+    const res = await authFetch(
+      "http://localhost:8080/courses/download-template",
+      {
+        method: "GET",
+      },
+    );
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(new Blob([blob]));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "course_template.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportCourses = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await authFetch("http://localhost:8080/courses/import", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      setMessage(`Import failed: ${errorData.message}`);
+      setMessageType("error");
+      setImportDetails({ total: "", success: "", failed: "", errors: [] });
+      setImportErrors([]);
+      return;
+    }
+
+    const data = await res.json();
+    setImportDetails({
+      total: data.total,
+      success: data.success,
+      failed: data.failed,
+      errors: data.errors,
+    });
+    setMessage(
+      `Successfully imported ${data.success} out of ${data.total} courses.`,
+    );
+    setMessageType(data.failed > 0 ? "warning" : "success");
+    setImportErrors(data.errors);
+    getAllCourses();
+    e.target.value = "";
+  };
+
+  const handleCloseMessage = () => {
+    setMessage("");
+    setImportDetails({ total: "", success: "", failed: "", errors: [] });
+    setImportErrors([]);
+  };
+
   const handleInstructorChange = (instructorId) => {
     if (instructorId !== 0) {
-      setSelectedInstructorName(instructors.find((inst) => inst.id === instructorId).fullName);
-    }
-    else {
+      setSelectedInstructorName(
+        instructors.find((inst) => inst.id === instructorId).fullName,
+      );
+    } else {
       setSelectedInstructorName("");
     }
 
     setSelectedInstructor(instructorId);
-  }
+  };
 
   const handleCategoryChange = (categoryId) => {
     if (categoryId !== 0) {
       setSelectedCategoryName(categories.find((c) => c.id === categoryId).name);
-    }
-    else {
+    } else {
       setSelectedCategoryName("");
     }
 
     setSelectedCategory(categoryId);
-  }
+  };
 
   const handleStatusChange = (selectedStatus) => {
     if (selectedStatus !== "all") {
       setSelectedStatusName(selectedStatus === "true" ? "Active" : "Inactive");
-    }
-    else {
+    } else {
       setSelectedStatusName("");
     }
 
     setSelectedStatus(selectedStatus);
-  }
+  };
 
   const handleSort = (field) => {
     if (sortBy === field) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc")
-    }
-    else {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
       setSortBy(field);
       setSortDir("asc");
     }
-  }
+  };
 
-  const toggleStatus = async(courseId) => {
+  const toggleStatus = async (courseId) => {
     const course = courses.find((c) => c.id === courseId);
     if (!course) return;
 
-    const ok = window.confirm(course.status ? "Deactivate this course?" : "Activate this course?");
+    const ok = window.confirm(
+      course.status ? "Deactivate this course?" : "Activate this course?",
+    );
     if (!ok) return;
     await authFetch(`http://localhost:8080/courses/status/${courseId}`, {
-      method: "PUT"
+      method: "PUT",
     });
 
     getAllCourses();
@@ -205,11 +309,68 @@ export default function CourseListPage() {
           <div className={s.header}>
             <div>
               <h1 className={s.title}>Course List</h1>
-              <p className={s.subtitle}>
-                Manage all courses
-              </p>
+              <p className={s.subtitle}>Manage all courses</p>
             </div>
           </div>
+
+          {/* Import Message */}
+          {message && (
+            <div
+              className={`${s.messageBox} ${s[`message${messageType.charAt(0).toUpperCase() + messageType.slice(1)}`]}`}
+            >
+              <div className={s.messageContent}>
+                <i
+                  className={
+                    messageType === "success"
+                      ? "bi bi-check-circle-fill"
+                      : messageType === "warning"
+                        ? "bi bi-exclamation-triangle-fill"
+                        : "bi bi-x-circle-fill"
+                  }
+                ></i>
+                <div className={s.messageText}>
+                  <p className={s.messageTitle}>{message}</p>
+                  {importDetails.total && (
+                    <div className={s.importStats}>
+                      <span>Total: {importDetails.total}</span>
+                      <span>•</span>
+                      <span className={s.successText}>
+                        Success: {importDetails.success}
+                      </span>
+                      {importDetails.failed > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className={s.failedText}>
+                            Failed: {importDetails.failed}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button className={s.closeBtn} onClick={handleCloseMessage}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+          )}
+
+          {/* Import Errors */}
+          {importErrors.length > 0 && (
+            <div className={s.errorsBox}>
+              <h3 className={s.errorsTitle}>
+                <i className="bi bi-exclamation-circle"></i>
+                Import Errors ({importErrors.length})
+              </h3>
+              <div className={s.errorsList}>
+                {importErrors.map((error, index) => (
+                  <div key={index} className={s.errorItem}>
+                    <span className={s.errorRow}>{error}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Filters & Actions */}
           <div className={s.toolbar}>
@@ -284,13 +445,12 @@ export default function CourseListPage() {
                   <div className={s.dropdownMenu}>
                     <button
                       className={s.dropdownItem}
+                      onClick={handleDownloadTemplate}
                     >
                       <i className="bi bi-download"></i>
                       <span>Download Import Template</span>
                     </button>
-                    <button
-                      className={s.dropdownItem}
-                    >
+                    <button className={s.dropdownItem} onClick={handleImportClick}>
                       <i className="bi bi-upload"></i>
                       <span>Import Courses</span>
                     </button>
@@ -298,8 +458,19 @@ export default function CourseListPage() {
                 )}
               </div>
 
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".xlsx,.xls"
+                onChange={handleImportCourses}
+                style={{ display: "none" }}
+              />
+
               {/* Add Course Button */}
-              <button className={s.addBtn} >
+              <button
+                className={s.addBtn}
+                onClick={() => navigate("/admin/add-course")}
+              >
                 <i className="bi bi-plus-lg"></i>
                 <span>Add Course</span>
               </button>
@@ -317,13 +488,33 @@ export default function CourseListPage() {
             <table className={s.table}>
               <thead>
                 <tr>
-                  <th onClick={() => handleSort("id")} style={{cursor: "pointer"}}>ID</th>
+                  <th
+                    onClick={() => handleSort("id")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    ID
+                  </th>
                   <th>Thumbnail</th>
-                  <th onClick={() => handleSort("name")} style={{cursor: "pointer"}}>Course Name</th>
+                  <th
+                    onClick={() => handleSort("name")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Course Name
+                  </th>
                   <th>Categories</th>
                   <th>Instructor</th>
-                  <th onClick={() => handleSort("listedPrice")} style={{cursor: "pointer"}}>Listed Price</th>
-                  <th onClick={() => handleSort("salePrice")} style={{cursor: "pointer"}}>Sale Price</th>
+                  <th
+                    onClick={() => handleSort("listedPrice")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Listed Price
+                  </th>
+                  <th
+                    onClick={() => handleSort("salePrice")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Sale Price
+                  </th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -340,7 +531,13 @@ export default function CourseListPage() {
                           className={s.thumbnail}
                         />
                       </td>
-                      <td className={s.nameCell}>{course.name}</td>
+                      <td className={s.nameCell}>
+                        <Link
+                          to={`/public-course-details/${course.slug}/${course.id}`}
+                        >
+                          {course.name}
+                        </Link>
+                      </td>
                       <td>
                         <div className={s.categoryTags}>
                           {course.categories.map((category) => (
@@ -372,7 +569,7 @@ export default function CourseListPage() {
                       </td>
                       <td>
                         <div className={s.actionBtns}>
-                          <button 
+                          <button
                             onClick={() => handleEditCourse(course.id)}
                             className={s.actionBtn}
                             title="Edit course"

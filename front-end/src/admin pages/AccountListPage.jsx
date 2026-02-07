@@ -9,7 +9,7 @@ export default function AdminAccounts() {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); // success or error
+  const [messageType, setMessageType] = useState("success"); 
   const [importDetails, setImportDetails] = useState({
     total: "",
     success: "",
@@ -204,7 +204,7 @@ export default function AdminAccounts() {
   };
 
   const handleEditAccount = (accountId) => {
-    navigate(`/admin/edit-account?id=${accountId}`);
+    navigate(`/admin/edit-account/${accountId}`);
   };
 
   const toggleStatus = async (accountId) => {
@@ -430,11 +430,6 @@ export default function AdminAccounts() {
                     style={{ cursor: "pointer" }}
                   >
                     ID
-                    {sortBy === "id" && (
-                      <i
-                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
-                      ></i>
-                    )}
                   </th>
                   <th>Avatar</th>
                   <th
@@ -442,33 +437,18 @@ export default function AdminAccounts() {
                     style={{ cursor: "pointer" }}
                   >
                     Full Name
-                    {sortBy === "fullName" && (
-                      <i
-                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
-                      ></i>
-                    )}
                   </th>
                   <th
                     onClick={() => handleSort("username")}
                     style={{ cursor: "pointer" }}
                   >
                     Username
-                    {sortBy === "username" && (
-                      <i
-                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
-                      ></i>
-                    )}
                   </th>
                   <th
                     onClick={() => handleSort("email")}
                     style={{ cursor: "pointer" }}
                   >
                     Email
-                    {sortBy === "email" && (
-                      <i
-                        className={`bi bi-arrow-${sortDir === "asc" ? "up" : "down"}`}
-                      ></i>
-                    )}
                   </th>
                   <th>Role</th>
                   <th>Status</th>

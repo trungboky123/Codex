@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import s from "../css/ClassList.module.scss";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import authFetch from "../function/authFetch";
 
 export default function ClassListPage() {
@@ -344,7 +344,7 @@ export default function ClassListPage() {
                 <tr>
                   <th onClick={() => handleSort("id")} style={{cursor: "pointer"}}>ID</th>
                   <th>Thumbnail</th>
-                  <th onClick={() => handleSort("name")} style={{cursor: "pointer"}}>Course Name</th>
+                  <th onClick={() => handleSort("name")} style={{cursor: "pointer"}}>Class Name</th>
                   <th>Categories</th>
                   <th>Instructor</th>
                   <th onClick={() => handleSort("startDate")} style={{cursor: "pointer"}}>Start Date</th>
@@ -365,7 +365,11 @@ export default function ClassListPage() {
                           className={s.thumbnail}
                         />
                       </td>
-                      <td className={s.nameCell}>{clazz.name}</td>
+                      <td className={s.nameCell}>
+                        <Link to={`/public-class-details/${clazz.slug}/${clazz.id}`}>
+                          {clazz.name}
+                        </Link>
+                      </td>
                       <td>
                         <div className={s.categoryTags}>
                           {clazz.categories.map((category) => (

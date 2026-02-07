@@ -12,6 +12,10 @@ export default function AddAccountPage() {
   const fileInputRef = useRef(null);
   const [roles, setRoles] = useState([]);
   const [newData, setNewData] = useState({
+    fullName: "",
+    email: "",
+    username: "",
+    roleId: "",
     status: true,
   });
 
