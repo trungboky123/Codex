@@ -10,12 +10,16 @@ export default function AddAccountPage() {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const fileInputRef = useRef(null);
+  const roleDropdownRef = useRef(null);
   const [roles, setRoles] = useState([]);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [newData, setNewData] = useState({
     fullName: "",
     email: "",
     username: "",
     roleId: "",
+    roleName: "",
+    role: null,
     status: true,
   });
 
@@ -35,6 +39,20 @@ export default function AddAccountPage() {
     getAllRoles();
   }, [id]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target)
+      ) {
+        setRoleDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   async function getAllRoles() {
     const res = await authFetch("http://localhost:8080/settings/roles", {
       method: "GET",
@@ -47,12 +65,14 @@ export default function AddAccountPage() {
     setNewData({ ...newData, [field]: value });
   };
 
-  function handleRoleChange(e) {
-    const roleId = Number(e.target.value);
+  function handleRoleChange(role) {
     setNewData({
       ...newData,
-      roleId: roleId,
+      roleId: role.id,
+      roleName: role.name,
+      role: role,
     });
+    setRoleDropdownOpen(false);
   }
 
   function handleAvatarClick() {
@@ -216,22 +236,35 @@ export default function AddAccountPage() {
 
                 <div className={s.formGroup}>
                   <label className={s.label}>Role</label>
-                  <div className={s.selectWrapper}>
-                    <select
-                      value={newData.roleId || ""}
-                      onChange={handleRoleChange}
-                      className={s.select}
+                  <div className={s.dropdown} ref={roleDropdownRef}>
+                    <button
+                      type="button"
+                      className={s.filterBtn}
+                      onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                     >
-                      <option value="" disabled>
-                        -- Select role --
-                      </option>
-                      {roles.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
-                    <i className="bi bi-chevron-down"></i>
+                      <span>{newData.roleName || "Select Role"}</span>
+                      <i
+                        className={`bi bi-chevron-down ${roleDropdownOpen ? s.rotate : ""}`}
+                      ></i>
+                    </button>
+
+                    {roleDropdownOpen && (
+                      <div className={s.filterDropdownMenu}>
+                        {roles.map((role) => (
+                          <button
+                            key={role.id}
+                            type="button"
+                            className={`${s.filterDropdownItem} ${newData.roleId === role.id ? s.active : ""}`}
+                            onClick={() => handleRoleChange(role)}
+                          >
+                            {role.name}
+                            {newData.roleId === role.id && (
+                              <i className="bi bi-check-lg"></i>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -369,9 +402,9 @@ export default function AddAccountPage() {
                     </span>
                   </div>
                   <span
-                    className={`${s.previewBadge} ${s[`badge${newData.role?.name}`]}`}
+                    className={`${s.previewBadge} ${s[`badge${newData.role?.name || ""}`]}`}
                   >
-                    {newData.role?.name}
+                    {newData.role?.name || "Role"}
                   </span>
                 </div>
 

@@ -3,7 +3,7 @@ package main.utils;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
-public class HtmlSanitizerUtil {
+public class HtmlUtil {
     private static final PolicyFactory POLICY = Sanitizers.FORMATTING
             .and(Sanitizers.BLOCKS)
             .and(Sanitizers.LINKS)

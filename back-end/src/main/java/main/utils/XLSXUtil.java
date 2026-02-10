@@ -2,8 +2,11 @@ package main.utils;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 public class XLSXUtil {
@@ -31,5 +34,26 @@ public class XLSXUtil {
     public static String normalizeName(String input) {
         String s = input.trim().toLowerCase();
         return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
+
+    public static LocalDate parseExcelDate(Cell cell, String fieldName) {
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            throw new RuntimeException(fieldName + " is blank!");
+        }
+
+        if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+            return cell.getLocalDateTimeCellValue().toLocalDate();
+        }
+
+        if (cell.getCellType() == CellType.STRING) {
+            String value = cell.getStringCellValue().trim();
+            if (value.isEmpty()) {
+                throw new RuntimeException(fieldName + " is blank!");
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+            return LocalDate.parse(value, formatter);
+        }
+
+        throw new RuntimeException(fieldName + " is invalid");
     }
 }

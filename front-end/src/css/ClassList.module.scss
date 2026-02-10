@@ -38,6 +38,183 @@
   font-weight: 500;
 }
 
+.messageBox {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease;
+  border: 1px solid;
+}
+
+.messageSuccess {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+
+  i {
+    color: #16a34a;
+  }
+}
+
+.messageWarning {
+  background: #fef3c7;
+  border-color: #fbbf24;
+  color: #92400e;
+
+  i {
+    color: #d97706;
+  }
+}
+
+.messageError {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+
+  i {
+    color: #dc2626;
+  }
+}
+
+.messageContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+
+  i {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.messageText {
+  flex: 1;
+}
+
+.messageTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.importStats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.successText {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.failedText {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  opacity: 0.6;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Errors Box
+.errorsBox {
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideDown 0.4s ease;
+}
+
+.errorsTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin: 0 0 16px;
+
+  i {
+    font-size: 1.2rem;
+    color: #dc2626;
+  }
+}
+
+.errorsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+.errorItem {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.errorRow {
+  font-weight: 700;
+  color: #991b1b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.errorMessage {
+  color: #7f1d1d;
+  flex: 1;
+}
+
 // Toolbar
 .toolbar {
   display: flex;
@@ -123,6 +300,89 @@
 // Dropdown
 .dropdown {
   position: relative;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 150px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  i {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    transition: transform 0.3s;
+
+    &.rotate {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+  }
+}
+
+.filterDropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  z-index: 100;
+  animation: slideDown 0.2s ease;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filterDropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+
+  i {
+    font-size: 1rem;
+    color: #667eea;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+
+  &.active {
+    background: #f0f2ff;
+    color: #667eea;
+    font-weight: 600;
+  }
 }
 
 .toolsBtn {
@@ -513,7 +773,7 @@
     min-width: 100%;
   }
 
-  .filterSelect {
+  .filterBtn {
     width: 100%;
   }
 

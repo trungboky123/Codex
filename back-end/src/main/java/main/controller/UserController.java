@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.UpdateUserRequest;
-import main.dto.response.ImportAccountResponse;
+import main.dto.response.ImportResponse;
 import main.dto.response.UserResponse;
 import main.service.interfaces.IUserService;
 import org.apache.poi.ss.usermodel.*;
@@ -157,7 +157,7 @@ public class UserController {
             ));
         }
 
-        ImportAccountResponse response = userService.importAccounts(file);
+        ImportResponse response = userService.importAccounts(file);
         return ResponseEntity.ok(response);
     }
 }

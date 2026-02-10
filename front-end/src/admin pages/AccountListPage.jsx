@@ -9,7 +9,7 @@ export default function AdminAccounts() {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); 
+  const [messageType, setMessageType] = useState("success"); // success or error
   const [importDetails, setImportDetails] = useState({
     total: "",
     success: "",
@@ -38,7 +38,11 @@ export default function AdminAccounts() {
 
   // Dropdown
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
+  const roleDropdownRef = useRef(null);
+  const statusDropdownRef = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +60,18 @@ export default function AdminAccounts() {
         !toolsDropdownRef.current.contains(event.target)
       ) {
         setToolsDropdownOpen(false);
+      }
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target)
+      ) {
+        setRoleDropdownOpen(false);
+      }
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target)
+      ) {
+        setStatusDropdownOpen(false);
       }
     };
 
@@ -167,33 +183,42 @@ export default function AdminAccounts() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await authFetch("http://localhost:8080/users/import", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await authFetch("http://localhost:8080/users/import", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      setMessage(`Import failed: ${errorData.message}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMessage(`Import failed: ${errorData.message}`);
+        setMessageType("error");
+        setImportDetails({ total: "", success: "", failed: "", errors: [] });
+        setImportErrors([]);
+        return;
+      }
+
+      const data = await res.json();
+      setImportDetails({
+        total: data.total,
+        success: data.success,
+        failed: data.failed,
+        errors: data.errors || [],
+      });
+      setMessage(
+        `Successfully imported ${data.success} of ${data.total} accounts.`,
+      );
+      setMessageType(data.failed > 0 ? "warning" : "success");
+      setImportErrors(data.errors || []);
+      getAllUsers();
+    } catch (err) {
+      setMessage("Import failed. Please try again.");
       setMessageType("error");
       setImportDetails({ total: "", success: "", failed: "", errors: [] });
       setImportErrors([]);
-      return;
     }
 
-    const data = await res.json();
-    setImportDetails({
-      total: data.total,
-      success: data.success,
-      failed: data.failed,
-      errors: data.errors,
-    });
-    setMessage(
-      `Successfully imported ${data.success} out of ${data.total} accounts.`,
-    );
-    setMessageType(data.failed > 0 ? "warning" : "success");
-    setImportErrors(data.errors);
-    getAllUsers();
+    // Reset file input
     e.target.value = "";
   };
 
@@ -313,7 +338,8 @@ export default function AdminAccounts() {
               <div className={s.errorsList}>
                 {importErrors.map((error, index) => (
                   <div key={index} className={s.errorItem}>
-                    <span className={s.errorRow}>{error}</span>
+                    <span className={s.errorRow}>Row {error.row}:</span>
+                    <span className={s.errorMessage}>{error.message}</span>
                   </div>
                 ))}
               </div>
@@ -336,31 +362,101 @@ export default function AdminAccounts() {
               </div>
 
               {/* Role Filter */}
-              <select
-                value={selectedRole}
-                onChange={(e) => handleRoleChange(Number(e.target.value))}
-                className={s.filterSelect}
-              >
-                <option value={0}>All Roles</option>
-                {roles.map((role) => {
-                  return (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  );
-                })}
-              </select>
+              <div className={s.dropdown} ref={roleDropdownRef}>
+                <button
+                  className={s.filterBtn}
+                  onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                >
+                  <span>{selectedRoleName || "All Roles"}</span>
+                  <i
+                    className={`bi bi-chevron-down ${roleDropdownOpen ? s.rotate : ""}`}
+                  ></i>
+                </button>
+
+                {roleDropdownOpen && (
+                  <div className={s.filterDropdownMenu}>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedRole === 0 ? s.active : ""}`}
+                      onClick={() => {
+                        handleRoleChange(0);
+                        setRoleDropdownOpen(false);
+                      }}
+                    >
+                      All Roles
+                      {selectedRole === 0 && <i className="bi bi-check-lg"></i>}
+                    </button>
+                    {roles.map((role) => (
+                      <button
+                        key={role.id}
+                        className={`${s.filterDropdownItem} ${selectedRole === role.id ? s.active : ""}`}
+                        onClick={() => {
+                          handleRoleChange(role.id);
+                          setRoleDropdownOpen(false);
+                        }}
+                      >
+                        {role.name}
+                        {selectedRole === role.id && (
+                          <i className="bi bi-check-lg"></i>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Status Filter */}
-              <select
-                value={selectedStatus}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className={s.filterSelect}
-              >
-                <option value="all">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+              <div className={s.dropdown} ref={statusDropdownRef}>
+                <button
+                  className={s.filterBtn}
+                  onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                >
+                  <span>{selectedStatusName || "All Status"}</span>
+                  <i
+                    className={`bi bi-chevron-down ${statusDropdownOpen ? s.rotate : ""}`}
+                  ></i>
+                </button>
+
+                {statusDropdownOpen && (
+                  <div className={s.filterDropdownMenu}>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "all" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("all");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      All Status
+                      {selectedStatus === "all" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "true" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("true");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Active
+                      {selectedStatus === "true" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "false" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("false");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Inactive
+                      {selectedStatus === "false" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className={s.actions}>

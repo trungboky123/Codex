@@ -9,7 +9,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import Header from "../components/Header";
-import { jwtDecode } from "jwt-decode";
 
 export default function PublicCourseDetailsPage() {
   const navigate = useNavigate();
@@ -156,6 +155,7 @@ export default function PublicCourseDetailsPage() {
     const data = await res.json();
     navigate("/payment", {
       state: {
+        id: id,
         name: course.name,
         type: "Course",
         qrCode: data.qrCode,
@@ -173,8 +173,16 @@ export default function PublicCourseDetailsPage() {
     });
     if (res.ok) {
       setHasEnrolled(true);
+      const res = await authFetch(`http://localhost:8080/wishlist/find?itemId=${courseId}&type=course`, {
+        method: "GET",
+      });
+      if (res.ok) {
+        await authFetch(`http://localhost:8080/wishlist/remove?itemId=${courseId}&type=course`, {
+          method: "DELETE"
+        });
+      }
     }
-  }
+  };
 
   const handleGoToMyCourse = () => {
     navigate("/my-courses");
@@ -195,7 +203,7 @@ export default function PublicCourseDetailsPage() {
   };
 
   const handleAddToWishlist = async () => {
-    const type = "course";
+    const type = "Course";
     const itemId = course.id;
     const itemName = course.name;
     const listedPrice = course.listedPrice;
@@ -222,6 +230,7 @@ export default function PublicCourseDetailsPage() {
 
   return (
     <>
+      <title>Public Course Details</title>
       <Header />
       <div className={s.course}>
         <div className="container">
@@ -275,7 +284,7 @@ export default function PublicCourseDetailsPage() {
                   </div>
                 </div>
 
-                <div className={s.courseDescription}>{course.description}</div>
+                <div className={s.courseDescription} dangerouslySetInnerHTML={{ __html: course.description }}></div>
               </div>
 
               {/* Instructor */}

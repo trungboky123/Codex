@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ImportCourseResponse {
+public class ImportResponse {
     private int total;
     private int success;
     private int failed;

@@ -122,6 +122,7 @@ export default function PublicClassDetailsPage() {
     const data = await res.json();
     navigate("/payment", {
       state: {
+        id: id,
         name: classData.name,
         type: "Class",
         qrUrl: data.qrUrl,
@@ -132,6 +133,32 @@ export default function PublicClassDetailsPage() {
         description: data.description,
       },
     });
+  };
+
+  const handleGetClass = async (classId) => {
+    const res = await authFetch(
+      `http://localhost:8080/enrollments/free-class/${classId}`,
+      {
+        method: "POST",
+      },
+    );
+    if (res.ok) {
+      setHasEnrolled(true);
+      const res = await authFetch(
+        `http://localhost:8080/wishlist/find?itemId=${classId}&type=class`,
+        {
+          method: "GET",
+        },
+      );
+      if (res.ok) {
+        await authFetch(
+          `http://localhost:8080/wishlist/remove?itemId=${classId}&type=class`,
+          {
+            method: "DELETE",
+          },
+        );
+      }
+    }
   };
 
   const formatPrice = (price) => {
@@ -217,6 +244,7 @@ export default function PublicClassDetailsPage() {
 
   return (
     <>
+      <title>Public Class Details</title>
       <Header />
       <div className={s.course}>
         <div className="container">
@@ -270,9 +298,10 @@ export default function PublicClassDetailsPage() {
                   </div>
                 </div>
 
-                <div className={s.courseDescription}>
-                  {classData.description}
-                </div>
+                <div
+                  className={s.courseDescription}
+                  dangerouslySetInnerHTML={{ __html: classData.description }}
+                ></div>
               </div>
 
               {/* Instructor */}
@@ -393,10 +422,11 @@ export default function PublicClassDetailsPage() {
 
                   {isSignedIn ? (
                     hasEnrolled ? (
+                      // Enrolled State
                       <>
                         <div className={s.enrolledMessage}>
                           <i className="bi bi-check-circle-fill"></i>
-                          <span>You have already enrolled in this class</span>
+                          <span>You have already purchased this course</span>
                         </div>
                         <button
                           className={s.goToMyClassBtn}
@@ -407,14 +437,25 @@ export default function PublicClassDetailsPage() {
                         </button>
                       </>
                     ) : (
+                      // Not Enrolled State
                       <>
-                        <button
-                          className={s.enrollBtn}
-                          onClick={() => handleBuyClass(classData.id)}
-                        >
-                          <i className="bi bi-cart-plus-fill"></i>
-                          Enroll in This Class
-                        </button>
+                        {classData.listedPrice === 0 || classData.salePrice === 0 ? (
+                          <button
+                            className={s.enrollBtn}
+                            onClick={() => handleGetClass(classData.id)}
+                          >
+                            <i className="bi bi-cart-plus-fill"></i>
+                            Get Class Now
+                          </button>
+                        ) : (
+                          <button
+                            className={s.enrollBtn}
+                            onClick={() => handleBuyClass(classData.id)}
+                          >
+                            <i className="bi bi-cart-plus-fill"></i>
+                            Enroll in Class Now
+                          </button>
+                        )}
 
                         {inWishlist ? (
                           <button
@@ -441,7 +482,7 @@ export default function PublicClassDetailsPage() {
                       onClick={handleLogin}
                     >
                       <i className="bi bi-box-arrow-in-right"></i>
-                      Login to Enroll in This Class
+                      Login to Enroll in This Course
                     </button>
                   )}
 

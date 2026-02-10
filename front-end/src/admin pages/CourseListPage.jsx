@@ -41,7 +41,13 @@ export default function CourseListPage() {
 
   // Dropdown
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [instructorDropdownOpen, setInstructorDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+  const instructorDropdownRef = useRef(null);
+  const statusDropdownRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Categories and Instructors for filters
@@ -92,6 +98,24 @@ export default function CourseListPage() {
         !toolsDropdownRef.current.contains(event.target)
       ) {
         setToolsDropdownOpen(false);
+      }
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setCategoryDropdownOpen(false);
+      }
+      if (
+        instructorDropdownRef.current &&
+        !instructorDropdownRef.current.contains(event.target)
+      ) {
+        setInstructorDropdownOpen(false);
+      }
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target)
+      ) {
+        setStatusDropdownOpen(false);
       }
     };
 
@@ -210,7 +234,7 @@ export default function CourseListPage() {
       errors: data.errors,
     });
     setMessage(
-      `Successfully imported ${data.success} out of ${data.total} courses.`,
+      `Successfully imported ${data.success} of ${data.total} courses.`,
     );
     setMessageType(data.failed > 0 ? "warning" : "success");
     setImportErrors(data.errors);
@@ -388,43 +412,150 @@ export default function CourseListPage() {
               </div>
 
               {/* Category Filter */}
-              <select
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(Number(e.target.value))}
-                className={s.filterSelect}
-              >
-                <option value={0}>All Categories</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className={s.dropdown} ref={categoryDropdownRef}>
+                <button
+                  className={s.filterBtn}
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                >
+                  <span>{selectedCategoryName || "All Categories"}</span>
+                  <i
+                    className={`bi bi-chevron-down ${categoryDropdownOpen ? s.rotate : ""}`}
+                  ></i>
+                </button>
+
+                {categoryDropdownOpen && (
+                  <div className={s.filterDropdownMenu}>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedCategory === 0 ? s.active : ""}`}
+                      onClick={() => {
+                        handleCategoryChange(0);
+                        setCategoryDropdownOpen(false);
+                      }}
+                    >
+                      All Categories
+                      {selectedCategory === 0 && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        className={`${s.filterDropdownItem} ${selectedCategory === category.id ? s.active : ""}`}
+                        onClick={() => {
+                          handleCategoryChange(category.id);
+                          setCategoryDropdownOpen(false);
+                        }}
+                      >
+                        {category.name}
+                        {selectedCategory === category.id && (
+                          <i className="bi bi-check-lg"></i>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Instructor Filter */}
-              <select
-                value={selectedInstructor}
-                onChange={(e) => handleInstructorChange(Number(e.target.value))}
-                className={s.filterSelect}
-              >
-                <option value={0}>All Instructors</option>
-                {instructors.map((instructor) => (
-                  <option key={instructor.id} value={instructor.id}>
-                    {instructor.fullName}
-                  </option>
-                ))}
-              </select>
+              <div className={s.dropdown} ref={instructorDropdownRef}>
+                <button
+                  className={s.filterBtn}
+                  onClick={() =>
+                    setInstructorDropdownOpen(!instructorDropdownOpen)
+                  }
+                >
+                  <span>{selectedInstructorName || "All Instructors"}</span>
+                  <i
+                    className={`bi bi-chevron-down ${instructorDropdownOpen ? s.rotate : ""}`}
+                  ></i>
+                </button>
+
+                {instructorDropdownOpen && (
+                  <div className={s.filterDropdownMenu}>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedInstructor === 0 ? s.active : ""}`}
+                      onClick={() => {
+                        handleInstructorChange(0);
+                        setInstructorDropdownOpen(false);
+                      }}
+                    >
+                      All Instructors
+                      {selectedInstructor === 0 && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    {instructors.map((instructor) => (
+                      <button
+                        key={instructor.id}
+                        className={`${s.filterDropdownItem} ${selectedInstructor === instructor.id ? s.active : ""}`}
+                        onClick={() => {
+                          handleInstructorChange(instructor.id);
+                          setInstructorDropdownOpen(false);
+                        }}
+                      >
+                        {instructor.fullName}
+                        {selectedInstructor === instructor.id && (
+                          <i className="bi bi-check-lg"></i>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Status Filter */}
-              <select
-                value={selectedStatus}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className={s.filterSelect}
-              >
-                <option value="all">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+              <div className={s.dropdown} ref={statusDropdownRef}>
+                <button
+                  className={s.filterBtn}
+                  onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                >
+                  <span>{selectedStatusName || "All Status"}</span>
+                  <i
+                    className={`bi bi-chevron-down ${statusDropdownOpen ? s.rotate : ""}`}
+                  ></i>
+                </button>
+
+                {statusDropdownOpen && (
+                  <div className={s.filterDropdownMenu}>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "all" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("all");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      All Status
+                      {selectedStatus === "all" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "true" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("true");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Active
+                      {selectedStatus === "true" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                    <button
+                      className={`${s.filterDropdownItem} ${selectedStatus === "false" ? s.active : ""}`}
+                      onClick={() => {
+                        handleStatusChange("false");
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      Inactive
+                      {selectedStatus === "false" && (
+                        <i className="bi bi-check-lg"></i>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className={s.actions}>
@@ -450,7 +581,10 @@ export default function CourseListPage() {
                       <i className="bi bi-download"></i>
                       <span>Download Import Template</span>
                     </button>
-                    <button className={s.dropdownItem} onClick={handleImportClick}>
+                    <button
+                      className={s.dropdownItem}
+                      onClick={handleImportClick}
+                    >
                       <i className="bi bi-upload"></i>
                       <span>Import Courses</span>
                     </button>

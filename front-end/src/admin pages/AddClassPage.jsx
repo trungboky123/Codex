@@ -2,38 +2,40 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
-import s from "../css/AddCourse.module.scss";
+import s from "../css/AddClass.module.scss";
 import authFetch from "../function/authFetch";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-export default function AddCoursePage() {
+export default function AddClassPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [newData, setNewData] = useState({
     name: "",
-    description: "",
-    duration: "",
-    instructorId: "",
-    status: true,
     listedPrice: "",
     salePrice: "",
+    instructorId: "",
+    startDate: "",
+    endDate: "",
+    description: "",
+    status: true,
     categoryIds: [],
   });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleSidebarCollapse = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
 
-  const [categories, setCategories] = useState([]);
   const [previewThumbnail, setPreviewThumbnail] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [instructors, setInstructors] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Quill modules config
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -71,11 +73,11 @@ export default function AddCoursePage() {
       },
     );
     const data = await res.json();
-    setInstructors(data);
+    setInstructors(data.content || data || []);
   }
 
   async function fetchCategories() {
-    const res = await fetch("http://localhost:8080/settings/categories", {
+    const res = await authFetch("http://localhost:8080/settings/categories", {
       method: "GET",
     });
     const data = await res.json();
@@ -99,6 +101,44 @@ export default function AddCoursePage() {
     });
   }
 
+  function handleInstructorChange(e) {
+    const instId = Number(e.target.value);
+    setNewData({
+      ...newData,
+      instructorId: instId,
+    });
+  }
+
+  function handleDescriptionChange(value) {
+    setNewData({ ...newData, description: value });
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    // If already in DD/MM/YYYY format, return as is
+    if (dateStr.includes("/")) return dateStr;
+    // If in YYYY-MM-DD format, convert to DD/MM/YYYY
+    if (dateStr.includes("-")) {
+      const parts = dateStr.split("-");
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        return `${day}/${month}/${year}`;
+      }
+    }
+    return dateStr;
+  }
+
+  function toISODate(display) {
+    if (!display) return "";
+    // If not complete DD/MM/YYYY format yet, return as is for typing
+    if (!display.includes("/")) return display;
+    const parts = display.split("/");
+    if (parts.length !== 3) return display;
+    const [d, m, y] = parts;
+    if (!d || !m || !y) return display;
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+
   function handleThumbnailClick() {
     fileInputRef.current.click();
   }
@@ -112,14 +152,6 @@ export default function AddCoursePage() {
       setPreviewThumbnail(reader.result);
     };
     reader.readAsDataURL(file);
-  }
-
-  function handleInstructorChange(e) {
-    const instId = Number(e.target.value);
-    setNewData({
-      ...newData,
-      instructorId: instId,
-    });
   }
 
   function handleRemoveThumbnail() {
@@ -142,7 +174,7 @@ export default function AddCoursePage() {
       formData.append("thumbnail", thumbnailFile);
     }
 
-    const res = await authFetch("http://localhost:8080/courses/create", {
+    const res = await authFetch("http://localhost:8080/classes/create", {
       method: "POST",
       body: formData,
     });
@@ -158,7 +190,7 @@ export default function AddCoursePage() {
     setIsError(false);
     setMessage(data.message);
     setTimeout(() => {
-      navigate("/admin/course-list");
+      navigate("/admin/class-list");
     }, 1800);
   }
 
@@ -176,7 +208,7 @@ export default function AddCoursePage() {
 
   return (
     <div className={s.layout}>
-      <title>Add Course</title>
+      <title>Add Class</title>
       <AdminHeader sidebarCollapsed={sidebarCollapsed} />
       <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
@@ -185,42 +217,42 @@ export default function AddCoursePage() {
           <div className={s.breadcrumb}>
             <span
               className={s.breadcrumbLink}
-              onClick={() => navigate("/admin/course-list")}
+              onClick={() => navigate("/admin/class-list")}
             >
-              <i className="bi bi-book-fill"></i>
-              Courses
+              <i className="bi bi-laptop"></i>
+              Classes
             </span>
             <i className="bi bi-chevron-right"></i>
-            <span className={s.breadcrumbCurrent}>Add Course</span>
+            <span className={s.breadcrumbCurrent}>Add Class</span>
           </div>
 
           {/* Page Header */}
           <div className={s.pageHeader}>
             <div>
-              <h1 className={s.pageTitle}>Add Course</h1>
+              <h1 className={s.pageTitle}>Add Class</h1>
               <p className={s.pageSubtitle}>
                 Create a new course with all necessary details
               </p>
             </div>
             <button
               className={s.backBtn}
-              onClick={() => navigate("/admin/courses")}
+              onClick={() => navigate("/admin/class-list")}
             >
               <i className="bi bi-arrow-left"></i>
-              Back to Course List
+              Back to Class List
             </button>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSave}>
             <div className={s.formGrid}>
-              {/* Left Column: Thumbnail + Pricing */}
+              {/* Left Column: Thumbnail + Pricing + Status */}
               <div className={s.leftColumn}>
                 {/* Thumbnail Card */}
                 <div className={s.card}>
                   <h3 className={s.cardTitle}>
                     <i className="bi bi-image"></i>
-                    Course Thumbnail
+                    Class Thumbnail
                   </h3>
 
                   <div className={s.thumbnailWrapper}>
@@ -355,7 +387,7 @@ export default function AddCoursePage() {
                         <div>
                           <span className={s.radioLabel}>Active</span>
                           <span className={s.radioDesc}>
-                            Course is visible to students
+                            Class is visible to students
                           </span>
                         </div>
                       </div>
@@ -376,7 +408,7 @@ export default function AddCoursePage() {
                         <div>
                           <span className={s.radioLabel}>Inactive</span>
                           <span className={s.radioDesc}>
-                            Course is hidden from students
+                            Class is hidden from students
                           </span>
                         </div>
                       </div>
@@ -385,23 +417,23 @@ export default function AddCoursePage() {
                 </div>
               </div>
 
-              {/* Right Column: Course Info */}
+              {/* Right Column: Class Info */}
               <div className={s.rightColumn}>
                 <div className={s.card}>
                   <h3 className={s.cardTitle}>
                     <i className="bi bi-info-circle-fill"></i>
-                    Course Information
+                    Class Information
                   </h3>
 
                   <div className={s.formGroup}>
-                    <label className={s.label}>Course Name</label>
+                    <label className={s.label}>Class Name</label>
                     <div className={s.inputWrapper}>
-                      <i className="bi bi-book"></i>
+                      <i className="bi bi-laptop"></i>
                       <input
                         type="text"
                         name="name"
                         onChange={(e) => handleChange("name", e.target.value)}
-                        placeholder="Enter course name"
+                        placeholder="Enter class name"
                         className={s.input}
                         required
                       />
@@ -415,7 +447,6 @@ export default function AddCoursePage() {
                         const isSelected = newData.categoryIds.includes(
                           category.id,
                         );
-
                         return (
                           <label
                             key={category.id}
@@ -427,13 +458,18 @@ export default function AddCoursePage() {
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => handleCategoryChange(category.id)}
+                              className={s.categoryCheckbox}
                             />
-                            <span>{category.name}</span>
+                            <span className={s.categoryName}>
+                              {category.name}
+                            </span>
+                            {isSelected && (
+                              <i className="bi bi-check-circle-fill"></i>
+                            )}
                           </label>
                         );
                       })}
                     </div>
-
                     {newData.categoryIds.length === 0 && (
                       <p className={s.categoryHint}>
                         <i className="bi bi-info-circle"></i>
@@ -442,38 +478,55 @@ export default function AddCoursePage() {
                     )}
                   </div>
 
+                  <div className={s.formGroup}>
+                    <label className={s.label}>Instructor</label>
+                    <div className={s.selectWrapper}>
+                      <select
+                        name="instructorId"
+                        onChange={handleInstructorChange}
+                        className={s.select}
+                        required
+                      >
+                        <option value="">Select Instructor</option>
+                        {instructors.map((instructor) => (
+                          <option key={instructor.id} value={instructor.id}>
+                            {instructor.fullName}
+                          </option>
+                        ))}
+                      </select>
+                      <i className="bi bi-chevron-down"></i>
+                    </div>
+                  </div>
+
                   <div className={s.formRow}>
                     <div className={s.formGroup}>
-                      <label className={s.label}>Instructor</label>
-                      <div className={s.selectWrapper}>
-                        <select
-                          name="instructorId"
-                          onChange={handleInstructorChange}
-                          className={s.select}
+                      <label className={s.label}>Start Date</label>
+                      <div className={s.inputWrapper}>
+                        <i className="bi bi-calendar-event"></i>
+                        <input
+                          type="text"
+                          name="startDate"
+                          onChange={(e) =>
+                            handleChange("startDate", toISODate(e.target.value))
+                          }
+                          placeholder="dd/MM/yyyy"
+                          className={s.input}
                           required
-                        >
-                          <option value="">Select Instructor</option>
-                          {instructors.map((instructor) => (
-                            <option key={instructor.id} value={instructor.id}>
-                              {instructor.fullName}
-                            </option>
-                          ))}
-                        </select>
-                        <i className="bi bi-chevron-down"></i>
+                        />
                       </div>
                     </div>
 
                     <div className={s.formGroup}>
-                      <label className={s.label}>Duration</label>
+                      <label className={s.label}>End Date</label>
                       <div className={s.inputWrapper}>
-                        <i className="bi bi-clock"></i>
+                        <i className="bi bi-calendar-check"></i>
                         <input
                           type="text"
-                          name="duration"
+                          name="endDate"
                           onChange={(e) =>
-                            handleChange("duration", e.target.value)
+                            handleChange("endDate", toISODate(e.target.value))
                           }
-                          placeholder="e.g., 12 hours"
+                          placeholder="dd/MM/yyyy"
                           className={s.input}
                           required
                         />
@@ -486,10 +539,10 @@ export default function AddCoursePage() {
                     <div className={s.editorWrapper}>
                       <ReactQuill
                         theme="snow"
-                        onChange={(value) => handleChange("description", value)}
+                        onChange={handleDescriptionChange}
                         modules={modules}
                         formats={formats}
-                        placeholder="Write course description here..."
+                        placeholder="Write class description here..."
                         className={s.editor}
                       />
                     </div>

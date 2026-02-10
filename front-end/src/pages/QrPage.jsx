@@ -9,6 +9,7 @@ export default function QrPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const id = location.state?.id;
   const name = location.state?.name;
   const type = location.state?.type;
   const qrCode = location.state?.qrCode;
@@ -24,7 +25,7 @@ export default function QrPage() {
       return;
     }
   }, []);
-  
+
   const [copied, setCopied] = useState({
     accountNumber: false,
     amount: false,
@@ -70,6 +71,20 @@ export default function QrPage() {
       if (data.status === "PAID") {
         setPaymentSuccess(true);
         clearInterval(timer);
+        const res = await authFetch(
+          `http://localhost:8080/wishlist/find?itemId=${id}&type=${type}`,
+          {
+            method: "GET",
+          },
+        );
+        if (res.ok) {
+          await authFetch(
+            `http://localhost:8080/wishlist/remove?itemId=${id}&type=${type}`,
+            {
+              method: "DELETE",
+            },
+          );
+        }
       }
     }, 5000);
 

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, use } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
 import s from "../css/EditCourse.module.scss";
@@ -63,13 +63,10 @@ export default function EditCoursePage() {
   ];
 
   useEffect(() => {
-    fetchCourse();
-  }, [id]);
-
-  useEffect(() => {
     fetchInstructors();
     fetchCategories();
-  }, []);
+    fetchCourse();
+  }, [id]);
 
   async function fetchCourse() {
     const res = await fetch(`http://localhost:8080/courses/${id}`, {

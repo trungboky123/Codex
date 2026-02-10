@@ -6,7 +6,7 @@ import main.configuration.CloudinaryService;
 import main.dto.request.CreateCourseRequest;
 import main.dto.request.UpdateCourseRequest;
 import main.dto.response.CourseResponse;
-import main.dto.response.ImportCourseResponse;
+import main.dto.response.ImportResponse;
 import main.entity.Course;
 import main.entity.Setting;
 import main.entity.User;
@@ -14,7 +14,7 @@ import main.repository.CourseRepository;
 import main.repository.SettingRepository;
 import main.repository.UserRepository;
 import main.service.interfaces.ICourseService;
-import main.utils.HtmlSanitizerUtil;
+import main.utils.HtmlUtil;
 import main.utils.XLSXUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
@@ -25,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -163,7 +162,7 @@ public class CourseService implements ICourseService {
         }
 
         if (request.getDescription() != null) {
-            String safeHtml = HtmlSanitizerUtil.sanitize(request.getDescription());
+            String safeHtml = HtmlUtil.sanitize(request.getDescription());
             course.setDescription(safeHtml);
             updated = true;
         }
@@ -206,7 +205,7 @@ public class CourseService implements ICourseService {
         }
 
         if (request.getDescription() != null && !request.getDescription().isBlank()) {
-            String safeHtml = HtmlSanitizerUtil.sanitize(request.getDescription());
+            String safeHtml = HtmlUtil.sanitize(request.getDescription());
             course.setDescription(safeHtml);
         }
 
@@ -224,7 +223,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public ImportCourseResponse importCourses(MultipartFile file) {
+    public ImportResponse importCourses(MultipartFile file) {
         int total = 0;
         int success = 0;
         List<String> errors = new ArrayList<>();
@@ -247,7 +246,7 @@ public class CourseService implements ICourseService {
             throw new RuntimeException("Cannot read Excel file", e);
         }
 
-        return new ImportCourseResponse(total, success, total - success, errors);
+        return new ImportResponse(total, success, total - success, errors);
     }
 
     private void importSingleCourse(Row row) {

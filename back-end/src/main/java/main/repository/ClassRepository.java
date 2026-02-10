@@ -50,4 +50,6 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             @Param("status") Boolean status,
             Sort sort
     );
+
+    boolean existsByNameEqualsIgnoreCase(String name);
 }

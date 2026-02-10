@@ -68,9 +68,18 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
     public void enrollFreeCourse(Integer userId, Integer courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-        if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0 || course.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
-            throw new RuntimeException("This course is not free!");
+        if (course.getListedPrice() != null && course.getSalePrice() != null) {
+            if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0 || course.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
+                throw new RuntimeException("This course is not free!");
+            }
         }
+
+        if (course.getListedPrice() != null && course.getSalePrice() == null) {
+            if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0) {
+                throw new RuntimeException("This course is not free!");
+            }
+        }
+
         CourseEnrollment enrollment = new CourseEnrollment();
         enrollment.setCourse(course);
         enrollment.setUser(user);

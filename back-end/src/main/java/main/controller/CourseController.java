@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import main.dto.request.CreateCourseRequest;
 import main.dto.request.UpdateCourseRequest;
 import main.dto.response.CourseResponse;
-import main.dto.response.ImportAccountResponse;
-import main.dto.response.ImportCourseResponse;
+import main.dto.response.ImportResponse;
 import main.service.interfaces.ICourseService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -151,7 +150,7 @@ public class CourseController {
             ));
         }
 
-        ImportCourseResponse response = courseService.importCourses(file);
+        ImportResponse response = courseService.importCourses(file);
         return ResponseEntity.ok(response);
     }
 }

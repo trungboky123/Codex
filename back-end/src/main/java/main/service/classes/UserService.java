@@ -1,12 +1,11 @@
 package main.service.classes;
 
-import jdk.jshell.Snippet;
 import lombok.RequiredArgsConstructor;
 import main.configuration.CloudinaryService;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.RegisterRequest;
 import main.dto.request.UpdateUserRequest;
-import main.dto.response.ImportAccountResponse;
+import main.dto.response.ImportResponse;
 import main.dto.response.UserResponse;
 import main.entity.Otp;
 import main.entity.Setting;
@@ -259,7 +258,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ImportAccountResponse importAccounts(MultipartFile file) {
+    public ImportResponse importAccounts(MultipartFile file) {
         int total = 0;
         int success = 0;
         List<String> errors = new ArrayList<>();
@@ -282,7 +281,7 @@ public class UserService implements IUserService {
             throw new RuntimeException("Cannot read Excel file", e);
         }
 
-        return new ImportAccountResponse(total, success, total - success, errors);
+        return new ImportResponse(total, success, total - success, errors);
     }
 
     private void importSingleAccount(Row row) {

@@ -31,6 +31,8 @@ import EditAccountPage from './admin pages/EditAccountPage';
 import EditCoursePage from './admin pages/EditCoursePage';
 import AddAccountPage from './admin pages/AddAccountPage';
 import AddCoursePage from './admin pages/AddCoursePage';
+import EditClassPage from './admin pages/EditClassPage';
+import AddClassPage from './admin pages/AddClassPage';
 
 const router = createBrowserRouter([
   {
@@ -76,6 +78,14 @@ const router = createBrowserRouter([
       {
         path: "class-list",
         element: <ClassListPage/>
+      },
+      {
+        path: "edit-class/:id",
+        element: <EditClassPage/>
+      },
+      {
+        path: "add-class",
+        element: <AddClassPage/>
       }
     ]
   },

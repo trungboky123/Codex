@@ -45,6 +45,7 @@ public class WishlistService implements IWishlistService {
         wishlistRepository.save(wishlist);
     }
 
+    @Transactional
     @Override
     public WishlistResponse findItem(Integer userId, Integer itemId, String type) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
@@ -52,6 +53,7 @@ public class WishlistService implements IWishlistService {
         return modelMapper.map(wishlist, WishlistResponse.class);
     }
 
+    @Transactional
     @Override
     public List<WishlistResponse> findByUserId(Integer userId, String keyword, String sortBy) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));

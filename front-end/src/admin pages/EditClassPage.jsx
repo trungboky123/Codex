@@ -1,39 +1,45 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
-import s from "../css/AddCourse.module.scss";
+import s from "../css/EditClass.module.scss";
 import authFetch from "../function/authFetch";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-export default function AddCoursePage() {
+export default function EditClassPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const fileInputRef = useRef(null);
+  const [newData, setNewData] = useState({});
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [newData, setNewData] = useState({
-    name: "",
-    description: "",
-    duration: "",
-    instructorId: "",
-    status: true,
-    listedPrice: "",
-    salePrice: "",
-    categoryIds: [],
-  });
 
   const handleSidebarCollapse = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
 
-  const [categories, setCategories] = useState([]);
+  const [classData, setClassData] = useState({
+    name: "",
+    listedPrice: "",
+    salePrice: "",
+    thumbnailUrl: "",
+    instructor: null,
+    startDate: "",
+    endDate: "",
+    description: "",
+    status: true,
+    categories: [],
+  });
+
   const [previewThumbnail, setPreviewThumbnail] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [instructors, setInstructors] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Quill modules config
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -59,9 +65,30 @@ export default function AddCoursePage() {
   ];
 
   useEffect(() => {
+    fetchClass();
     fetchInstructors();
     fetchCategories();
-  }, []);
+  }, [id]);
+
+  async function fetchClass() {
+    const res = await authFetch(`http://localhost:8080/classes/${id}`, {
+      method: "GET",
+    });
+    const data = await res.json();
+    setClassData({
+      name: data.name,
+      listedPrice: data.listedPrice,
+      salePrice: data.salePrice,
+      thumbnailUrl: data.thumbnailUrl,
+      instructor: data.instructor,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      description: data.description,
+      status: data.status,
+      categories: data.categories,
+    });
+    setPreviewThumbnail(data.thumbnailUrl);
+  }
 
   async function fetchInstructors() {
     const res = await authFetch(
@@ -71,11 +98,11 @@ export default function AddCoursePage() {
       },
     );
     const data = await res.json();
-    setInstructors(data);
+    setInstructors(data.content || data || []);
   }
 
   async function fetchCategories() {
-    const res = await fetch("http://localhost:8080/settings/categories", {
+    const res = await authFetch("http://localhost:8080/settings/categories", {
       method: "GET",
     });
     const data = await res.json();
@@ -83,20 +110,70 @@ export default function AddCoursePage() {
   }
 
   const handleChange = (field, value) => {
+    setClassData({ ...classData, [field]: value });
     setNewData({ ...newData, [field]: value });
   };
 
   function handleCategoryChange(categoryId) {
-    setNewData((prev) => {
-      const exists = prev.categoryIds.includes(categoryId);
+    const currentIds = [...(classData.categories?.map((cat) => cat.id) || [])];
+    const index = currentIds.indexOf(categoryId);
 
-      return {
-        ...prev,
-        categoryIds: exists
-          ? prev.categoryIds.filter((id) => id !== categoryId)
-          : [...prev.categoryIds, categoryId],
-      };
+    if (index > -1) {
+      currentIds.splice(index, 1);
+    } else {
+      currentIds.push(categoryId);
+    }
+
+    const selectedCategories = categories.filter((cat) =>
+      currentIds.includes(cat.id),
+    );
+
+    setClassData({ ...classData, categories: selectedCategories });
+    setNewData({ ...newData, categoryIds: currentIds });
+  }
+
+  function handleInstructorChange(e) {
+    const instId = Number(e.target.value);
+    const selectedInst = instructors.find((i) => i.id === instId);
+    setClassData({
+      ...classData,
+      instructor: selectedInst,
     });
+    setNewData({
+      ...newData,
+      instructorId: selectedInst.id,
+    });
+  }
+
+  function handleDescriptionChange(value) {
+    setClassData({ ...classData, description: value });
+    setNewData({ ...newData, description: value });
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    // If already in DD/MM/YYYY format, return as is
+    if (dateStr.includes("/")) return dateStr;
+    // If in YYYY-MM-DD format, convert to DD/MM/YYYY
+    if (dateStr.includes("-")) {
+      const parts = dateStr.split("-");
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        return `${day}/${month}/${year}`;
+      }
+    }
+    return dateStr;
+  }
+
+  function toISODate(display) {
+    if (!display) return "";
+    // If not complete DD/MM/YYYY format yet, return as is for typing
+    if (!display.includes("/")) return display;
+    const parts = display.split("/");
+    if (parts.length !== 3) return display;
+    const [d, m, y] = parts;
+    if (!d || !m || !y) return display;
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
   }
 
   function handleThumbnailClick() {
@@ -112,14 +189,6 @@ export default function AddCoursePage() {
       setPreviewThumbnail(reader.result);
     };
     reader.readAsDataURL(file);
-  }
-
-  function handleInstructorChange(e) {
-    const instId = Number(e.target.value);
-    setNewData({
-      ...newData,
-      instructorId: instId,
-    });
   }
 
   function handleRemoveThumbnail() {
@@ -142,8 +211,8 @@ export default function AddCoursePage() {
       formData.append("thumbnail", thumbnailFile);
     }
 
-    const res = await authFetch("http://localhost:8080/courses/create", {
-      method: "POST",
+    const res = await authFetch(`http://localhost:8080/classes/update/${id}`, {
+      method: "PATCH",
       body: formData,
     });
     const data = await res.json();
@@ -158,7 +227,7 @@ export default function AddCoursePage() {
     setIsError(false);
     setMessage(data.message);
     setTimeout(() => {
-      navigate("/admin/course-list");
+      navigate("/admin/class-list");
     }, 1800);
   }
 
@@ -168,15 +237,16 @@ export default function AddCoursePage() {
   };
 
   const calculateDiscount = () => {
-    if (!newData.salePrice || !newData.listedPrice) return 0;
+    if (!classData.salePrice || !classData.listedPrice) return 0;
     const discount =
-      ((newData.listedPrice - newData.salePrice) / newData.listedPrice) * 100;
+      ((classData.listedPrice - classData.salePrice) / classData.listedPrice) *
+      100;
     return Math.round(discount);
   };
 
   return (
     <div className={s.layout}>
-      <title>Add Course</title>
+      <title>Edit Class</title>
       <AdminHeader sidebarCollapsed={sidebarCollapsed} />
       <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
@@ -185,42 +255,42 @@ export default function AddCoursePage() {
           <div className={s.breadcrumb}>
             <span
               className={s.breadcrumbLink}
-              onClick={() => navigate("/admin/course-list")}
+              onClick={() => navigate("/admin/class-list")}
             >
-              <i className="bi bi-book-fill"></i>
-              Courses
+              <i className="bi bi-laptop"></i>
+              Classes
             </span>
             <i className="bi bi-chevron-right"></i>
-            <span className={s.breadcrumbCurrent}>Add Course</span>
+            <span className={s.breadcrumbCurrent}>Edit Class</span>
           </div>
 
           {/* Page Header */}
           <div className={s.pageHeader}>
             <div>
-              <h1 className={s.pageTitle}>Add Course</h1>
+              <h1 className={s.pageTitle}>Edit Class</h1>
               <p className={s.pageSubtitle}>
-                Create a new course with all necessary details
+                Update class information and schedule
               </p>
             </div>
             <button
               className={s.backBtn}
-              onClick={() => navigate("/admin/courses")}
+              onClick={() => navigate("/admin/class-list")}
             >
               <i className="bi bi-arrow-left"></i>
-              Back to Course List
+              Back to Class List
             </button>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSave}>
             <div className={s.formGrid}>
-              {/* Left Column: Thumbnail + Pricing */}
+              {/* Left Column: Thumbnail + Pricing + Status */}
               <div className={s.leftColumn}>
                 {/* Thumbnail Card */}
                 <div className={s.card}>
                   <h3 className={s.cardTitle}>
                     <i className="bi bi-image"></i>
-                    Course Thumbnail
+                    Class Thumbnail
                   </h3>
 
                   <div className={s.thumbnailWrapper}>
@@ -286,6 +356,7 @@ export default function AddCoursePage() {
                       <input
                         type="number"
                         name="listedPrice"
+                        value={classData.listedPrice}
                         onChange={(e) =>
                           handleChange("listedPrice", e.target.value)
                         }
@@ -303,6 +374,7 @@ export default function AddCoursePage() {
                       <input
                         type="number"
                         name="salePrice"
+                        value={classData.salePrice}
                         onChange={(e) =>
                           handleChange("salePrice", e.target.value)
                         }
@@ -312,7 +384,7 @@ export default function AddCoursePage() {
                     </div>
                   </div>
 
-                  {newData.listedPrice && (
+                  {classData.listedPrice && (
                     <div className={s.discountPreview}>
                       <div className={s.discountInfo}>
                         <span className={s.discountLabel}>Discount:</span>
@@ -322,10 +394,10 @@ export default function AddCoursePage() {
                       </div>
                       <div className={s.pricePreview}>
                         <span className={s.originalPrice}>
-                          {formatPrice(newData.listedPrice)}₫
+                          {formatPrice(classData.listedPrice)}₫
                         </span>
                         <span className={s.salePrice}>
-                          {formatPrice(newData.salePrice)}₫
+                          {formatPrice(classData.salePrice)}₫
                         </span>
                       </div>
                     </div>
@@ -341,12 +413,12 @@ export default function AddCoursePage() {
 
                   <div className={s.radioGroup}>
                     <label
-                      className={`${s.radioItem} ${newData.status ? s.radioActive : ""}`}
+                      className={`${s.radioItem} ${classData.status ? s.radioActive : ""}`}
                     >
                       <input
                         type="radio"
                         name="status"
-                        checked={newData.status}
+                        checked={classData.status}
                         onChange={() => handleChange("status", true)}
                         className={s.radioInput}
                       />
@@ -355,19 +427,19 @@ export default function AddCoursePage() {
                         <div>
                           <span className={s.radioLabel}>Active</span>
                           <span className={s.radioDesc}>
-                            Course is visible to students
+                            Class is visible to students
                           </span>
                         </div>
                       </div>
                     </label>
 
                     <label
-                      className={`${s.radioItem} ${!newData.status ? s.radioActive : ""}`}
+                      className={`${s.radioItem} ${!classData.status ? s.radioActive : ""}`}
                     >
                       <input
                         type="radio"
                         name="status"
-                        checked={!newData.status}
+                        checked={!classData.status}
                         onChange={() => handleChange("status", false)}
                         className={s.radioInput}
                       />
@@ -376,7 +448,7 @@ export default function AddCoursePage() {
                         <div>
                           <span className={s.radioLabel}>Inactive</span>
                           <span className={s.radioDesc}>
-                            Course is hidden from students
+                            Class is hidden from students
                           </span>
                         </div>
                       </div>
@@ -385,23 +457,24 @@ export default function AddCoursePage() {
                 </div>
               </div>
 
-              {/* Right Column: Course Info */}
+              {/* Right Column: Class Info */}
               <div className={s.rightColumn}>
                 <div className={s.card}>
                   <h3 className={s.cardTitle}>
                     <i className="bi bi-info-circle-fill"></i>
-                    Course Information
+                    Class Information
                   </h3>
 
                   <div className={s.formGroup}>
-                    <label className={s.label}>Course Name</label>
+                    <label className={s.label}>Class Name</label>
                     <div className={s.inputWrapper}>
-                      <i className="bi bi-book"></i>
+                      <i className="bi bi-laptop"></i>
                       <input
                         type="text"
                         name="name"
+                        value={classData.name}
                         onChange={(e) => handleChange("name", e.target.value)}
-                        placeholder="Enter course name"
+                        placeholder="Enter class name"
                         className={s.input}
                         required
                       />
@@ -412,10 +485,10 @@ export default function AddCoursePage() {
                     <label className={s.label}>Categories</label>
                     <div className={s.categoriesGrid}>
                       {categories.map((category) => {
-                        const isSelected = newData.categoryIds.includes(
-                          category.id,
-                        );
-
+                        const isSelected =
+                          classData.categories?.some(
+                            (cat) => cat.id === category.id,
+                          ) || false;
                         return (
                           <label
                             key={category.id}
@@ -427,14 +500,19 @@ export default function AddCoursePage() {
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => handleCategoryChange(category.id)}
+                              className={s.categoryCheckbox}
                             />
-                            <span>{category.name}</span>
+                            <span className={s.categoryName}>
+                              {category.name}
+                            </span>
+                            {isSelected && (
+                              <i className="bi bi-check-circle-fill"></i>
+                            )}
                           </label>
                         );
                       })}
                     </div>
-
-                    {newData.categoryIds.length === 0 && (
+                    {classData.categories.length === 0 && (
                       <p className={s.categoryHint}>
                         <i className="bi bi-info-circle"></i>
                         Select at least one category
@@ -442,38 +520,58 @@ export default function AddCoursePage() {
                     )}
                   </div>
 
+                  <div className={s.formGroup}>
+                    <label className={s.label}>Instructor</label>
+                    <div className={s.selectWrapper}>
+                      <select
+                        name="instructorId"
+                        value={classData.instructor?.id || ""}
+                        onChange={handleInstructorChange}
+                        className={s.select}
+                        required
+                      >
+                        <option value="">Select Instructor</option>
+                        {instructors.map((instructor) => (
+                          <option key={instructor.id} value={instructor.id}>
+                            {instructor.fullName}
+                          </option>
+                        ))}
+                      </select>
+                      <i className="bi bi-chevron-down"></i>
+                    </div>
+                  </div>
+
                   <div className={s.formRow}>
                     <div className={s.formGroup}>
-                      <label className={s.label}>Instructor</label>
-                      <div className={s.selectWrapper}>
-                        <select
-                          name="instructorId"
-                          onChange={handleInstructorChange}
-                          className={s.select}
+                      <label className={s.label}>Start Date</label>
+                      <div className={s.inputWrapper}>
+                        <i className="bi bi-calendar-event"></i>
+                        <input
+                          type="text"
+                          name="startDate"
+                          value={formatDate(classData.startDate)}
+                          onChange={(e) =>
+                            handleChange("startDate", toISODate(e.target.value))
+                          }
+                          placeholder="dd/MM/yyyy"
+                          className={s.input}
                           required
-                        >
-                          <option value="">Select Instructor</option>
-                          {instructors.map((instructor) => (
-                            <option key={instructor.id} value={instructor.id}>
-                              {instructor.fullName}
-                            </option>
-                          ))}
-                        </select>
-                        <i className="bi bi-chevron-down"></i>
+                        />
                       </div>
                     </div>
 
                     <div className={s.formGroup}>
-                      <label className={s.label}>Duration</label>
+                      <label className={s.label}>End Date</label>
                       <div className={s.inputWrapper}>
-                        <i className="bi bi-clock"></i>
+                        <i className="bi bi-calendar-check"></i>
                         <input
                           type="text"
-                          name="duration"
+                          name="endDate"
+                          value={formatDate(classData.endDate)}
                           onChange={(e) =>
-                            handleChange("duration", e.target.value)
+                            handleChange("endDate", toISODate(e.target.value))
                           }
-                          placeholder="e.g., 12 hours"
+                          placeholder="dd/MM/yyyy"
                           className={s.input}
                           required
                         />
@@ -486,10 +584,11 @@ export default function AddCoursePage() {
                     <div className={s.editorWrapper}>
                       <ReactQuill
                         theme="snow"
-                        onChange={(value) => handleChange("description", value)}
+                        value={classData.description}
+                        onChange={handleDescriptionChange}
                         modules={modules}
                         formats={formats}
-                        placeholder="Write course description here..."
+                        placeholder="Write class description here..."
                         className={s.editor}
                       />
                     </div>
