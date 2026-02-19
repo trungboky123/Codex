@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import s from "../css/Wishlist.module.scss";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Header from "../components/Header";
 import authFetch from "../function/authFetch";
 
 export default function WishlistPage() {
@@ -59,8 +58,8 @@ export default function WishlistPage() {
         },
       );
       const data = await res.json();
-      setCourseItems(data.filter((item) => item.type === "course"));
-      setClassItems(data.filter((item) => item.type === "class"));
+      setCourseItems(data.filter((item) => item.type === "Course"));
+      setClassItems(data.filter((item) => item.type === "Class"));
     } finally {
       setLoading(false);
     }
@@ -104,7 +103,7 @@ export default function WishlistPage() {
 
   async function handleViewDetails(itemId, type) {
     try {
-      if (type === "course") {
+      if (type === "Course") {
         const res = await fetch(`http://localhost:8080/courses/${itemId}`, {
           method: "GET",
         });
@@ -151,13 +150,9 @@ export default function WishlistPage() {
     setSortBy(e.target.value);
   }
 
-  const currentCount =
-    activeTab === "courses" ? courseItems.length : classItems.length;
-
   return (
     <>
       <title>Wishlist</title>
-      <Header />
       <div className={s.wishlist}>
         <div className="container">
           {/* Header */}

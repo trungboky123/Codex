@@ -248,7 +248,6 @@ function PublicClassesPage() {
   return (
     <>
       <title>Public Classes</title>
-      <Header />
 
       <div className={s.classes}>
         <div className={s.classes__container}>

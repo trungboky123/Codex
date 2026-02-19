@@ -245,7 +245,6 @@ export default function PublicClassDetailsPage() {
   return (
     <>
       <title>Public Class Details</title>
-      <Header />
       <div className={s.course}>
         <div className="container">
           <div className="row g-4">

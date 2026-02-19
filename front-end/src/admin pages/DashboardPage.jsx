@@ -13,9 +13,9 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import s from "../css/Dashboard.module.scss";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
+import { useOutletContext } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // Register ChartJS components
 ChartJS.register(
@@ -31,8 +31,8 @@ ChartJS.register(
 );
 
 export default function AdminDashboard() {
-  // Sidebar collapse state
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { t } = useTranslation();
+  const { sidebarCollapsed } = useOutletContext();
 
   // Stats data - Replace with API fetch
   const [stats, setStats] = useState({
@@ -52,18 +52,17 @@ export default function AdminDashboard() {
   const [topClasses, setTopClasses] = useState([]);
 
   const fetchDashboardData = async () => {
-    const res = await authFetch("http://localhost:8080/enrollments/monthly-revenue", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/enrollments/monthly-revenue",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
 
-    const revenueData = data.map(item => Number(item.totalRevenue));
+    const revenueData = data.map((item) => Number(item.totalRevenue));
 
     setMonthlyRevenueData(revenueData);
-  };
-
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
   };
 
   const formatCurrency = (amount) => {
@@ -153,7 +152,7 @@ export default function AdminDashboard() {
 
   const statsCards = [
     {
-      title: "Total Users",
+      title: t("admin.dashboard.totalUsers"),
       value: formatNumber(stats.totalUsers),
       icon: "bi-people-fill",
       color: "#667eea",
@@ -162,7 +161,7 @@ export default function AdminDashboard() {
       changeType: "up",
     },
     {
-      title: "Total Courses",
+      title: t("admin.dashboard.totalCourses"),
       value: formatNumber(stats.totalCourses),
       icon: "bi-book-fill",
       color: "#10b981",
@@ -171,7 +170,7 @@ export default function AdminDashboard() {
       changeType: "up",
     },
     {
-      title: "Total Classes",
+      title: t("admin.dashboard.totalClasses"),
       value: formatNumber(stats.totalClasses),
       icon: "bi-laptop",
       color: "#f59e0b",
@@ -180,7 +179,7 @@ export default function AdminDashboard() {
       changeType: "up",
     },
     {
-      title: "Monthly Revenue",
+      title: t("admin.dashboard.monthlyRevenue"),
       value: formatCurrency(stats.monthlyRevenue),
       icon: "bi-currency-dollar",
       color: "#8b5cf6",
@@ -198,79 +197,86 @@ export default function AdminDashboard() {
     getTopSoldCourses();
     getTopSoldClasses();
     fetchDashboardData();
-  }, [])
+  }, []);
 
   async function getTotalUsers() {
     const res = await authFetch("http://localhost:8080/users/total", {
-      method: "GET"
+      method: "GET",
     });
     const data = await res.json();
-    setStats(prev => ({
+    setStats((prev) => ({
       ...prev,
-      totalUsers: data.totalUsers
-    }))
-  };
+      totalUsers: data.totalUsers,
+    }));
+  }
 
   async function getTotalCourses() {
     const res = await authFetch("http://localhost:8080/courses/total", {
-      method: "GET"
+      method: "GET",
     });
     const data = await res.json();
-    setStats(prev => ({
+    setStats((prev) => ({
       ...prev,
-      totalCourses: data.totalCourses
-    }))
-  };
+      totalCourses: data.totalCourses,
+    }));
+  }
 
   async function getTotalClasses() {
     const res = await authFetch("http://localhost:8080/classes/total", {
-      method: "GET"
+      method: "GET",
     });
     const data = await res.json();
-    setStats(prev => ({
+    setStats((prev) => ({
       ...prev,
-      totalClasses: data.totalClasses
-    }))
-  };
+      totalClasses: data.totalClasses,
+    }));
+  }
 
   async function getTotalRevenue() {
-    const res = await authFetch("http://localhost:8080/enrollments/total-revenue", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/enrollments/total-revenue",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
-    setStats(prev => ({
+    setStats((prev) => ({
       ...prev,
-      monthlyRevenue: data.totalRevenue
-    }))
-  };
+      monthlyRevenue: data.totalRevenue,
+    }));
+  }
 
   async function getTopSoldCourses() {
-    const res = await authFetch("http://localhost:8080/enrollments/top-courses", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/enrollments/top-courses",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setTopCourses(data);
-  };
+  }
 
   async function getTopSoldClasses() {
-    const res = await authFetch("http://localhost:8080/enrollments/top-classes", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/enrollments/top-classes",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setTopClasses(data);
-  };
+  }
 
   return (
     <>
       <title>Dashboard</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
 
       <div
         className={s.dashboard}
         style={{
           marginLeft: sidebarCollapsed ? "85px" : "280px",
-          transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "margin-left 0.3s",
         }}
       >
         <div className={s.container}>
@@ -279,7 +285,7 @@ export default function AdminDashboard() {
             <div>
               <h1 className={s.title}>Dashboard</h1>
               <p className={s.subtitle}>
-                Welcome back! Here's what's happening today.
+                {t("admin.dashboard.subtitle")}
               </p>
             </div>
           </div>
@@ -312,13 +318,15 @@ export default function AdminDashboard() {
             <div className={s.chartCard}>
               <div className={s.chartHeader}>
                 <div>
-                  <h2 className={s.chartTitle}>Revenue Overview</h2>
-                  <p className={s.chartSubtitle}>Monthly revenue for {new Date().getFullYear()}</p>
+                  <h2 className={s.chartTitle}>{t("admin.dashboard.revenueOverview")}</h2>
+                  <p className={s.chartSubtitle}>
+                    {t("admin.dashboard.revenueSubtitle")} {new Date().getFullYear()}
+                  </p>
                 </div>
                 <div className={s.chartLegend}>
                   <div className={s.legendItem}>
                     <span className={s.legendDot}></span>
-                    <span>Revenue</span>
+                    <span>{t("admin.dashboard.revenue")}</span>
                   </div>
                 </div>
               </div>
@@ -335,7 +343,7 @@ export default function AdminDashboard() {
               <div className={s.topSellingHeader}>
                 <h2 className={s.topSellingTitle}>
                   <i className="bi bi-trophy-fill"></i>
-                  Top 3 Selling Courses
+                  {t("admin.dashboard.topCourses")}
                 </h2>
               </div>
               <div className={s.topSellingBody}>
@@ -350,7 +358,8 @@ export default function AdminDashboard() {
                     <div className={s.topItemInfo}>
                       <h4 className={s.topItemName}>{course.courseName}</h4>
                       <p className={s.topItemStats}>
-                        {course.totalSold} sold • {formatCurrency(course.totalRevenue)}
+                        {course.totalSold} {t("admin.dashboard.sold")} •{" "}
+                        {formatCurrency(course.totalRevenue)}
                       </p>
                     </div>
                     <div className={s.topItemBadge}>
@@ -366,7 +375,7 @@ export default function AdminDashboard() {
               <div className={s.topSellingHeader}>
                 <h2 className={s.topSellingTitle}>
                   <i className="bi bi-trophy-fill"></i>
-                  Top 3 Selling Classes
+                  {t("admin.dashboard.topClasses")}
                 </h2>
               </div>
               <div className={s.topSellingBody}>
@@ -381,7 +390,7 @@ export default function AdminDashboard() {
                     <div className={s.topItemInfo}>
                       <h4 className={s.topItemName}>{clazz.className}</h4>
                       <p className={s.topItemStats}>
-                        {clazz.totalSold} sold •{" "}
+                        {clazz.totalSold} {t("admin.dashboard.sold")} •{" "}
                         {formatCurrency(clazz.totalRevenue)}
                       </p>
                     </div>

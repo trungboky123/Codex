@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import s from "../css/AdminSideBar.module.scss";
+import { useTranslation } from "react-i18next";
 
 export default function AdminSidebar({ onCollapseChange }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -15,27 +17,27 @@ export default function AdminSidebar({ onCollapseChange }) {
     {
       path: "/admin/account-list",
       icon: "bi-people-fill",
-      label: "Accounts",
+      label: t("admin.sidebar.accounts"),
     },
     {
       path: "/admin/course-list",
       icon: "bi-book-fill",
-      label: "Courses",
+      label: t("admin.sidebar.courses"),
     },
     {
       path: "/admin/class-list",
       icon: "bi-laptop",
-      label: "Classes",
+      label: t("admin.sidebar.classes"),
     },
     {
       path: "/admin/setting-list",
       icon: "bi-gear-fill",
-      label: "Settings",
+      label: t("admin.sidebar.settings"),
     },
     {
       path: "/admin/poster-list",
       icon: "bi-file-earmark-text-fill",
-      label: "Posters",
+      label: t("admin.sidebar.posters"),
     },
   ];
 

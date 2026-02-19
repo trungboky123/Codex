@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class WishlistResponse {
-    private Long id;
-    private UserResponse user;
     private Integer itemId;
     private String itemName;
     private String type;

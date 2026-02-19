@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import s from "../css/AddClass.module.scss";
 import authFetch from "../function/authFetch";
 import ReactQuill from "react-quill";
@@ -21,12 +19,7 @@ export default function AddClassPage() {
     status: true,
     categoryIds: [],
   });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
-
+  const { sidebarCollapsed } = useOutletContext();
   const [previewThumbnail, setPreviewThumbnail] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [instructors, setInstructors] = useState([]);
@@ -113,21 +106,6 @@ export default function AddClassPage() {
     setNewData({ ...newData, description: value });
   }
 
-  function formatDate(dateStr) {
-    if (!dateStr) return "";
-    // If already in DD/MM/YYYY format, return as is
-    if (dateStr.includes("/")) return dateStr;
-    // If in YYYY-MM-DD format, convert to DD/MM/YYYY
-    if (dateStr.includes("-")) {
-      const parts = dateStr.split("-");
-      if (parts.length === 3) {
-        const [year, month, day] = parts;
-        return `${day}/${month}/${year}`;
-      }
-    }
-    return dateStr;
-  }
-
   function toISODate(display) {
     if (!display) return "";
     // If not complete DD/MM/YYYY format yet, return as is for typing
@@ -209,8 +187,6 @@ export default function AddClassPage() {
   return (
     <div className={s.layout}>
       <title>Add Class</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
         <div className={s.wrapper}>
           {/* Breadcrumb */}

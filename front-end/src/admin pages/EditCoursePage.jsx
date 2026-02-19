@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import s from "../css/EditCourse.module.scss";
 import authFetch from "../function/authFetch";
 import ReactQuill from "react-quill";
@@ -11,12 +9,8 @@ export default function EditCoursePage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const fileInputRef = useRef(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
   const [newData, setNewData] = useState({});
-
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
 
   const [course, setCourse] = useState({
     name: "",
@@ -212,8 +206,6 @@ export default function EditCoursePage() {
   return (
     <div className={s.layout}>
       <title>Edit Course</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
         <div className={s.wrapper}>
           {/* Breadcrumb */}

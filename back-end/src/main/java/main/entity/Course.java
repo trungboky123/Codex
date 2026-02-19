@@ -23,7 +23,7 @@ public class Course {
     @Column(name = "sale_price")
     private BigDecimal salePrice;
 
-    @Column(name = "thumbnail_url")
+    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
     @ManyToOne

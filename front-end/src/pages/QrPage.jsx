@@ -94,7 +94,6 @@ export default function QrPage() {
   return (
     <>
       <title>Payment</title>
-      <Header />
       <div className={s.paymentQR}>
         <div className={s.container}>
           {!paymentSuccess ? (
@@ -322,7 +321,7 @@ export default function QrPage() {
                   <>
                     <button
                       className={s.homeBtn}
-                      onClick={() => navigate("/my-courses")}
+                      onClick={() => navigate("/my-enrollments?type=courses")}
                     >
                       <i className="bi bi-house-door-fill"></i>
                       Go to My Courses
@@ -332,7 +331,7 @@ export default function QrPage() {
                   <>
                     <button
                       className={s.homeBtn}
-                      onClick={() => navigate("my-classes")}
+                      onClick={() => navigate("/my-enrollments?type=classes")}
                     >
                       <i className="bi bi-house-door-fill"></i>
                       Go to My Classes

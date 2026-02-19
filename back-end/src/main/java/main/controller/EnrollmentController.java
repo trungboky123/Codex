@@ -4,16 +4,14 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
 import main.dto.response.ClassEnrollmentResponse;
 import main.dto.response.CourseEnrollmentResponse;
+import main.dto.response.EnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
-import main.entity.Course;
-import main.repository.CourseRepository;
 import main.service.interfaces.IClassEnrollmentService;
 import main.service.interfaces.ICourseEnrollmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,5 +113,26 @@ public class EnrollmentController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         courseEnrollmentService.enrollFreeCourse(userDetails.getId(), id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> findByUserId(
+            Authentication authentication,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        List<EnrollmentResponse> enrollments = new ArrayList<>();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        List<EnrollmentResponse> courseEnrollments = courseEnrollmentService.findByUserId(userDetails.getId(), keyword, sortBy, sortDir);
+        List<EnrollmentResponse> classEnrollments = classEnrollmentService.findByUserId(userDetails.getId(), keyword, sortBy, sortDir);
+
+        enrollments.addAll(courseEnrollments);
+        enrollments.addAll(classEnrollments);
+        return ResponseEntity.ok(enrollments);
     }
 }

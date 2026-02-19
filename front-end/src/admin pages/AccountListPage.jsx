@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import s from "../css/AccountList.module.scss";
-import AdminHeader from "../components/AdminHeader";
-import AdminSideBar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function AdminAccounts() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); // success or error
+  const [messageType, setMessageType] = useState("success"); 
   const [importDetails, setImportDetails] = useState({
     total: "",
     success: "",
@@ -141,10 +141,6 @@ export default function AdminAccounts() {
     setSelectedStatus(selectedStatus);
   };
 
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
-
   const handleSort = (field) => {
     if (sortBy === field) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
@@ -261,14 +257,12 @@ export default function AdminAccounts() {
   };
 
   const getStatus = (status) => {
-    return status ? "Active" : "Inactive";
+    return status ? t("admin.accounts.status.active") : t("admin.accounts.status.inactive");
   };
 
   return (
     <>
       <title>Account List</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSideBar onCollapseChange={handleSidebarCollapse} />
 
       <div
         className={s.accounts}
@@ -281,8 +275,8 @@ export default function AdminAccounts() {
           {/* Header */}
           <div className={s.header}>
             <div>
-              <h1 className={s.title}>Account List</h1>
-              <p className={s.subtitle}>Manage all accounts</p>
+              <h1 className={s.title}>{t("admin.accounts.title")}</h1>
+              <p className={s.subtitle}>{t("admin.accounts.subtitle")}</p>
             </div>
           </div>
 
@@ -305,16 +299,16 @@ export default function AdminAccounts() {
                   <p className={s.messageTitle}>{message}</p>
                   {importDetails.total && (
                     <div className={s.importStats}>
-                      <span>Total: {importDetails.total}</span>
+                      <span>{t("admin.accounts.total")}: {importDetails.total}</span>
                       <span>•</span>
                       <span className={s.successText}>
-                        Success: {importDetails.success}
+                        {t("admin.accounts.success")}: {importDetails.success}
                       </span>
                       {importDetails.failed > 0 && (
                         <>
                           <span>•</span>
                           <span className={s.failedText}>
-                            Failed: {importDetails.failed}
+                            {t("admin.accounts.failed")}: {importDetails.failed}
                           </span>
                         </>
                       )}
@@ -333,12 +327,12 @@ export default function AdminAccounts() {
             <div className={s.errorsBox}>
               <h3 className={s.errorsTitle}>
                 <i className="bi bi-exclamation-circle"></i>
-                Import Errors ({importErrors.length})
+                {t("admin.accounts.importErrors")} ({importErrors.length})
               </h3>
               <div className={s.errorsList}>
                 {importErrors.map((error, index) => (
                   <div key={index} className={s.errorItem}>
-                    <span className={s.errorRow}>Row {error.row}:</span>
+                    <span className={s.errorRow}>{t("admin.accounts.row")} {error.row}:</span>
                     <span className={s.errorMessage}>{error.message}</span>
                   </div>
                 ))}
@@ -354,7 +348,7 @@ export default function AdminAccounts() {
                 <i className="bi bi-search"></i>
                 <input
                   type="text"
-                  placeholder="Search by name, username, or email..."
+                  placeholder={t("admin.accounts.search")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={s.searchInput}
@@ -367,7 +361,7 @@ export default function AdminAccounts() {
                   className={s.filterBtn}
                   onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                 >
-                  <span>{selectedRoleName || "All Roles"}</span>
+                  <span>{selectedRoleName || t("admin.accounts.roles")}</span>
                   <i
                     className={`bi bi-chevron-down ${roleDropdownOpen ? s.rotate : ""}`}
                   ></i>
@@ -382,7 +376,7 @@ export default function AdminAccounts() {
                         setRoleDropdownOpen(false);
                       }}
                     >
-                      All Roles
+                      {t("admin.accounts.roles")}
                       {selectedRole === 0 && <i className="bi bi-check-lg"></i>}
                     </button>
                     {roles.map((role) => (
@@ -410,7 +404,7 @@ export default function AdminAccounts() {
                   className={s.filterBtn}
                   onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                 >
-                  <span>{selectedStatusName || "All Status"}</span>
+                  <span>{selectedStatusName || t("admin.accounts.allStatus")}</span>
                   <i
                     className={`bi bi-chevron-down ${statusDropdownOpen ? s.rotate : ""}`}
                   ></i>
@@ -425,7 +419,7 @@ export default function AdminAccounts() {
                         setStatusDropdownOpen(false);
                       }}
                     >
-                      All Status
+                      {t("admin.accounts.allStatus")}
                       {selectedStatus === "all" && (
                         <i className="bi bi-check-lg"></i>
                       )}
@@ -437,7 +431,7 @@ export default function AdminAccounts() {
                         setStatusDropdownOpen(false);
                       }}
                     >
-                      Active
+                      {t("admin.accounts.status.active")}
                       {selectedStatus === "true" && (
                         <i className="bi bi-check-lg"></i>
                       )}
@@ -449,7 +443,7 @@ export default function AdminAccounts() {
                         setStatusDropdownOpen(false);
                       }}
                     >
-                      Inactive
+                      {t("admin.accounts.status.inactive")}
                       {selectedStatus === "false" && (
                         <i className="bi bi-check-lg"></i>
                       )}
@@ -467,7 +461,7 @@ export default function AdminAccounts() {
                   onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
                 >
                   <i className="bi bi-gear-fill"></i>
-                  <span>Tools</span>
+                  <span>{t("admin.accounts.tools")}</span>
                   <i
                     className={`bi bi-chevron-down ${toolsDropdownOpen ? s.rotate : ""}`}
                   ></i>
@@ -480,14 +474,14 @@ export default function AdminAccounts() {
                       onClick={handleDownloadTemplate}
                     >
                       <i className="bi bi-download"></i>
-                      <span>Download Import Template</span>
+                      <span>{t("admin.accounts.tools.download")}</span>
                     </button>
                     <button
                       className={s.dropdownItem}
                       onClick={handleImportClick}
                     >
                       <i className="bi bi-upload"></i>
-                      <span>Import Accounts</span>
+                      <span>{t("admin.accounts.tools.import")}</span>
                     </button>
                   </div>
                 )}
@@ -507,14 +501,13 @@ export default function AdminAccounts() {
                 onClick={() => navigate("/admin/add-account")}
               >
                 <i className="bi bi-plus-lg"></i>
-                <span>Add Account</span>
+                <span>{t("admin.accounts.add")}</span>
               </button>
             </div>
           </div>
 
           <div className={s.resultsInfo}>
-            Showing {users.length} account
-            {users.length !== 1 ? "s" : ""}
+            {t("admin.showing")} {users.length} {t("admin.accounts.text")}
           </div>
 
           <div className={s.tableWrapper}>
@@ -532,23 +525,23 @@ export default function AdminAccounts() {
                     onClick={() => handleSort("fullName")}
                     style={{ cursor: "pointer" }}
                   >
-                    Full Name
+                    {t("admin.accounts.fullName")}
                   </th>
                   <th
                     onClick={() => handleSort("username")}
                     style={{ cursor: "pointer" }}
                   >
-                    Username
+                    {t("admin.accounts.username")}
                   </th>
                   <th
                     onClick={() => handleSort("email")}
                     style={{ cursor: "pointer" }}
                   >
-                    Email
+                    {t("admin.accounts.email")}
                   </th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t("admin.accounts.role")}</th>
+                  <th>{t("admin.accounts.status")}</th>
+                  <th>{t("admin.accounts.action")}</th>
                 </tr>
               </thead>
               <tbody>

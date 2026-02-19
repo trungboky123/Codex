@@ -2,24 +2,30 @@ package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
 import main.dto.response.CourseEnrollmentResponse;
+import main.dto.response.EnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
 import main.entity.Course;
 import main.entity.CourseEnrollment;
+import main.entity.Setting;
 import main.entity.User;
 import main.repository.CourseEnrollmentRepository;
 import main.repository.CourseRepository;
+import main.repository.SettingRepository;
 import main.repository.UserRepository;
 import main.service.interfaces.ICourseEnrollmentService;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CourseEnrollmentService implements ICourseEnrollmentService {
+    private final SettingRepository settingRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
@@ -89,5 +95,24 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
         enrollment.setStatus(true);
 
         courseEnrollmentRepository.save(enrollment);
+    }
+
+    @Override
+    public List<EnrollmentResponse> findByUserId(Integer userId, String keyword, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+        List<EnrollmentResponse> enrollments = courseEnrollmentRepository.findByUser(user, keyword, sort);
+
+        for (EnrollmentResponse e : enrollments) {
+            List<Setting> categories = settingRepository.findByCourseId(e.getItemId());
+            List<String> categoryNames = new ArrayList<>();
+            for (Setting category : categories) {
+                categoryNames.add(category.getName());
+            }
+
+            e.setCategories(categoryNames);
+        }
+
+        return enrollments;
     }
 }

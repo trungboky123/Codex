@@ -231,7 +231,6 @@ export default function PublicCourseDetailsPage() {
   return (
     <>
       <title>Public Course Details</title>
-      <Header />
       <div className={s.course}>
         <div className="container">
           <div className="row g-4">

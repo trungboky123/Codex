@@ -30,7 +30,7 @@
   justify-content: space-between;
 }
 
-// Left Section
+// ─── Left ─────────────────────────────────────────────────────────────────────
 .left {
   display: flex;
   align-items: center;
@@ -65,10 +65,7 @@
   &::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: linear-gradient(135deg, #667eea 0%, #2563eb 100%);
     opacity: 0;
     transition: opacity 0.3s;
@@ -84,7 +81,6 @@
     &::before {
       opacity: 1;
     }
-
     i {
       transform: scale(1.1);
     }
@@ -95,12 +91,116 @@
   }
 }
 
-// Right Section
+// ─── Right ────────────────────────────────────────────────────────────────────
 .right {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
+// ─── Language Dropdown ────────────────────────────────────────────────────────
+.langSection {
+  position: relative;
+}
+
+.langBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  &Open {
+    background: #f9fafb;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+.langFlag {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.langName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.langDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top right;
+  z-index: 100;
+}
+
+.langItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: left;
+
+  > i.bi-check-lg {
+    font-size: 0.9rem;
+    color: #667eea;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &Active {
+    background: #f0f2ff;
+
+    .langItemName {
+      color: #667eea;
+      font-weight: 700;
+    }
+  }
+}
+
+.langItemName {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #374151;
+  flex: 1;
+}
+
+// ─── User Dropdown ────────────────────────────────────────────────────────────
 .userSection {
   position: relative;
 }
@@ -157,7 +257,6 @@
   }
 }
 
-// Dropdown Menu
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -173,6 +272,7 @@
   padding: 8px;
   animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: top right;
+  z-index: 100;
 }
 
 @keyframes slideDown {
@@ -201,6 +301,7 @@
   font-weight: 500;
   color: #374151;
   text-align: left;
+  font-family: inherit;
 
   i {
     font-size: 1.1rem;
@@ -228,7 +329,6 @@
 
   &:last-child {
     color: #dc2626;
-
     i {
       color: #dc2626;
     }
@@ -236,7 +336,6 @@
     &:hover {
       background: #fef2f2;
       color: #b91c1c;
-
       i {
         color: #b91c1c;
       }
@@ -250,11 +349,10 @@
   margin: 8px 0;
 }
 
-// Responsive
+// ─── Responsive ──────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
   .header {
     left: 85px;
-
     &.collapsed {
       left: 85px;
     }
@@ -266,14 +364,21 @@
 
   .homeBtn {
     padding: 8px 12px;
-
     span {
       display: none;
     }
-
     i {
       font-size: 1.3rem;
     }
+  }
+
+  .langName {
+    display: none;
+  }
+
+  .langBtn {
+    padding: 8px 10px;
+    gap: 4px;
   }
 
   .userName {
@@ -284,7 +389,6 @@
     padding: 6px;
     border: none;
     background: transparent;
-
     &:hover {
       background: #f9fafb;
     }
@@ -295,7 +399,8 @@
     height: 36px;
   }
 
-  .dropdown {
+  .dropdown,
+  .langDropdown {
     right: -8px;
   }
 }
@@ -304,11 +409,9 @@
   .header {
     height: 60px;
   }
-
   .container {
     padding: 0 12px;
   }
-
   .homeBtn {
     padding: 6px 10px;
   }

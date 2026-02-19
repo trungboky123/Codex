@@ -6,4 +6,6 @@ import lombok.Data;
 public class SettingResponse {
     private Integer id;
     private String name;
+    private SettingResponse parent;
+    private boolean status;
 }

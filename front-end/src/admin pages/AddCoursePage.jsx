@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import s from "../css/AddCourse.module.scss";
 import authFetch from "../function/authFetch";
 import ReactQuill from "react-quill";
@@ -10,7 +8,7 @@ import "react-quill/dist/quill.snow.css";
 export default function AddCoursePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
   const [newData, setNewData] = useState({
     name: "",
     description: "",
@@ -21,10 +19,6 @@ export default function AddCoursePage() {
     salePrice: "",
     categoryIds: [],
   });
-
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
 
   const [categories, setCategories] = useState([]);
   const [previewThumbnail, setPreviewThumbnail] = useState("");
@@ -177,8 +171,6 @@ export default function AddCoursePage() {
   return (
     <div className={s.layout}>
       <title>Add Course</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
         <div className={s.wrapper}>
           {/* Breadcrumb */}

@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 import s from "../css/AddAccount.module.scss";
 import authFetch from "../function/authFetch";
 
@@ -23,11 +21,8 @@ export default function AddAccountPage() {
     status: true,
   });
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
 
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
 
   const [previewAvatar, setPreviewAvatar] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
@@ -136,8 +131,6 @@ export default function AddAccountPage() {
   return (
     <div className={s.layout}>
       <title>Add Account</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
         <div className={s.wrapper}>
           {/* Breadcrumb */}

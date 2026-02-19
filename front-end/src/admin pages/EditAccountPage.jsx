@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
 import s from "../css/EditAccount.module.scss";
@@ -12,11 +12,7 @@ export default function EditAccountPage() {
   const [roles, setRoles] = useState([]);
   const [newData, setNewData] = useState({});
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
+  const { sidebarCollapsed } = useOutletContext();
 
   const [account, setAccount] = useState({
     fullName: "",
@@ -151,8 +147,6 @@ export default function EditAccountPage() {
   return (
     <div className={s.layout}>
       <title>Edit Account</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
       <div className={`${s.main} ${sidebarCollapsed ? s.mainCollapsed : ""}`}>
         <div className={s.wrapper}>
           {/* Breadcrumb */}

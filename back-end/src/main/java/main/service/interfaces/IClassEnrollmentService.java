@@ -1,6 +1,7 @@
 package main.service.interfaces;
 
 import main.dto.response.ClassEnrollmentResponse;
+import main.dto.response.EnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
 import main.entity.User;
 
@@ -13,4 +14,5 @@ public interface IClassEnrollmentService {
     List<MonthlyRevenueResponse> getMonthlyRevenue();
     void enroll(User user, Integer itemId, Long amount);
     boolean hasEnrolled(Integer classId, Integer userId);
+    List<EnrollmentResponse> findByUserId(Integer userId, String keyword, String sortBy, String sortDir);
 }

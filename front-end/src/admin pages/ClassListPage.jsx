@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import s from "../css/ClassList.module.scss";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 import authFetch from "../function/authFetch";
 
 export default function ClassListPage() {
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
   const [classes, setClasses] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState("id");
@@ -176,10 +174,6 @@ export default function ClassListPage() {
     return status ? "Active" : "Inactive";
   };
 
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
-
   const handleInstructorChange = (instructorId) => {
     if (instructorId !== 0) {
       setSelectedInstructorName(
@@ -329,8 +323,6 @@ export default function ClassListPage() {
   return (
     <>
       <title>Class List</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
 
       <div
         className={s.classes}

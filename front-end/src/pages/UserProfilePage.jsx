@@ -164,7 +164,6 @@ export default function ModernUserProfile() {
   return (
     <>
       <title>My Profile</title>
-      <Header />
       <div className={s.profile}>
         <div className={s.profileWrapper}>
           <div className="container" style={{ maxWidth: "1000px" }}>

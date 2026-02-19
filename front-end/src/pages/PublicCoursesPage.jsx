@@ -239,8 +239,7 @@ function PublicCoursesPage() {
   return (
     <>
       <title>Public Courses</title>
-      <Header />
-
+    
       <div className={s.courses}>
         <div className={s.courses__container}>
           {/* Header Section */}

@@ -1,6 +1,7 @@
 package main.service.interfaces;
 
 import main.dto.response.CourseEnrollmentResponse;
+import main.dto.response.EnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
 import main.entity.User;
 
@@ -14,4 +15,5 @@ public interface ICourseEnrollmentService {
     void enroll(User user, Integer courseId, Long amount);
     boolean hasEnrolled(Integer courseId, Integer userId);
     void enrollFreeCourse(Integer userId, Integer courseId);
+    List<EnrollmentResponse> findByUserId(Integer userId, String keyword, String sortDate, String sortDir);
 }

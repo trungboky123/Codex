@@ -20,4 +20,5 @@ public interface ICourseService {
     void updateCourse(Integer id, UpdateCourseRequest request, MultipartFile thumbnail);
     void createCourse(CreateCourseRequest request, MultipartFile thumbnail);
     ImportResponse importCourses(MultipartFile file);
+
 }

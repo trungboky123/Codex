@@ -24,7 +24,7 @@ public class Class {
     @Column(name = "sale_price")
     private BigDecimal salePrice;
 
-    @Column(name = "thumbnail_url")
+    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
     @Column(name = "number_of_students", nullable = false)

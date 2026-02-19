@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../css/HomePage.css";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -76,7 +75,6 @@ function HomePage() {
   return (
     <>
       <title>Home</title>
-      <Header />
 
       <div style={{ minHeight: "100vh", background: "#f8f9fa" }}>
         <div className="banner-carousel">

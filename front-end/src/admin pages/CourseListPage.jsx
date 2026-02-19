@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import s from "../css/CourseList.module.scss";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
 import authFetch from "../function/authFetch";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 
 export default function CourseListPage() {
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed } = useOutletContext();
   const [courses, setCourses] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState("id");
@@ -183,10 +181,6 @@ export default function CourseListPage() {
     fileInputRef.current.click();
   };
 
-  const handleSidebarCollapse = (collapsed) => {
-    setSidebarCollapsed(collapsed);
-  };
-
   const handleDownloadTemplate = async () => {
     const res = await authFetch(
       "http://localhost:8080/courses/download-template",
@@ -318,8 +312,6 @@ export default function CourseListPage() {
   return (
     <>
       <title>Course List</title>
-      <AdminHeader sidebarCollapsed={sidebarCollapsed} />
-      <AdminSidebar onCollapseChange={handleSidebarCollapse} />
 
       <div
         className={s.courses}
