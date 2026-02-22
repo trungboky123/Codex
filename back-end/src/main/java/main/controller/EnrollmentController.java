@@ -2,10 +2,10 @@ package main.controller;
 
 import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
-import main.dto.response.ClassEnrollmentResponse;
-import main.dto.response.CourseEnrollmentResponse;
-import main.dto.response.EnrollmentResponse;
-import main.dto.response.MonthlyRevenueResponse;
+import main.dto.response.*;
+import main.entity.ClassEnrollment;
+import main.entity.CourseEnrollment;
+import main.entity.User;
 import main.service.interfaces.IClassEnrollmentService;
 import main.service.interfaces.ICourseEnrollmentService;
 import org.springframework.http.HttpStatus;
@@ -134,5 +134,47 @@ public class EnrollmentController {
         enrollments.addAll(courseEnrollments);
         enrollments.addAll(classEnrollments);
         return ResponseEntity.ok(enrollments);
+    }
+
+    @GetMapping("/student-list")
+    public ResponseEntity<?> getStudents(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        List<CourseEnrollment> courseEnrollments = courseEnrollmentService.findByInstructorId(userDetails.getId());
+        List<ClassEnrollment> classEnrollments = classEnrollmentService.findByInstructorId(userDetails.getId());
+
+        Map<Integer, StudentResponse> map = new HashMap<>();
+        for (CourseEnrollment ce : courseEnrollments) {
+            User user = ce.getUser();
+            map.putIfAbsent(user.getId(), new StudentResponse(
+                    user.getId(),
+                    user.getFullName(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    ce.isStatus()
+            ));
+            map.get(user.getId()).getCourses().add(ce.getCourse().getName());
+        }
+
+        for (ClassEnrollment ce : classEnrollments) {
+            User user = ce.getUser();
+            map.putIfAbsent(user.getId(), new StudentResponse(
+                    user.getId(),
+                    user.getFullName(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    ce.isStatus()
+            ));
+            map.get(user.getId()).getClasses().add(ce.getClazz().getName());
+        }
+
+        return ResponseEntity.ok(new ArrayList<>(map.values()));
     }
 }

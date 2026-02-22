@@ -397,7 +397,7 @@ export default function AddSettingPage() {
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-floppy-disk"></i>
+                        <i className="bi bi-floppy"></i>
                         Save Setting
                       </>
                     )}

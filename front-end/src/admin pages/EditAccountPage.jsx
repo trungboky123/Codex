@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import AdminHeader from "../components/AdminHeader";
-import AdminSidebar from "../components/AdminSideBar";
 import s from "../css/EditAccount.module.scss";
 import authFetch from "../function/authFetch";
+import { useTranslation } from "react-i18next";
 
 export default function EditAccountPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id } = useParams();
   const fileInputRef = useRef(null);
   const [roles, setRoles] = useState([]);
@@ -156,18 +156,18 @@ export default function EditAccountPage() {
               onClick={() => navigate("/admin/account-list")}
             >
               <i className="bi bi-people-fill"></i>
-              Accounts
+              {t("admin.sidebar.accounts")}
             </span>
             <i className="bi bi-chevron-right"></i>
-            <span className={s.breadcrumbCurrent}>Edit Account</span>
+            <span className={s.breadcrumbCurrent}>{t("admin.editAccount.title")}</span>
           </div>
 
           {/* Page Header */}
           <div className={s.pageHeader}>
             <div>
-              <h1 className={s.pageTitle}>Edit Account</h1>
+              <h1 className={s.pageTitle}>{t("admin.editAccount.title")}</h1>
               <p className={s.pageSubtitle}>
-                Update user information and permissions
+                {t("admin.editAccount.subtitle")}
               </p>
             </div>
             <button
@@ -175,7 +175,7 @@ export default function EditAccountPage() {
               onClick={() => navigate("/admin/account-list")}
             >
               <i className="bi bi-arrow-left"></i>
-              Back to Account List
+              {t("admin.editAccount.back")}
             </button>
           </div>
 
@@ -206,7 +206,7 @@ export default function EditAccountPage() {
                     )}
                     <div className={s.avatarOverlay}>
                       <i className="bi bi-camera"></i>
-                      <span>Change</span>
+                      <span>{t("admin.editAccount.change")}</span>
                     </div>
                   </div>
 
@@ -226,12 +226,12 @@ export default function EditAccountPage() {
                         onClick={handleRemoveAvatar}
                       >
                         <i className="bi bi-trash"></i>
-                        Remove
+                        {t("admin.editAccount.remove")}
                       </button>
                     )}
                   </div>
                   <p className={s.avatarNote}>
-                    Recommended: 200x200px, JPG/PNG, max 2MB
+                    {t("admin.editAccount.avatarNote")}
                   </p>
                 </div>
 
@@ -240,11 +240,11 @@ export default function EditAccountPage() {
 
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-shield-fill"></i>
-                  Permissions
+                  {t("admin.editAccount.permissions")}
                 </h3>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Role</label>
+                  <label className={s.label}>{t("admin.editAccount.role")}</label>
                   <div className={s.selectWrapper}>
                     <select
                       name="role"
@@ -263,7 +263,7 @@ export default function EditAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Status</label>
+                  <label className={s.label}>{t("admin.editAccount.status")}</label>
                   <div className={s.radioGroup}>
                     <label
                       className={`${s.radioItem} ${account.status ? s.radioActive : ""}`}
@@ -278,8 +278,8 @@ export default function EditAccountPage() {
                       <div className={s.radioBox}>
                         <div className={s.radioCircle}></div>
                         <div>
-                          <span className={s.radioLabel}>Active</span>
-                          <span className={s.radioDesc}>Account is active</span>
+                          <span className={s.radioLabel}>{t("admin.editAccount.active")}</span>
+                          <span className={s.radioDesc}>{t("admin.editAccount.active.description")}</span>
                         </div>
                       </div>
                     </label>
@@ -297,9 +297,9 @@ export default function EditAccountPage() {
                       <div className={s.radioBox}>
                         <div className={s.radioCircle}></div>
                         <div>
-                          <span className={s.radioLabel}>Inactive</span>
+                          <span className={s.radioLabel}>{t("admin.editAccount.inactive")}</span>
                           <span className={s.radioDesc}>
-                            Account is disabled
+                            {t("admin.editAccount.inactive.description")}
                           </span>
                         </div>
                       </div>
@@ -312,11 +312,11 @@ export default function EditAccountPage() {
               <div className={s.infoCard}>
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-person-fill"></i>
-                  Account Information
+                  {t("admin.editAccount.information")}
                 </h3>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Full Name</label>
+                  <label className={s.label}>{t("admin.editAccount.fullName")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-person"></i>
                     <input
@@ -324,7 +324,7 @@ export default function EditAccountPage() {
                       name="fullName"
                       value={account.fullName}
                       onChange={(e) => handleChange("fullName", e.target.value)}
-                      placeholder="Enter full name"
+                      placeholder={t("admin.editAccount.fullName.placeholder")}
                       className={s.input}
                       required
                     />
@@ -332,7 +332,7 @@ export default function EditAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Email</label>
+                  <label className={s.label}>{t("admin.editAccount.email")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-envelope"></i>
                     <input
@@ -340,7 +340,7 @@ export default function EditAccountPage() {
                       name="email"
                       value={account.email}
                       onChange={(e) => handleChange("email", e.target.value)}
-                      placeholder="Enter email address"
+                      placeholder={t("admin.editAccount.email.placeholder")}
                       className={s.input}
                       required
                     />
@@ -348,7 +348,7 @@ export default function EditAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Username</label>
+                  <label className={s.label}>{t("admin.editAccount.username")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-at"></i>
                     <input
@@ -356,7 +356,7 @@ export default function EditAccountPage() {
                       name="username"
                       value={account.username}
                       onChange={(e) => handleChange("username", e.target.value)}
-                      placeholder="Enter username"
+                      placeholder={t("admin.editAccount.username.placeholder")}
                       className={s.input}
                       required
                     />
@@ -368,7 +368,7 @@ export default function EditAccountPage() {
 
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-eye"></i>
-                  Preview
+                  {t("admin.editAccount.preview")}
                 </h3>
                 <div className={s.previewBox}>
                   <div className={s.previewAvatar}>
@@ -384,10 +384,10 @@ export default function EditAccountPage() {
                   </div>
                   <div className={s.previewInfo}>
                     <span className={s.previewName}>
-                      {account.fullName || "Full Name"}
+                      {account.fullName || t("admin.editAccount.fullName")}
                     </span>
                     <span className={s.previewUsername}>
-                      @{account.username || "username"}
+                      @{account.username || t("admin.editAccount.username")}
                     </span>
                   </div>
                   <span
@@ -421,7 +421,7 @@ export default function EditAccountPage() {
                     onClick={() => navigate(-1)}
                   >
                     <i className="bi bi-x-lg"></i>
-                    Cancel
+                    {t("admin.editAccount.cancel")}
                   </button>
                   <button
                     type="submit"
@@ -431,12 +431,12 @@ export default function EditAccountPage() {
                     {isSaving ? (
                       <>
                         <i className="bi bi-arrow-repeat"></i>
-                        Saving...
+                        {t("admin.editAccount.saving")}
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-floppy-disk"></i>
-                        Save Changes
+                        <i className="bi bi-floppy"></i>
+                        {t("admin.editAccount.saveChanges")}
                       </>
                     )}
                   </button>

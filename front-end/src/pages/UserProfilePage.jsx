@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import authFetch from "../function/authFetch";
-import Header from "../components/Header";
 import s from "../css/UserProfile.module.scss";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export default function ModernUserProfile() {
+export default function UserProfile() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isUpdated, setIsUpdated] = useState(false);
   const { t } = useTranslation();
   const [message, setMessage] = useState("");
@@ -27,10 +29,11 @@ export default function ModernUserProfile() {
   async function fetchUser() {
     const res = await authFetch("http://localhost:8080/users/me", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
+    if (!res.ok) {
+      navigate("/login", { state: { from: location }, replace: true });
+      return;
+    }
     const data = await res.json();
     setOriginalData(data);
   }
@@ -90,6 +93,7 @@ export default function ModernUserProfile() {
 
   const saveProfile = async () => {
     const formData = new FormData();
+    const lang = localStorage.getItem("lang") || "en";
     formData.append(
       "data",
       new Blob([JSON.stringify({ ...newData })], { type: "application/json" }),
@@ -97,7 +101,7 @@ export default function ModernUserProfile() {
     if (avatarFile) {
       formData.append("avatar", avatarFile);
     }
-    const res = await authFetch("http://localhost:8080/users/me", {
+    const res = await authFetch(`http://localhost:8080/users/me?lang=${lang}`, {
       method: "PATCH",
       body: formData,
     });
@@ -228,7 +232,7 @@ export default function ModernUserProfile() {
                             onClick={handleRemoveAvatar}
                           >
                             <i className="bi bi-trash"></i>
-                            Remove
+                            {t("admin.addAccount.remove")}
                           </button>
                         </div>
                       )}
@@ -309,7 +313,7 @@ export default function ModernUserProfile() {
                             onClick={enableEdit}
                           >
                             <i className="bi bi-pencil-fill me-2"></i>
-                            Edit Profile
+                            {t("profile.edit")}
                           </button>
                         ) : (
                           <div className="row g-3">

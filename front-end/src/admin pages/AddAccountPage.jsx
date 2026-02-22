@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 import s from "../css/AddAccount.module.scss";
 import authFetch from "../function/authFetch";
+import { useTranslation } from "react-i18next";
 
 export default function AddAccountPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const fileInputRef = useRef(null);
@@ -22,7 +24,6 @@ export default function AddAccountPage() {
   });
 
   const { sidebarCollapsed } = useOutletContext();
-
 
   const [previewAvatar, setPreviewAvatar] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
@@ -99,6 +100,7 @@ export default function AddAccountPage() {
 
   async function handleSave(e) {
     e.preventDefault();
+    const lang = localStorage.getItem("lang") || "en";
     const formData = new FormData();
     formData.append(
       "data",
@@ -108,7 +110,7 @@ export default function AddAccountPage() {
       formData.append("avatar", avatarFile);
     }
 
-    const res = await authFetch("http://localhost:8080/users/create", {
+    const res = await authFetch(`http://localhost:8080/users/create?lang=${lang}`, {
       method: "POST",
       body: formData,
     });
@@ -140,18 +142,18 @@ export default function AddAccountPage() {
               onClick={() => navigate("/admin/account-list")}
             >
               <i className="bi bi-people-fill"></i>
-              Accounts
+              {t("admin.sidebar.accounts")}
             </span>
             <i className="bi bi-chevron-right"></i>
-            <span className={s.breadcrumbCurrent}>Add Account</span>
+            <span className={s.breadcrumbCurrent}>{t("admin.addAccount.title")}</span>
           </div>
 
           {/* Page Header */}
           <div className={s.pageHeader}>
             <div>
-              <h1 className={s.pageTitle}>Add Account</h1>
+              <h1 className={s.pageTitle}>{t("admin.addAccount.title")}</h1>
               <p className={s.pageSubtitle}>
-                Create a new user account with permissions
+                {t("admin.addAccount.subtitle")}
               </p>
             </div>
             <button
@@ -159,7 +161,7 @@ export default function AddAccountPage() {
               onClick={() => navigate("/admin/account-list")}
             >
               <i className="bi bi-arrow-left"></i>
-              Back to Account List
+              {t("admin.addAccount.back")}
             </button>
           </div>
 
@@ -190,7 +192,7 @@ export default function AddAccountPage() {
                     )}
                     <div className={s.avatarOverlay}>
                       <i className="bi bi-camera"></i>
-                      <span>Change</span>
+                      <span>{t("admin.addAccount.change")}</span>
                     </div>
                   </div>
 
@@ -210,12 +212,12 @@ export default function AddAccountPage() {
                         onClick={handleRemoveAvatar}
                       >
                         <i className="bi bi-trash"></i>
-                        Remove
+                        {t("admin.addAccount.remove")}
                       </button>
                     )}
                   </div>
                   <p className={s.avatarNote}>
-                    Recommended: 200x200px, JPG/PNG, max 2MB
+                    {t("admin.addAccount.recommended")}: 200x200px, JPG/PNG, max 2MB
                   </p>
                 </div>
 
@@ -224,18 +226,18 @@ export default function AddAccountPage() {
 
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-shield-fill"></i>
-                  Permissions
+                  {t("admin.addAccount.permissions")}
                 </h3>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Role</label>
+                  <label className={s.label}>{t("admin.addAccount.role")}</label>
                   <div className={s.dropdown} ref={roleDropdownRef}>
                     <button
                       type="button"
                       className={s.filterBtn}
                       onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                     >
-                      <span>{newData.roleName || "Select Role"}</span>
+                      <span>{newData.roleName || t("admin.addAccount.selectRole")}</span>
                       <i
                         className={`bi bi-chevron-down ${roleDropdownOpen ? s.rotate : ""}`}
                       ></i>
@@ -262,7 +264,7 @@ export default function AddAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Status</label>
+                  <label className={s.label}>{t("admin.addAccount.status")}</label>
                   <div className={s.radioGroup}>
                     <label
                       className={`${s.radioItem} ${newData.status ? s.radioActive : ""}`}
@@ -277,8 +279,8 @@ export default function AddAccountPage() {
                       <div className={s.radioBox}>
                         <div className={s.radioCircle}></div>
                         <div>
-                          <span className={s.radioLabel}>Active</span>
-                          <span className={s.radioDesc}>Account is active</span>
+                          <span className={s.radioLabel}>{t("admin.addAccount.status.active")}</span>
+                          <span className={s.radioDesc}>{t("admin.addAccount.status.active.description")}</span>
                         </div>
                       </div>
                     </label>
@@ -296,9 +298,9 @@ export default function AddAccountPage() {
                       <div className={s.radioBox}>
                         <div className={s.radioCircle}></div>
                         <div>
-                          <span className={s.radioLabel}>Inactive</span>
+                          <span className={s.radioLabel}>{t("admin.addAccount.status.inactive")}</span>
                           <span className={s.radioDesc}>
-                            Account is disabled
+                            {t("admin.addAccount.status.inactive.description")}
                           </span>
                         </div>
                       </div>
@@ -311,18 +313,18 @@ export default function AddAccountPage() {
               <div className={s.infoCard}>
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-person-fill"></i>
-                  Account Information
+                  {t("admin.addAccount.information")}
                 </h3>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Full Name</label>
+                  <label className={s.label}>{t("admin.addAccount.fullName")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-person"></i>
                     <input
                       type="text"
                       name="fullName"
                       onChange={(e) => handleChange("fullName", e.target.value)}
-                      placeholder="Enter full name"
+                      placeholder={t("admin.addAccount.fullName.placeholder")}
                       className={s.input}
                       required
                     />
@@ -330,14 +332,14 @@ export default function AddAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Email</label>
+                  <label className={s.label}>{t("admin.addAccount.email")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-envelope"></i>
                     <input
                       type="email"
                       name="email"
                       onChange={(e) => handleChange("email", e.target.value)}
-                      placeholder="Enter email address"
+                      placeholder={t("admin.addAccount.email.placeholder")}
                       className={s.input}
                       required
                     />
@@ -345,14 +347,14 @@ export default function AddAccountPage() {
                 </div>
 
                 <div className={s.formGroup}>
-                  <label className={s.label}>Username</label>
+                  <label className={s.label}>{t("admin.addAccount.username")}</label>
                   <div className={s.inputWrapper}>
                     <i className="bi bi-at"></i>
                     <input
                       type="text"
                       name="username"
                       onChange={(e) => handleChange("username", e.target.value)}
-                      placeholder="Enter username"
+                      placeholder={t("admin.addAccount.username.placeholder")}
                       className={s.input}
                       required
                     />
@@ -360,7 +362,7 @@ export default function AddAccountPage() {
                 </div>
 
                 <p className={s.note}>
-                  *Note: Password will be set automatically 1-8.
+                  {t("admin.addAccount.note")}
                 </p>
 
                 {/* Summary Preview */}
@@ -368,7 +370,7 @@ export default function AddAccountPage() {
 
                 <h3 className={s.cardTitle}>
                   <i className="bi bi-eye"></i>
-                  Preview
+                  {t("admin.addAccount.preview")}
                 </h3>
                 <div className={s.previewBox}>
                   <div className={s.previewAvatar}>
@@ -388,16 +390,16 @@ export default function AddAccountPage() {
                   </div>
                   <div className={s.previewInfo}>
                     <span className={s.previewName}>
-                      {newData.fullName || "Full Name"}
+                      {newData.fullName || t("admin.addAccount.fullName")}
                     </span>
                     <span className={s.previewUsername}>
-                      @{newData.username || "username"}
+                      @{newData.username || t("admin.addAccount.username")}
                     </span>
                   </div>
                   <span
                     className={`${s.previewBadge} ${s[`badge${newData.role?.name || ""}`]}`}
                   >
-                    {newData.role?.name || "Role"}
+                    {newData.role?.name || t("admin.addAccount.role")}
                   </span>
                 </div>
 
@@ -425,7 +427,7 @@ export default function AddAccountPage() {
                     onClick={() => navigate(-1)}
                   >
                     <i className="bi bi-x-lg"></i>
-                    Cancel
+                    {t("admin.addAccount.cancel")}
                   </button>
                   <button
                     type="submit"
@@ -435,12 +437,12 @@ export default function AddAccountPage() {
                     {isSaving ? (
                       <>
                         <i className="bi bi-arrow-repeat"></i>
-                        Saving...
+                        {t("admin.addAccount.saving")}
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-floppy-disk"></i>
-                        Save Changes
+                        <i className="bi bi-floppy"></i>
+                        {t("admin.addAccount.save")}
                       </>
                     )}
                   </button>

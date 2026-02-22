@@ -11,7 +11,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const from = location.state?.from?.pathname || "/"
+  const from = location.state?.from?.pathname || "/";
   const [user, setUser] = useState({
     usernameOrEmail: "",
     password: "",
@@ -56,14 +56,16 @@ function LoginPage() {
 
       const role = jwtDecode(data.accessToken).roles;
       setTimeout(() => {
-        if (role.includes("ROLE_ADMIN")) {
-          navigate("/admin/dashboard", {replace: true});
-        }
-        else if (role.includes("ROLE_INSTRUCTOR")) {
-          navigate("/instructor/course-list", {replace: true});
-        }
-        else {
-          navigate(from, {replace: true});
+        if (from) {
+          navigate(from, { replace: true });
+        } else {
+          if (role.includes("ROLE_ADMIN")) {
+            navigate("/admin/dashboard", { replace: true });
+          } else if (role.includes("ROLE_INSTRUCTOR")) {
+            navigate("/instructor/student-list", { replace: true });
+          } else {
+            navigate("/home", { replace: true });
+          }
         }
       }, 2000);
     }
@@ -71,6 +73,7 @@ function LoginPage() {
 
   return (
     <div className={s["login"] + " min-h-screen flex"}>
+      <title>Login</title>
       <div className={s["login__container"]}>
         <div className={s["login__image"]}></div>
 
@@ -85,14 +88,14 @@ function LoginPage() {
                 />
               </Link>
               <h1 className={s["login__title"]}>{t("login.text")}</h1>
-              <p className={s["login__subtitle"]}>
-                {t("login.subtitle")}
-              </p>
+              <p className={s["login__subtitle"]}>{t("login.subtitle")}</p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className={s["login__form-group"]}>
-                <label className={s["login__label"]}>{t("login.usernameOrEmail")}</label>
+                <label className={s["login__label"]}>
+                  {t("login.usernameOrEmail")}
+                </label>
                 <input
                   type="text"
                   name="usernameOrEmail"
@@ -105,7 +108,9 @@ function LoginPage() {
               </div>
 
               <div className={s["login__form-group"]}>
-                <label className={s["login__label"]}>{t("login.password")}</label>
+                <label className={s["login__label"]}>
+                  {t("login.password")}
+                </label>
                 <div className={s["login__password"]}>
                   <input
                     type={showPassword ? "text" : "password"}

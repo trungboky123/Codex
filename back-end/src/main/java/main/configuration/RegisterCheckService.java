@@ -14,20 +14,18 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class RegisterCheckService {
     private final UserRepository userRepository;
-    private final MessageSource messageSource;
 
     public void checkInfo(RegisterRequest request) {
-        Locale locale = LocaleContextHolder.getLocale();
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException(messageSource.getMessage("username.existed", null, locale));
+            throw new RuntimeException("username.existed");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException(messageSource.getMessage("email.existed", null, locale));
+            throw new RuntimeException("email.existed");
         }
 
         if (!PasswordUtil.isValidPassword(request.getPassword())) {
-            throw new RuntimeException(messageSource.getMessage("password.invalid", null, locale));
+            throw new RuntimeException("password.invalid");
         }
     }
 }

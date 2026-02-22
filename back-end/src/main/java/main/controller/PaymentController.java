@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
 import main.configuration.PayosService;
 import main.dto.request.PaymentRequest;
+import main.dto.response.PaymentGroupResponse;
 import main.entity.Payment;
 import main.repository.PaymentRepository;
 import main.service.interfaces.IPaymentService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -21,7 +24,6 @@ import java.util.Map;
 public class PaymentController {
     private final IPaymentService paymentService;
     private final PayosService payosService;
-    private final PaymentRepository paymentRepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createPayment(Authentication authentication, @RequestBody PaymentRequest request) {
@@ -50,5 +52,16 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok(Map.of("status", "PENDING"));
+    }
+
+    @GetMapping("/transaction-history")
+    public ResponseEntity<?> getTransactionHistory(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        List<PaymentGroupResponse> payments = paymentService.getPaymentsByUserId(userDetails.getId());
+        return ResponseEntity.ok(payments);
     }
 }

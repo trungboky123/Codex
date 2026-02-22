@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import s from "../css/Wishlist.module.scss";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import authFetch from "../function/authFetch";
 
 export default function WishlistPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("courses");
   const [courseItems, setCourseItems] = useState([]);
@@ -57,6 +58,10 @@ export default function WishlistPage() {
           },
         },
       );
+      if (!res.ok) {
+        navigate("/login", { state: { from: location }, replace: true });
+        return;
+      }
       const data = await res.json();
       setCourseItems(data.filter((item) => item.type === "Course"));
       setClassItems(data.filter((item) => item.type === "Class"));

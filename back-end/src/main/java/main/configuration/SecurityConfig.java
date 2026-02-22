@@ -74,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/findAll").hasRole("ADMIN")
                         .requestMatchers("/users/status/*").hasRole("ADMIN")
                         .requestMatchers("/users/instructors/getAll").hasRole("ADMIN")
+                        .requestMatchers("/enrollments/student-list").hasAnyRole("ADMIN", "INSTRUCTOR")
                         .anyRequest().authenticated()
                 )
                 // UserDetailsService

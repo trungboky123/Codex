@@ -13,7 +13,7 @@ export default function StartUpRoot() {
     return <Navigate to={"/admin/dashboard"} replace/>;
   }
   else if (role.includes("ROLE_INSTRUCTOR")) {
-    return <Navigate to={"/instructor/course-list"} replace/>;
+    return <Navigate to={"/instructor/student-list"} replace/>;
   }
   else {
     return <Navigate to={"/home"} replace/>;

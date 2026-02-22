@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import s from "../css/MyEnrollments.module.scss";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import authFetch from "../function/authFetch";
 
 export default function MyEnrollmentsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Init activeTab from URL param 'type', default to 'courses'
@@ -95,6 +96,10 @@ export default function MyEnrollmentsPage() {
         `http://localhost:8080/enrollments/user?${params.toString()}`,
         { method: "GET" },
       );
+      if (!res.ok) {
+        navigate("/login", { state: { from: location }, replace: true });
+        return;
+      }
       const data = await res.json();
       setCourseItems(data.filter((item) => item.type === "Course"));
       setClassItems(data.filter((item) => item.type === "Class"));
@@ -303,8 +308,8 @@ export default function MyEnrollmentsPage() {
                       {item.categories?.length > 0 && (
                         <div className={s.categoryTags}>
                           {item.categories.map((cat) => (
-                            <span key={cat.id} className={s.categoryTag}>
-                              {cat.name}
+                            <span className={s.categoryTag}>
+                              {cat}
                             </span>
                           ))}
                         </div>

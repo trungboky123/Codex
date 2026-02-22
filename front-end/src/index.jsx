@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
@@ -43,6 +43,9 @@ import MainLayout from "./layouts/MainLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import MyEnrollmentsPage from "./pages/MyEnrollmentsPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+import InstructorRoute from "./routes/InstructorRoute";
+import InstructorLayout from "./layouts/InstructorLayout";
+import StudentListPage from "./instructor pages/StudentListPage";
 
 const router = createBrowserRouter([
   {
@@ -101,7 +104,7 @@ const router = createBrowserRouter([
             element: <EditClassPage />,
           },
           {
-            path: "settings",
+            path: "setting-list",
             element: <SettingListPage />,
           },
           {
@@ -115,6 +118,21 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "/instructor",
+    element: <InstructorRoute/>,
+    children: [
+      {
+        element: <InstructorLayout/>,
+        children: [
+          {
+            path: "student-list",
+            element: <StudentListPage/>
+          }
+        ]
+      }
+    ]
   },
   {
     element: <MainLayout />,
@@ -170,7 +188,7 @@ const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    path: "/verify",
+    path: "/verify-email",
     element: <VerifyEmailPage />,
   },
   {

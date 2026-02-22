@@ -10,6 +10,7 @@ import main.dto.response.UserResponse;
 import main.entity.Otp;
 import main.entity.Setting;
 import main.entity.User;
+import main.exception.MessageException;
 import main.repository.OtpRepository;
 import main.repository.SettingRepository;
 import main.repository.UserRepository;
@@ -76,7 +77,7 @@ public class UserService implements IUserService {
 
         if (request.getFullName() != null) {
             if (request.getFullName().isBlank()) {
-                throw new RuntimeException("Full name cannot be blank");
+                throw new RuntimeException("fullName.notBlank");
             }
             user.setFullName(request.getFullName());
             updated = true;
@@ -84,7 +85,7 @@ public class UserService implements IUserService {
 
         if (request.getUsername() != null) {
             if (request.getUsername().isBlank()) {
-                throw new RuntimeException("Username cannot be blank");
+                throw new RuntimeException("username.notBlank");
             }
             user.setUsername(request.getUsername());
             updated = true;
@@ -92,7 +93,7 @@ public class UserService implements IUserService {
 
         if (request.getEmail() != null) {
             if (request.getEmail().isBlank()) {
-                throw new RuntimeException("Email cannot be blank");
+                throw new RuntimeException("email.notBlank");
             }
             user.setEmail(request.getEmail());
             updated = true;
@@ -100,15 +101,15 @@ public class UserService implements IUserService {
 
         if (request.getNewPassword() != null) {
             if (request.getCurrentPassword() == null) {
-                throw new RuntimeException("Current password is required");
+                throw new RuntimeException("password.current.notBlank");
             }
 
             if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-                throw new RuntimeException("Current password is wrong");
+                throw new RuntimeException("password.current.false");
             }
 
             if (!PasswordUtil.isValidPassword(request.getNewPassword())) {
-                throw new RuntimeException("Password must contain at least 8 characters, 1 uppercase, 1 lowercase and 1 special characters");
+                throw new RuntimeException("password.invalid");
             }
 
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -122,7 +123,7 @@ public class UserService implements IUserService {
         }
 
         if (!updated) {
-            throw new RuntimeException("No fields to update");
+            throw new RuntimeException("noField");
         }
         userRepository.save(user);
     }
@@ -165,7 +166,7 @@ public class UserService implements IUserService {
         }
 
         if (!PasswordUtil.isValidPassword(newPassword)) {
-            throw new RuntimeException("Password must contain at least 8 characters, 1 uppercase, 1 lowercase and 1 special characters");
+            throw new RuntimeException("password.invalid");
         }
 
         User user = userRepository.findByEmail(otp.getEmail()).orElseThrow(() -> new RuntimeException("User not found!"));
@@ -192,7 +193,7 @@ public class UserService implements IUserService {
 
         if (request.getFullName() != null) {
             if (request.getFullName().isBlank()) {
-                throw new RuntimeException("Full name cannot be blank");
+                throw new RuntimeException("fullName.notBlank");
             }
             user.setFullName(request.getFullName());
             updated = true;
@@ -200,7 +201,7 @@ public class UserService implements IUserService {
 
         if (request.getUsername() != null) {
             if (request.getUsername().isBlank()) {
-                throw new RuntimeException("Username cannot be blank");
+                throw new RuntimeException("username.notBlank");
             }
             user.setUsername(request.getUsername());
             updated = true;
@@ -208,7 +209,7 @@ public class UserService implements IUserService {
 
         if (request.getEmail() != null) {
             if (request.getEmail().isBlank()) {
-                throw new RuntimeException("Email cannot be blank");
+                throw new RuntimeException("email.notBlank");
             }
             user.setEmail(request.getEmail());
             updated = true;
@@ -232,13 +233,21 @@ public class UserService implements IUserService {
         }
 
         if (!updated) {
-            throw new RuntimeException("No fields to update");
+            throw new RuntimeException("noField");
         }
         userRepository.save(user);
     }
 
     @Override
     public void createUser(CreateUserRequest request, MultipartFile avatar) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("email.existed");
+        }
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("username.existed");
+        }
+
         User user = new User();
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
@@ -293,47 +302,47 @@ public class UserService implements IUserService {
         String statusStr = XLSXUtil.getCell(row, 5);
 
         if (fullName == null || fullName.isBlank()) {
-            throw new RuntimeException("Full name is blank");
+            throw new RuntimeException("fullName.notBlank");
         }
         if (username == null || username.isBlank()) {
-            throw new RuntimeException("Username is blank");
+            throw new RuntimeException("username.notBlank");
         }
 
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
+            throw new RuntimeException("username.existed");
         }
 
         if (email == null || email.isBlank()) {
-            throw new RuntimeException("Email is blank!");
+            throw new RuntimeException("email.notBlank");
         }
 
         if (password == null || password.isBlank()) {
-            throw new RuntimeException("Password is blank!");
+            throw new RuntimeException("password.notBlank");
         }
 
         if (!email.matches(".+@.+\\..+")) {
-            throw new RuntimeException("Email is invalid!");
+            throw new RuntimeException("email.invalid");
         }
 
         if (!PasswordUtil.isValidPassword(password)) {
-            throw new RuntimeException("Password is invalid!");
+            throw new RuntimeException("password.invalid");
         }
 
         if (roleName == null || roleName.isBlank()) {
-            throw new RuntimeException("Role is blank!");
+            throw new RuntimeException("role.required");
         }
 
         if (statusStr == null || statusStr.isBlank()) {
-            throw new RuntimeException("Status is blank");
+            throw new RuntimeException("status.notBlank");
         }
 
         if (!statusStr.equalsIgnoreCase("true") &&
                 !statusStr.equalsIgnoreCase("false")) {
-            throw new RuntimeException("Status must be true/false!");
+            throw new RuntimeException("status.invalid");
         }
 
         String roleStr = XLSXUtil.normalizeName(roleName);
-        Setting role = settingRepository.findByName(roleStr).orElseThrow(() -> new RuntimeException("Role " + roleName + " not found"));
+        Setting role = settingRepository.findByName(roleStr).orElseThrow(() -> new MessageException("role.notFound", roleName));
 
         User user = new User();
         user.setFullName(fullName);

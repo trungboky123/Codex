@@ -10,6 +10,8 @@ import main.dto.response.UserResponse;
 import main.service.interfaces.IUserService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -29,6 +32,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final IUserService userService;
+    private final MessageSource messageSource;
 
     @GetMapping("/me")
     public ResponseEntity<?> getMe(Authentication authentication) {
@@ -111,9 +115,10 @@ public class UserController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createUser(@Valid @RequestPart(value = "data", required = false) CreateUserRequest request, @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
+        Locale locale = LocaleContextHolder.getLocale();
         userService.createUser(request, avatar);
         return ResponseEntity.ok(Map.of(
-                "message", "Created Successfully!"
+                "message", messageSource.getMessage("create.success", null, locale)
         ));
     }
 

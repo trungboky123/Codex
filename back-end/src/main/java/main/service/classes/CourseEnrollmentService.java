@@ -115,4 +115,10 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
 
         return enrollments;
     }
+
+    @Override
+    public List<CourseEnrollment> findByInstructorId(Integer instructorId) {
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new RuntimeException("Instructor not found!"));
+        return courseEnrollmentRepository.findByCourse_Instructor(user);
+    }
 }

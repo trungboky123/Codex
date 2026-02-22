@@ -525,7 +525,7 @@ export default function AddCoursePage() {
                         </>
                       ) : (
                         <>
-                          <i className="bi bi-floppy-disk"></i>
+                          <i className="bi bi-floppy"></i>
                           Save Changes
                         </>
                       )}

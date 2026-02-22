@@ -624,7 +624,7 @@ export default function EditClassPage() {
                         </>
                       ) : (
                         <>
-                          <i className="bi bi-floppy-disk"></i>
+                          <i className="bi bi-floppy"></i>
                           Save Changes
                         </>
                       )}

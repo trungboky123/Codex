@@ -18,6 +18,9 @@ import main.utils.HtmlUtil;
 import main.utils.XLSXUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +43,7 @@ public class CourseService implements ICourseService {
     private final CloudinaryService cloudinaryService;
 
     @Override
+    @Cacheable(value = "highlightedCourses")
     public List<CourseResponse> getHighlightedCourses() {
         List<Course> highlightedCourses = courseRepository.findAllByOrderByIdDesc(PageRequest.of(0, 8));
         return highlightedCourses.stream().map(course -> {
@@ -50,6 +54,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
+    @Cacheable(value = "publicCourses", key = "#pageable.pageNumber + '-' + #categoryId + '-' + #sortByPrice + '-' + #keyword")
     public Page<CourseResponse> getPublicCourses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
         Page<Course> courses;
         if ("asc".equalsIgnoreCase(sortByPrice)) {
@@ -70,6 +75,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
+    @Cacheable(value = "courseDetails", key = "#id")
     public CourseResponse getCourseById(Integer id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
         CourseResponse response = modelMapper.map(course, CourseResponse.class);
@@ -95,12 +101,20 @@ public class CourseService implements ICourseService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true),
+            @CacheEvict(value = "courseDetails", key = "#id")
+    })
     public void updateStatus(Integer id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found!"));
         course.setStatus(!course.isStatus());
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true),
+            @CacheEvict(value = "courseDetails", key = "#id")
+    })
     public void updateCourse(Integer id, UpdateCourseRequest request, MultipartFile thumbnail) {
         List<Setting> categories = new ArrayList<>();
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
@@ -179,6 +193,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
+    @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true)
     public void createCourse(CreateCourseRequest request, MultipartFile thumbnail) {
         List<Setting> categories = new ArrayList<>();
         Course course = new Course();
@@ -223,6 +238,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
+    @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true)
     public ImportResponse importCourses(MultipartFile file) {
         int total = 0;
         int success = 0;
@@ -297,7 +313,8 @@ public class CourseService implements ICourseService {
             categories.add(cat);
         }
 
-        User user = userRepository.findByFullName(instructor).orElseThrow(() -> new RuntimeException("Instructor " + instructor + " not found!"));
+        Setting setting = settingRepository.findByName("Instructor").orElseThrow(() -> new RuntimeException("Role not found!"));
+        User user = userRepository.findByFullNameAndRole(instructor, setting).orElseThrow(() -> new RuntimeException("Instructor " + instructor + " not found!"));
 
         Course course = new Course();
         course.setName(name);

@@ -47,4 +47,6 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
             "AND (:keyword IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
             "AND ce.status = true")
     List<EnrollmentResponse> findByUser(@Param("user") User user, @Param("keyword") String keyword, Sort sort);
+
+    List<CourseEnrollment> findByCourse_Instructor(User instructor);
 }

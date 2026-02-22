@@ -7,19 +7,19 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    @NotBlank(message = "Full name cannot be blank!")
-    @Size(max = 50, message = "Maximum of full name is 50 characters!")
+    @NotBlank(message = "fullName.notBlank")
+    @Size(max = 50, message = "fullName.maximum")
     private String fullName;
 
-    @NotBlank(message = "Username cannot be blank!")
-    @Size(max = 50, message = "Maximum of username is 50 characters!")
+    @NotBlank(message = "username.notBlank")
+    @Size(max = 50, message = "username.maximum")
     private String username;
 
-    @NotBlank(message = "Email cannot be blank!")
-    @Size(max = 255, message = "Maximum of email is 255 characters!")
-    @Email(message = "Email is invalid!")
+    @NotBlank(message = "email.notBlank")
+    @Size(max = 255, message = "email.maximum")
+    @Email(message = "email.invalid")
     private String email;
 
-    @NotBlank(message = "Password cannot be blank!")
+    @NotBlank(message = "password.notBlank")
     private String password;
 }

@@ -79,7 +79,7 @@ public class AuthController {
                     "accessToken", accessToken
             ));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(messageSource.getMessage("password.incorrect", null, locale));
+            throw new BadCredentialsException("password.incorrect");
         }
     }
 
@@ -181,9 +181,6 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        System.out.println(request.getEmail());
-        System.out.println(request.getCode());
-        System.out.println(request.getNewPassword());
         userService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
         return ResponseEntity.ok().build();
     }

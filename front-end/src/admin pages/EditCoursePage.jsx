@@ -231,7 +231,7 @@ export default function EditCoursePage() {
             </div>
             <button
               className={s.backBtn}
-              onClick={() => navigate("/admin/courses")}
+              onClick={() => navigate("/admin/course-list")}
             >
               <i className="bi bi-arrow-left"></i>
               Back to Course List
@@ -563,7 +563,7 @@ export default function EditCoursePage() {
                         </>
                       ) : (
                         <>
-                          <i className="bi bi-floppy-disk"></i>
+                          <i className="bi bi-floppy"></i>
                           Save Changes
                         </>
                       )}

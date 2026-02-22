@@ -1,12 +1,14 @@
 package main.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-public class CourseResponse {
+public class CourseResponse implements Serializable {
     private Integer id;
     private String name;
     private BigDecimal listedPrice;

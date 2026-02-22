@@ -165,6 +165,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className={s.forgotPassword}>
+      <title>Reset Password</title>
       <div className={s.forgotPassword__container}>
         <div className={s.forgotPassword__image}></div>
 

@@ -200,7 +200,7 @@ function Header() {
                   )}
                 </div>
               </>
-            ) : role === "ROLE_ADMIN" ? (
+            ) : role === "ROLE_ADMIN" || "ROLE_INSTRUCTOR"? (
               /* ── ADMIN ─────────────────────────────────────────────── */
               <>
                 {/* User dropdown */}
@@ -232,11 +232,11 @@ function Header() {
                       </Link>
                       <Link
                         className="hd-item"
-                        to="/admin/dashboard"
+                        to={role === "ROLE_ADMIN" ? "/admin/dashboard" : "/instructor/student-list"}
                         onClick={() => setUserDropdownOpen(false)}
                       >
                         <i className="bi bi-grid"></i>
-                        Dashboard
+                        {role === "ROLE_ADMIN" ? "Dashboard" : "Instructor Pages"}
                       </Link>
                       <div className="hd-divider"></div>
                       <button className="hd-item danger" onClick={handleLogout}>

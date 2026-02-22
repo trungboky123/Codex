@@ -1,5 +1,6 @@
 package main.repository;
 
+import main.entity.Setting;
 import main.entity.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +23,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "AND (:roleId IS NULL OR u.role.id = :roleId) " +
             "AND (:status IS NULL OR u.status = :status)")
     List<User> findByFiltered(String keyword, Integer roleId, Boolean status, Sort sort);
-
     List<User> findByRole_Name(String name);
+    Optional<User> findByFullNameAndRole(String fullName, Setting role);
 }

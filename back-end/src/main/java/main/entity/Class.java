@@ -59,4 +59,7 @@ public class Class {
 
     @OneToOne(mappedBy = "clazz")
     private Syllabus syllabus;
+
+    @OneToMany(mappedBy = "clazz")
+    private List<ClassEnrollment> classEnrollments;
 }
