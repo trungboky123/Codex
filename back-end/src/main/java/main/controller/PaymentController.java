@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import main.configuration.CustomUserDetails;
 import main.configuration.PayosService;
 import main.dto.request.PaymentRequest;
-import main.dto.response.PaymentGroupResponse;
+import main.dto.response.*;
 import main.entity.Payment;
 import main.repository.PaymentRepository;
 import main.service.interfaces.IPaymentService;
@@ -13,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,5 +66,31 @@ public class PaymentController {
 
         List<PaymentGroupResponse> payments = paymentService.getPaymentsByUserId(userDetails.getId());
         return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/top-courses")
+    public ResponseEntity<?> getTopSoldCourses() {
+        List<CourseEnrollmentResponse> payments = paymentService.getTopSoldCourses();
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/top-classes")
+    public ResponseEntity<?> getTopSoldClasses() {
+        List<ClassEnrollmentResponse> payments = paymentService.getTopSoldClasses();
+        return ResponseEntity.ok(payments);
+    }
+
+    @GetMapping("/total-revenue")
+    public ResponseEntity<?> getTotalRevenue() {
+        BigDecimal totalRevenue = paymentService.totalRevenue();
+        return ResponseEntity.ok(Map.of(
+                "totalRevenue", totalRevenue
+        ));
+    }
+
+    @GetMapping("/monthly-revenue")
+    public ResponseEntity<?> getMonthlyRevenue() {
+        List<MonthlyRevenueResponse> responses = paymentService.getMonthlyRevenue();
+        return ResponseEntity.ok(responses);
     }
 }

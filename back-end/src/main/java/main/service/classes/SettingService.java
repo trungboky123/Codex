@@ -8,6 +8,9 @@ import main.entity.Setting;
 import main.repository.SettingRepository;
 import main.service.interfaces.ISettingService;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +24,14 @@ public class SettingService implements ISettingService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Cacheable(value = "allCategories")
     public List<SettingResponse> getAllCategories() {
         List<Setting> categories = settingRepository.findAllByParent_NameAndStatusTrue("Category");
         return categories.stream().map(category -> modelMapper.map(category, SettingResponse.class)).toList();
     }
 
     @Override
+    @Cacheable(value = "allRoles")
     public List<SettingResponse> getAllRoles() {
         List<Setting> roles = settingRepository.findAllByParent_NameAndStatusTrue("Role");
         return roles.stream().map(role -> modelMapper.map(role, SettingResponse.class)).toList();
@@ -39,6 +44,10 @@ public class SettingService implements ISettingService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allCategories"),
+            @CacheEvict(value = "allRoles")
+    })
     public List<SettingResponse> getAllSettings(String keyword, Integer typeId, Boolean status, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         List<Setting> settings = settingRepository.findAllSettings(keyword, typeId, status, sort);
@@ -47,6 +56,10 @@ public class SettingService implements ISettingService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allCategories"),
+            @CacheEvict(value = "allRoles")
+    })
     public void updateStatus(Integer id) {
         Setting setting = settingRepository.findById(id).orElseThrow(() -> new RuntimeException("Setting not found!"));
         if (setting.getName().equalsIgnoreCase("Role") || setting.getName().equalsIgnoreCase("Category")) {
@@ -59,6 +72,10 @@ public class SettingService implements ISettingService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allCategories"),
+            @CacheEvict(value = "allRoles")
+    })
     public void create(CreateSettingRequest request) {
         if (settingRepository.existsByName(request.getName())) {
             throw new RuntimeException("Setting name has already existed!");
@@ -85,6 +102,10 @@ public class SettingService implements ISettingService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allCategories"),
+            @CacheEvict(value = "allRoles")
+    })
     public void updateSetting(Integer id, UpdateSettingRequest request) {
         if (request.getName().isBlank()) {
             throw new RuntimeException("Setting name cannot be blank!");

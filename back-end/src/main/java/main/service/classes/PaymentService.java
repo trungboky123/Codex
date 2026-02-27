@@ -2,9 +2,9 @@ package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
 import main.configuration.PayosService;
+import main.dto.mail.PurchaseSender;
 import main.dto.request.PaymentRequest;
-import main.dto.response.PaymentGroupResponse;
-import main.dto.response.PaymentResponse;
+import main.dto.response.*;
 import main.entity.Class;
 import main.entity.Course;
 import main.entity.Payment;
@@ -16,11 +16,15 @@ import main.repository.UserRepository;
 import main.service.interfaces.IClassEnrollmentService;
 import main.service.interfaces.ICourseEnrollmentService;
 import main.service.interfaces.IPaymentService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,7 @@ public class PaymentService implements IPaymentService {
     private final IClassEnrollmentService classEnrollmentService;
     private final CourseRepository courseRepository;
     private final ClassRepository classRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -47,7 +52,8 @@ public class PaymentService implements IPaymentService {
         payment.setUser(user);
         payment.setItemId(request.getItemId());
         payment.setItemType(request.getItemType());
-        payment.setAmount(request.getAmount());
+        payment.setAmount(BigDecimal.valueOf(request.getAmount()));
+        payment.setMethod("QRPAY");
         payment.setStatus("Pending");
         payment.setCreatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
@@ -55,6 +61,7 @@ public class PaymentService implements IPaymentService {
         return payosService.createPayment(payment);
     }
 
+    @Override
     @Transactional
     public void handlePaid(Long orderCode) {
         Payment payment = paymentRepository.findByOrderCode(orderCode).orElseThrow(() -> new RuntimeException("Payment not found!"));
@@ -70,6 +77,12 @@ public class PaymentService implements IPaymentService {
                     payment.getItemId(),
                     payment.getAmount()
             );
+            eventPublisher.publishEvent(new PurchaseSender(
+                    payment.getUser().getUsername(),
+                    payment.getUser().getEmail(),
+                    payment.getItemId(),
+                    "Course"
+            ));
         }
 
         if ("Class".equals(payment.getItemType())) {
@@ -78,6 +91,12 @@ public class PaymentService implements IPaymentService {
                     payment.getItemId(),
                     payment.getAmount()
             );
+            eventPublisher.publishEvent(new PurchaseSender(
+                    payment.getUser().getUsername(),
+                    payment.getUser().getEmail(),
+                    payment.getItemId(),
+                    "Class"
+            ));
         }
     }
 
@@ -138,6 +157,7 @@ public class PaymentService implements IPaymentService {
                             thumbnailUrl,
                             p.getAmount(),
                             p.getStatus(),
+                            p.getMethod(),
                             p.getPaidAt()
                     );
                 }).toList();
@@ -156,5 +176,43 @@ public class PaymentService implements IPaymentService {
                         entry.getKey(),
                         entry.getValue()
                 )).toList();
+    }
+
+    @Override
+    public List<CourseEnrollmentResponse> getTopSoldCourses() {
+        return paymentRepository.getTopSoldCourses(PageRequest.of(0, 3));
+    }
+
+    @Override
+    public List<ClassEnrollmentResponse> getTopSoldClasses() {
+        return paymentRepository.getTopSoldClasses(PageRequest.of(0, 3));
+    }
+
+    @Override
+    public BigDecimal totalRevenue() {
+        return paymentRepository.sumAmount();
+    }
+
+    @Override
+    public List<MonthlyRevenueResponse> getMonthlyRevenue() {
+
+        List<MonthlyRevenueResponse> dbData = paymentRepository.getMonthlyRevenue();
+
+        Map<Integer, BigDecimal> revenueMap = dbData.stream()
+                .collect(Collectors.toMap(
+                        MonthlyRevenueResponse::getMonth,
+                        MonthlyRevenueResponse::getTotalRevenue
+                ));
+
+        List<MonthlyRevenueResponse> fullYear = new ArrayList<>();
+
+        for (int month = 1; month <= 12; month++) {
+            fullYear.add(new MonthlyRevenueResponse(
+                    month,
+                    revenueMap.getOrDefault(month, BigDecimal.ZERO)
+            ));
+        }
+
+        return fullYear;
     }
 }

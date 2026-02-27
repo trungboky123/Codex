@@ -291,10 +291,6 @@ export default function PublicClassDetailsPage() {
                     alt={classData.name}
                     className={s.thumbnailImg}
                   />
-                  <div className={s.thumbnailOverlay}>
-                    <i className="bi bi-play-circle-fill"></i>
-                    <span>Preview this class</span>
-                  </div>
                 </div>
 
                 <div

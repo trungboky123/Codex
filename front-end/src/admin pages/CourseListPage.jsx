@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import s from "../css/CourseList.module.scss";
 import authFetch from "../function/authFetch";
-import { Link, useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function CourseListPage() {
   const navigate = useNavigate();
@@ -10,6 +15,8 @@ export default function CourseListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState("id");
   const [sortDir, setSortDir] = useState("asc");
+  const [categories, setCategories] = useState([]);
+  const [instructors, setInstructors] = useState([]);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
   const [importDetails, setImportDetails] = useState({
@@ -24,15 +31,27 @@ export default function CourseListPage() {
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("keyword") || "",
   );
-  const [selectedCategory, setSelectedCategory] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(
+    categories.find((cat) => cat.name === searchParams.get("category"))?.id ||
+      0,
+  );
   const [selectedCategoryName, setSelectedCategoryName] = useState(
     searchParams.get("category") || "",
   );
-  const [selectedInstructor, setSelectedInstructor] = useState(0);
+  const [selectedInstructor, setSelectedInstructor] = useState(
+    instructors.find((inst) => inst.fullName === searchParams.get("instructor"))
+      ?.id || 0,
+  );
   const [selectedInstructorName, setSelectedInstructorName] = useState(
     searchParams.get("instructor") || "",
   );
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState(
+    searchParams.get("status") === "Active"
+      ? "true"
+      : searchParams.get("status") === "Inactive"
+        ? "false"
+        : "all",
+  );
   const [selectedStatusName, setSelectedStatusName] = useState(
     searchParams.get("status") || "",
   );
@@ -47,10 +66,6 @@ export default function CourseListPage() {
   const instructorDropdownRef = useRef(null);
   const statusDropdownRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  // Categories and Instructors for filters
-  const [categories, setCategories] = useState([]);
-  const [instructors, setInstructors] = useState([]);
 
   useEffect(() => {
     getAllCategories();
@@ -67,6 +82,30 @@ export default function CourseListPage() {
     sortBy,
     sortDir,
   ]);
+
+  useEffect(() => {
+    if (categories.length === 0 || instructors.length === 0) return;
+
+    let categoryId = 0;
+    let instructorId = 0;
+
+    if (searchParams.get("category")) {
+      const category = categories.find(
+        (c) => c.name === searchParams.get("category"),
+      );
+      if (category) categoryId = category.id;
+    }
+
+    if (searchParams.get("instructor")) {
+      const instructor = instructors.find(
+        (i) => i.fullName === searchParams.get("instructor"),
+      );
+      if (instructor) instructorId = instructor.id;
+    }
+
+    setSelectedCategory(categoryId);
+    setSelectedInstructor(instructorId);
+  }, [categories, instructors]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -678,7 +717,7 @@ export default function CourseListPage() {
                         {formatCurrency(course.listedPrice)}
                       </td>
                       <td className={s.priceCell}>
-                        {course.salePrice ? (
+                        {course.salePrice !== null ? (
                           <span className={s.salePrice}>
                             {formatCurrency(course.salePrice)}
                           </span>

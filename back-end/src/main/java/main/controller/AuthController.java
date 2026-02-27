@@ -46,8 +46,6 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final IUserService userService;
     private final IOtpService otpService;
-    private final MailService mailService;
-    private final PasswordEncoder passwordEncoder;
     private final RegisterCheckService registerCheckService;
     private final MessageSource messageSource;
     private final JwtService jwtService;
@@ -132,17 +130,7 @@ public class AuthController {
     @PostMapping("/send-code")
     public ResponseEntity<?> sendCode(@Valid @RequestBody RegisterRequest request) {
         registerCheckService.checkInfo(request);
-        String code = otpService.generateOtp();
-        String codeHashed = passwordEncoder.encode(code);
-
-        Otp otp = new Otp();
-        otp.setEmail(request.getEmail());
-        otp.setOtpHash(codeHashed);
-        otp.setCreatedAt(LocalDateTime.now());
-        otp.setExpiredDate(LocalDateTime.now().plusMinutes(5));
-
-        otpService.saveOtp(otp);
-        mailService.sendCode(request.getEmail(), code);
+        otpService.sendCode(request.getEmail());
 
         return ResponseEntity.ok().build();
     }
@@ -157,17 +145,7 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         boolean result = userService.findUserByEmail(email);
         if (result) {
-            String code = otpService.generateOtp();
-            String codeHashed = passwordEncoder.encode(code);
-
-            Otp otp = new Otp();
-            otp.setEmail(email);
-            otp.setOtpHash(codeHashed);
-            otp.setCreatedAt(LocalDateTime.now());
-            otp.setExpiredDate(LocalDateTime.now().plusMinutes(5));
-
-            otpService.saveOtp(otp);
-            mailService.sendCode(email, code);
+            otpService.sendCode(email);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Verification Code has been sent to your email!"

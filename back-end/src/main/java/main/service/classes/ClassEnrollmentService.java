@@ -29,33 +29,12 @@ public class ClassEnrollmentService implements IClassEnrollmentService {
     private final UserRepository userRepository;
 
     @Override
-    public BigDecimal getTotalPrice() {
-        BigDecimal totalPrice = classEnrollmentRepository.sumPricePaid();
-        if (totalPrice == null) {
-            return BigDecimal.ZERO;
-        }
-        return totalPrice;
-    }
-
-    @Override
-    public List<ClassEnrollmentResponse> getTopSoldClasses() {
-        return classEnrollmentRepository.getTopSoldClasses(PageRequest.of(0, 3));
-    }
-
-    @Override
-    public List<MonthlyRevenueResponse> getMonthlyRevenue() {
-        return classEnrollmentRepository.getMonthlyRevenue();
-    }
-
-    @Override
-    public void enroll(User user, Integer itemId, Long amount) {
+    public void enroll(User user, Integer itemId, BigDecimal amount) {
         Class clazz = classRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Class not found!"));
         ClassEnrollment enrollment = new ClassEnrollment();
         enrollment.setClazz(clazz);
         enrollment.setUser(user);
-        enrollment.setPricePaid(BigDecimal.valueOf(amount));
         enrollment.setEnrolledAt(LocalDateTime.now());
-        enrollment.setPaymentMethod("QRPAY");
         enrollment.setStatus(true);
 
         classEnrollmentRepository.save(enrollment);

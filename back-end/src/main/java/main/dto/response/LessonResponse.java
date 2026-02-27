@@ -6,7 +6,6 @@ import lombok.Data;
 public class LessonResponse {
     private Integer id;
     private String name;
-    private int duration;
     private Boolean isPreview;
     private Boolean status;
 }

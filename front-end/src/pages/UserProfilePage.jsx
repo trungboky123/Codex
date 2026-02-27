@@ -10,7 +10,7 @@ export default function UserProfile() {
   const [isUpdated, setIsUpdated] = useState(false);
   const { t } = useTranslation();
   const [message, setMessage] = useState("");
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null); // ✅ Giữ ref cho file input
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -82,7 +82,10 @@ export default function UserProfile() {
       removeAvatar: true,
     });
 
-    fileInputRef.current.value = "";
+    // ✅ Reset file input value
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   const enableEdit = () => setIsEditing(true);
@@ -206,7 +209,6 @@ export default function UserProfile() {
                     <div className={s.avatar}>
                       <div className={s.avatarWrapper}>
                         <img
-                          ref={fileInputRef}
                           src={avatarPreview || originalData.avatarUrl}
                           alt="Avatar"
                           className={s.avatarImg}
@@ -215,6 +217,7 @@ export default function UserProfile() {
                           <label className={s.avatarOverlay}>
                             <i className="bi bi-camera-fill"></i>
                             <input
+                              ref={fileInputRef}
                               type="file"
                               accept="image/*"
                               style={{ display: "none" }}

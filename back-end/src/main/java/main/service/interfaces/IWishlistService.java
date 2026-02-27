@@ -2,6 +2,8 @@ package main.service.interfaces;
 
 import main.dto.request.WishlistRequest;
 import main.dto.response.WishlistResponse;
+import main.entity.User;
+import main.entity.Wishlist;
 
 import java.util.List;
 

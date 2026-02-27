@@ -1,13 +1,16 @@
 package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
+import main.dto.mail.CodeSender;
 import main.entity.Otp;
 import main.repository.OtpRepository;
 import main.service.interfaces.IOtpService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -19,18 +22,14 @@ public class OtpService implements IOtpService {
     private final OtpRepository otpRepository;
     private final PasswordEncoder passwordEncoder;
     private final MessageSource messageSource;
+    private final ApplicationEventPublisher eventPublisher;
 
-    @Override
-    public String generateOtp() {
+    private String generateOtp() {
         return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
     }
 
     @Override
-    public void saveOtp(Otp otp) {
-        otpRepository.save(otp);
-    }
-
-    @Override
+    @Transactional
     public void verifyOtp(String email, String code) {
         Locale locale = LocaleContextHolder.getLocale();
         Otp otp = otpRepository.findTopByEmailOrderByCreatedAtDesc(email).orElseThrow(() -> new RuntimeException(messageSource.getMessage("code.invalid", null, locale)));
@@ -44,10 +43,26 @@ public class OtpService implements IOtpService {
         }
 
         if (!passwordEncoder.matches(code, otp.getOtpHash())) {
-            throw new RuntimeException(messageSource.getMessage("code.incorrect", null, locale));
+            throw new RuntimeException("code.incorrect");
         }
 
         otp.setUsed(true);
+    }
+
+    @Override
+    @Transactional
+    public void sendCode(String email) {
+        String code = generateOtp();
+        String codeHashed = passwordEncoder.encode(code);
+
+        Otp otp = new Otp();
+        otp.setEmail(email);
+        otp.setOtpHash(codeHashed);
+        otp.setCreatedAt(LocalDateTime.now());
+        otp.setExpiredDate(LocalDateTime.now().plusMinutes(5));
+
         otpRepository.save(otp);
+
+        eventPublisher.publishEvent(new CodeSender(email, code));
     }
 }

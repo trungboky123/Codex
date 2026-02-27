@@ -1,21 +1,16 @@
 package main.service.classes;
 
 import lombok.RequiredArgsConstructor;
-import main.dto.response.CourseEnrollmentResponse;
+import main.dto.mail.PurchaseSender;
 import main.dto.response.EnrollmentResponse;
 import main.dto.response.MonthlyRevenueResponse;
-import main.entity.Course;
-import main.entity.CourseEnrollment;
-import main.entity.Setting;
-import main.entity.User;
-import main.repository.CourseEnrollmentRepository;
-import main.repository.CourseRepository;
-import main.repository.SettingRepository;
-import main.repository.UserRepository;
+import main.entity.*;
+import main.repository.*;
 import main.service.interfaces.ICourseEnrollmentService;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,35 +24,16 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final PaymentRepository paymentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public BigDecimal getTotalPrice() {
-        BigDecimal totalPrice = courseEnrollmentRepository.sumPricePaid();
-        if (totalPrice == null) {
-            return BigDecimal.ZERO;
-        }
-        return totalPrice;
-    }
-
-    @Override
-    public List<CourseEnrollmentResponse> getTopSoldCourses() {
-        return courseEnrollmentRepository.getTopSoldCourses(PageRequest.of(0 ,3));
-    }
-
-    @Override
-    public List<MonthlyRevenueResponse> getMonthlyRevenue() {
-        return courseEnrollmentRepository.getMonthlyRevenue();
-    }
-
-    @Override
-    public void enroll(User user, Integer courseId, Long amount) {
+    public void enroll(User user, Integer courseId, BigDecimal amount) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found!"));
         CourseEnrollment enrollment = new CourseEnrollment();
         enrollment.setCourse(course);
         enrollment.setUser(user);
-        enrollment.setPricePaid(BigDecimal.valueOf(amount));
         enrollment.setEnrolledAt(LocalDateTime.now());
-        enrollment.setPaymentMethod("QRPAY");
         enrollment.setStatus(true);
 
         courseEnrollmentRepository.save(enrollment);
@@ -71,6 +47,7 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
     }
 
     @Override
+    @Transactional
     public void enrollFreeCourse(Integer userId, Integer courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
@@ -86,15 +63,31 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
             }
         }
 
+        Payment payment = new Payment();
+        payment.setUser(user);
+        payment.setItemId(courseId);
+        payment.setItemType("Course");
+        payment.setAmount(BigDecimal.ZERO);
+        payment.setCreatedAt(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+
         CourseEnrollment enrollment = new CourseEnrollment();
         enrollment.setCourse(course);
         enrollment.setUser(user);
-        enrollment.setPricePaid(BigDecimal.ZERO);
         enrollment.setEnrolledAt(LocalDateTime.now());
-        enrollment.setPaymentMethod("FREE");
         enrollment.setStatus(true);
 
         courseEnrollmentRepository.save(enrollment);
+
+        eventPublisher.publishEvent(new PurchaseSender(
+                enrollment.getUser().getUsername(),
+                enrollment.getUser().getEmail(),
+                courseId,
+                "Course"
+        ));
+
+
     }
 
     @Override

@@ -53,7 +53,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     const res = await authFetch(
-      "http://localhost:8080/enrollments/monthly-revenue",
+      "http://localhost:8080/payments/monthly-revenue",
       {
         method: "GET",
       },
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
 
   async function getTotalRevenue() {
     const res = await authFetch(
-      "http://localhost:8080/enrollments/total-revenue",
+      "http://localhost:8080/payments/total-revenue",
       {
         method: "GET",
       },
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
 
   async function getTopSoldCourses() {
     const res = await authFetch(
-      "http://localhost:8080/enrollments/top-courses",
+      "http://localhost:8080/payments/top-courses",
       {
         method: "GET",
       },
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
 
   async function getTopSoldClasses() {
     const res = await authFetch(
-      "http://localhost:8080/enrollments/top-classes",
+      "http://localhost:8080/payments/top-classes",
       {
         method: "GET",
       },

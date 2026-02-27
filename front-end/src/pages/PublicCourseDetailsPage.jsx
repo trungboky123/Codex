@@ -8,7 +8,6 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import Header from "../components/Header";
 
 export default function PublicCourseDetailsPage() {
   const navigate = useNavigate();
@@ -196,7 +195,7 @@ export default function PublicCourseDetailsPage() {
   };
 
   const calculateDiscount = () => {
-    if (!course.salePrice) return 0;
+    if (course.salePrice === null) return 0;
     const discount =
       ((course.listedPrice - course.salePrice) / course.listedPrice) * 100;
     return Math.round(discount);
@@ -277,10 +276,6 @@ export default function PublicCourseDetailsPage() {
                     alt={course.name}
                     className={s.thumbnailImg}
                   />
-                  <div className={s.thumbnailOverlay}>
-                    <i className="bi bi-play-circle-fill"></i>
-                    <span>Preview this course</span>
-                  </div>
                 </div>
 
                 <div className={s.courseDescription} dangerouslySetInnerHTML={{ __html: course.description }}></div>
@@ -374,9 +369,6 @@ export default function PublicCourseDetailsPage() {
                                       Preview
                                     </span>
                                   )}
-                                  <span className={s.lessonsDuration}>
-                                    {lesson.duration}
-                                  </span>
                                 </div>
                               </div>
                             ))
@@ -405,15 +397,16 @@ export default function PublicCourseDetailsPage() {
                   <div className={s.priceHeader}>
                     <div className={s.priceCard}>
                       <span className={s.priceSale}>
-                        {formatPrice(course.salePrice || course.listedPrice)}
+                        {course.salePrice !== null && course.salePrice !== 0 && formatPrice(course.salePrice)}
+                        {course.salePrice === 0 && <span>Free</span>}
                       </span>
-                      {course.salePrice && (
+                      {course.salePrice !== null && (
                         <span className={s.priceListed}>
                           {formatPrice(course.listedPrice)}
                         </span>
                       )}
                     </div>
-                    {course.salePrice && (
+                    {course.salePrice !== null && (
                       <div className={s.priceDiscount}>
                         {calculateDiscount()}% OFF
                       </div>

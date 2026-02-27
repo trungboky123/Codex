@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, "Motiva Sans", sans-serif;
+            background-color: #1b2838;
+            color: #c7d5e0;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .email-wrapper {
+            background-color: #1b2838;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1b2838;
+        }
+
+        .logo-circle svg {
+            width: 36px;
+            height: 36px;
+            fill: #ffffff;
+        }
+
+        /* Greeting */
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #c7d5e0;
+            margin-bottom: 30px;
+        }
+
+        /* Success message */
+        .success-message {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Details box */
+        .details-box {
+            background-color: #0e1419;
+            padding: 20px 24px;
+            margin-bottom: 30px;
+            border-radius: 3px;
+        }
+
+        .detail-row {
+            margin-bottom: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: #c7d5e0;
+            font-weight: 400;
+            display: inline;
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-weight: 700;
+            display: inline;
+        }
+
+        .detail-value a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .detail-value a:hover {
+            color: #764ba2;
+        }
+
+        /* Important note */
+        .important-note {
+            font-size: 13px;
+            color: #8f98a0;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .important-note strong {
+            color: #c7d5e0;
+            font-weight: 700;
+        }
+
+        /* Thanks message */
+        .thanks-message {
+            font-size: 13px;
+            color: #8f98a0;
+            margin-bottom: 40px;
+        }
+
+        /* Signature */
+        .signature {
+            border-left: 3px solid #667eea;
+            padding-left: 20px;
+            margin-bottom: 40px;
+        }
+
+        .signature-line {
+            font-size: 13px;
+            color: #8f98a0;
+            margin-bottom: 2px;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px 10px;
+            }
+
+            .greeting {
+                font-size: 18px;
+            }
+
+            .success-message {
+                font-size: 16px;
+            }
+
+            .details-box {
+                padding: 16px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <div class="email-container">
+
+        <!-- Greeting -->
+        <div class="greeting">
+            Hello <span th:text="${username}"></span>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message">Your <span th:text="${type == 'Course'} ? 'purchase' : 'enrollment'"></span> of <strong th:text="${itemName}"></strong> was successful.</div>
+
+        <!-- Details Box -->
+        <div class="details-box">
+            <div class="detail-row">
+                <span class="detail-label">CodeX Account name: </span>
+                <span class="detail-value" th:text="${username}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Contact email address: </span>
+                <span class="detail-value"><a th:href="|mailto:${email}|" th:text="${email}"></a></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Product name: </span>
+                <span class="detail-value" th:text="${itemName}"></span>
+            </div>
+        </div>
+
+        <!-- Important Note -->
+        <div class="important-note">
+            <strong>Important Note:</strong> Your new subscription is tied to your account. This means that you will only be able to access <strong th:text="${itemName}"></strong> when you login to the platform using the account named <strong th:text="${username}"></strong>.
+        </div>
+
+        <!-- Thanks Message -->
+        <div class="thanks-message">
+            Thanks for your <span th:text="${type == 'Course'} ? 'purchase' : 'enrollment'"></span>!
+        </div>
+
+        <!-- Signature -->
+        <div class="signature">
+            <div class="signature-line">Cheers,</div>
+            <div class="signature-line">CodeX</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

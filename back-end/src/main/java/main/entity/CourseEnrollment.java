@@ -23,12 +23,6 @@ public class CourseEnrollment {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @Column(name = "price_paid")
-    private BigDecimal pricePaid;
-
-    @Column(name = "payment_method")
-    private String paymentMethod;
-
     @Column(name = "enrolled_at")
     private LocalDateTime enrolledAt;
 

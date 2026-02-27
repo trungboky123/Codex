@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import s from "../css/AccountList.module.scss";
 import authFetch from "../function/authFetch";
-import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export default function AdminAccounts() {
@@ -9,7 +13,7 @@ export default function AdminAccounts() {
   const navigate = useNavigate();
   const { sidebarCollapsed } = useOutletContext();
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); 
+  const [messageType, setMessageType] = useState("success");
   const [importDetails, setImportDetails] = useState({
     total: "",
     success: "",
@@ -30,11 +34,22 @@ export default function AdminAccounts() {
   const [selectedRoleName, setSelectedRoleName] = useState(
     searchParams.get("role") || "",
   );
-  const [selectedRole, setSelectedRole] = useState(0);
+  const [selectedRole, setSelectedRole] = useState(
+    searchParams.get("role")
+      ? roles.find((r) => r.name === searchParams.get("role"))?.id || 0
+      : 0,
+  );
+
   const [selectedStatusName, setSelectedStatusName] = useState(
     searchParams.get("status") || "",
   );
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState(
+    searchParams.get("status") === "Active"
+      ? "true"
+      : searchParams.get("status") === "Inactive"
+        ? "false"
+        : "all",
+  );
 
   // Dropdown
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
@@ -48,6 +63,13 @@ export default function AdminAccounts() {
   useEffect(() => {
     getAllRoles();
   }, []);
+
+  useEffect(() => {
+    if (roles.length > 0 && searchParams.get("role")) {
+      const role = roles.find((r) => r.name === searchParams.get("role"));
+      if (role) setSelectedRole(role.id);
+    }
+  }, [roles]);
 
   useEffect(() => {
     getAllUsers();
@@ -257,7 +279,9 @@ export default function AdminAccounts() {
   };
 
   const getStatus = (status) => {
-    return status ? t("admin.accounts.status.active") : t("admin.accounts.status.inactive");
+    return status
+      ? t("admin.accounts.status.active")
+      : t("admin.accounts.status.inactive");
   };
 
   return (
@@ -299,7 +323,9 @@ export default function AdminAccounts() {
                   <p className={s.messageTitle}>{message}</p>
                   {importDetails.total && (
                     <div className={s.importStats}>
-                      <span>{t("admin.accounts.total")}: {importDetails.total}</span>
+                      <span>
+                        {t("admin.accounts.total")}: {importDetails.total}
+                      </span>
                       <span>•</span>
                       <span className={s.successText}>
                         {t("admin.accounts.success")}: {importDetails.success}
@@ -332,7 +358,9 @@ export default function AdminAccounts() {
               <div className={s.errorsList}>
                 {importErrors.map((error, index) => (
                   <div key={index} className={s.errorItem}>
-                    <span className={s.errorRow}>{t("admin.accounts.row")} {error.row}:</span>
+                    <span className={s.errorRow}>
+                      {t("admin.accounts.row")} {error.row}:
+                    </span>
                     <span className={s.errorMessage}>{error.message}</span>
                   </div>
                 ))}
@@ -404,7 +432,9 @@ export default function AdminAccounts() {
                   className={s.filterBtn}
                   onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                 >
-                  <span>{selectedStatusName || t("admin.accounts.allStatus")}</span>
+                  <span>
+                    {selectedStatusName || t("admin.accounts.allStatus")}
+                  </span>
                   <i
                     className={`bi bi-chevron-down ${statusDropdownOpen ? s.rotate : ""}`}
                   ></i>

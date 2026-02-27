@@ -1,12 +1,14 @@
 package main.dto.response;
 
 import lombok.Data;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class ClassResponse {
+public class ClassResponse implements Serializable {
     private Integer id;
     private String name;
     private List<SettingResponse> categories;

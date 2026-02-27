@@ -21,10 +21,6 @@ public class Lesson {
     @Column(name = "lesson_name", nullable = false, length = 100)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "lesson_type")
-    private LessonType lessonType;
-
     @Column(name = "content")
     private String content;
 
@@ -33,9 +29,6 @@ public class Lesson {
 
     @Column(name = "pdf_url")
     private String pdfUrl;
-
-    @Column(name = "duration")
-    private int duration;
 
     @Column(name = "order_index")
     private int orderIndex;

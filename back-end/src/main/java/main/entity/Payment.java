@@ -2,6 +2,8 @@ package main.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,8 +27,11 @@ public class Payment {
     @Column(name = "item_type", nullable = false, length = 10)
     private String itemType;
 
-    @Column(nullable = false)
-    private Long amount;
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
+
+    @Column(name = "method", nullable = false)
+    private String method;
 
     @Column(nullable = false, length = 20)
     private String status;

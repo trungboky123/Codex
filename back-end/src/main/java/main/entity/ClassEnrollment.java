@@ -22,12 +22,6 @@ public class ClassEnrollment {
     @JoinColumn(name = "class_id", nullable = false)
     private Class clazz;
 
-    @Column(name = "price_paid")
-    private BigDecimal pricePaid;
-
-    @Column(name = "payment_method")
-    private String paymentMethod;
-
     @Column(name = "enrolled_at")
     private LocalDateTime enrolledAt;
 

@@ -3,7 +3,9 @@ package main.service.classes;
 import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import main.configuration.CloudinaryService;
+import main.configuration.MailService;
 import main.dto.request.CreateCourseRequest;
+import main.dto.mail.SaleEvent;
 import main.dto.request.UpdateCourseRequest;
 import main.dto.response.CourseResponse;
 import main.dto.response.ImportResponse;
@@ -13,6 +15,7 @@ import main.entity.User;
 import main.repository.CourseRepository;
 import main.repository.SettingRepository;
 import main.repository.UserRepository;
+import main.repository.WishlistRepository;
 import main.service.interfaces.ICourseService;
 import main.utils.HtmlUtil;
 import main.utils.XLSXUtil;
@@ -21,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +45,9 @@ public class CourseService implements ICourseService {
     private final ModelMapper modelMapper;
     private final Slugify slugify;
     private final CloudinaryService cloudinaryService;
+    private final WishlistRepository wishlistRepository;
+    private final MailService mailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Cacheable(value = "highlightedCourses")
@@ -84,11 +91,13 @@ public class CourseService implements ICourseService {
     }
 
     @Override
+    @Cacheable(value = "totalCourses")
     public Long getTotalCourses() {
         return courseRepository.count();
     }
 
     @Override
+    @Cacheable(value = "allCourses", key = "#keyword + '-' + #categoryId + '-' + #instructorId + '-' + #status + '-' + #sortBy + '-' + #sortDir")
     public List<CourseResponse> getAllCourses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         List<Course> courses = courseRepository.findAllCourses(keyword, categoryId, instructorId, status, sort);
@@ -102,7 +111,7 @@ public class CourseService implements ICourseService {
     @Transactional
     @Override
     @Caching(evict = {
-            @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true),
+            @CacheEvict(value = {"highlightedCourses", "publicCourses", "allCourses"}, allEntries = true),
             @CacheEvict(value = "courseDetails", key = "#id")
     })
     public void updateStatus(Integer id) {
@@ -110,9 +119,10 @@ public class CourseService implements ICourseService {
         course.setStatus(!course.isStatus());
     }
 
+    @Transactional
     @Override
     @Caching(evict = {
-            @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true),
+            @CacheEvict(value = {"highlightedCourses", "publicCourses", "allCourses"}, allEntries = true),
             @CacheEvict(value = "courseDetails", key = "#id")
     })
     public void updateCourse(Integer id, UpdateCourseRequest request, MultipartFile thumbnail) {
@@ -154,11 +164,20 @@ public class CourseService implements ICourseService {
         if (request.getSalePrice() != null) {
             if (request.getSalePrice().isBlank()) {
                 course.setSalePrice(null);
+                updated = true;
             }
 
             else {
                 BigDecimal salePrice = new BigDecimal(request.getSalePrice());
                 course.setSalePrice(salePrice);
+                eventPublisher.publishEvent(new SaleEvent(
+                        course.getId(),
+                        "Course",
+                        course.getName(),
+                        course.getListedPrice().toString(),
+                        course.getSalePrice().toString(),
+                        course.getThumbnailUrl()
+                ));
                 updated = true;
             }
         }
@@ -187,13 +206,15 @@ public class CourseService implements ICourseService {
         }
 
         if (!updated) {
-            throw new RuntimeException("No fields to update");
+            throw new RuntimeException("noField");
         }
-        courseRepository.save(course);
     }
 
     @Override
-    @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"highlightedCourses", "publicCourses", "allCourses"}, allEntries = true),
+            @CacheEvict(value = "totalCourses")
+    })
     public void createCourse(CreateCourseRequest request, MultipartFile thumbnail) {
         List<Setting> categories = new ArrayList<>();
         Course course = new Course();
@@ -238,7 +259,7 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    @CacheEvict(value = {"highlightedCourses", "publicCourses"}, allEntries = true)
+    @CacheEvict(value = {"highlightedCourses", "publicCourses", "allCourses"}, allEntries = true)
     public ImportResponse importCourses(MultipartFile file) {
         int total = 0;
         int success = 0;

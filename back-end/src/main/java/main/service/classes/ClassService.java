@@ -8,7 +8,6 @@ import main.dto.request.UpdateClassRequest;
 import main.dto.response.ClassResponse;
 import main.dto.response.ImportResponse;
 import main.entity.Class;
-import main.entity.Course;
 import main.entity.Setting;
 import main.entity.User;
 import main.repository.ClassRepository;
@@ -17,19 +16,19 @@ import main.repository.UserRepository;
 import main.service.interfaces.IClassService;
 import main.utils.HtmlUtil;
 import main.utils.XLSXUtil;
-import org.apache.poi.ss.formula.functions.PPMT;
 import org.apache.poi.ss.usermodel.*;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +44,7 @@ public class ClassService implements IClassService {
     private final Slugify slugify;
 
     @Override
+    @Cacheable(value = "publicClasses", key = "#pageable.pageNumber + '-' + #categoryId + '-' + #sortByPrice + '-' + #keyword")
     public Page<ClassResponse> getPublicClasses(Pageable pageable, Long categoryId, String sortByPrice, String keyword) {
         Page<Class> classes;
         if ("asc".equalsIgnoreCase(sortByPrice)) {
@@ -65,6 +65,7 @@ public class ClassService implements IClassService {
     }
 
     @Override
+    @Cacheable(value = "classDetails", key = "#id")
     public ClassResponse getClassById(Integer id) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found!"));
         ClassResponse response = modelMapper.map(clazz, ClassResponse.class);
@@ -73,11 +74,13 @@ public class ClassService implements IClassService {
     }
 
     @Override
+    @Cacheable(value = "totalClasses")
     public Long getTotalClasses() {
         return classRepository.count();
     }
 
     @Override
+    @Cacheable(value = "allClasses", key = "#keyword + '-' + #categoryId + '-' + #instructorId + '-' + #status + '-' + #sortBy + '-' + #sortDir")
     public List<ClassResponse> getAllClasses(String keyword, Integer categoryId, Integer instructorId, Boolean status, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         List<Class> classes = classRepository.findAllClasses(keyword, categoryId, instructorId, status, sort);
@@ -90,12 +93,21 @@ public class ClassService implements IClassService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = {"publicClasses", "allClasses"}, allEntries = true),
+            @CacheEvict(value = "classDetails", key = "#id")
+    })
     public void updateStatus(Integer id) {
         Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found!"));
         clazz.setStatus(!clazz.isStatus());
     }
 
+    @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = {"publicClasses", "allClasses"}, allEntries = true),
+            @CacheEvict(value = "classDetails", key = "#id")
+    })
     public void updateClass(Integer id, UpdateClassRequest request, MultipartFile thumbnail) {
         List<Setting> categories = new ArrayList<>();
         Class clazz = classRepository.findById(id).orElseThrow(() -> new RuntimeException("Class not found"));
@@ -195,10 +207,13 @@ public class ClassService implements IClassService {
         if (!updated) {
             throw new RuntimeException("No fields to update");
         }
-        classRepository.save(clazz);
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = {"publicClasses", "allClasses"}, allEntries = true),
+            @CacheEvict(value = "totalClasses")
+    })
     public void createClass(CreateClassRequest request, MultipartFile thumbnail) {
         List<Setting> categories = new ArrayList<>();
         Class clazz = new Class();
@@ -248,6 +263,7 @@ public class ClassService implements IClassService {
     }
 
     @Override
+    @CacheEvict(value = {"publicClasses", "allClasses"}, allEntries = true)
     public ImportResponse importClasses(MultipartFile file) {
         int total = 0;
         int success = 0;

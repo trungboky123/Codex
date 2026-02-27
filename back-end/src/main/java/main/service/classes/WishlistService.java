@@ -49,7 +49,7 @@ public class WishlistService implements IWishlistService {
     @Override
     public WishlistResponse findItem(Integer userId, Integer itemId, String type) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-        Wishlist wishlist = wishlistRepository.findByUserAndItemIdAndType(user, itemId, type).orElseThrow(() -> new RuntimeException("Item not found!"));
+        Wishlist wishlist = wishlistRepository.findByUserAndItemIdAndType(user, itemId, type).orElseThrow(() -> new RuntimeException("item.notFound"));
         return modelMapper.map(wishlist, WishlistResponse.class);
     }
 
@@ -74,7 +74,6 @@ public class WishlistService implements IWishlistService {
     @Override
     public void deleteItem(Integer userId, Integer itemId, String type) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-        Wishlist wishlist = wishlistRepository.findByUserAndItemIdAndType(user, itemId, type).orElseThrow(() -> new RuntimeException("Item not found!"));
-        wishlistRepository.delete(wishlist);
+        wishlistRepository.findByUserAndItemIdAndType(user, itemId, type).ifPresent(wishlistRepository::delete);
     }
 }

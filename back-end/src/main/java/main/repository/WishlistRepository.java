@@ -31,5 +31,5 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
             "AND (:keyword IS NULL OR LOWER(w.itemName) LIKE LOWER(CONCAT('%', :keyword, '%')))" +
             "ORDER BY COALESCE(w.salePrice, w.listedPrice) DESC")
     List<Wishlist> findAllByUserSortByPriceDesc(@Param("user") User user, @Param("keyword") String keyword);
-    void deleteByUserAndItemIdAndType(User user, Integer itemId, String type);
+    List<Wishlist> findByItemIdAndType(Integer itemId, String type);
 }

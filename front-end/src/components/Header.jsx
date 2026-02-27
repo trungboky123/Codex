@@ -200,7 +200,7 @@ function Header() {
                   )}
                 </div>
               </>
-            ) : role === "ROLE_ADMIN" || "ROLE_INSTRUCTOR"? (
+            ) : role === "ROLE_ADMIN" || role === "ROLE_INSTRUCTOR" ? (
               /* ── ADMIN ─────────────────────────────────────────────── */
               <>
                 {/* User dropdown */}

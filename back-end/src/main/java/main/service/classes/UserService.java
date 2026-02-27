@@ -22,6 +22,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -129,11 +132,13 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Cacheable(value = "totalUsers")
     public Long getTotalUsers() {
         return userRepository.count();
     }
 
     @Override
+    @Cacheable(value = "allUsers", key = "#keyword + '-' + #roleId + '-' + #status + '-' + #sortBy + '-' + #sortDir")
     public List<UserResponse> getAllUsers(String keyword, Integer roleId, Boolean status, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         List<User> users = userRepository.findByFiltered(keyword, roleId, status, sort);
@@ -142,6 +147,7 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
+    @CacheEvict(value = "allUsers", allEntries = true)
     public void updateStatus(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
         user.setStatus(!user.isStatus());
@@ -181,6 +187,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @CacheEvict(value = "allUsers", allEntries = true)
     public void updateUser(Integer id, UpdateUserRequest request, MultipartFile avatar) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -239,6 +246,10 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allUsers", allEntries = true),
+            @CacheEvict(value = "totalUsers")
+    })
     public void createUser(CreateUserRequest request, MultipartFile avatar) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("email.existed");
@@ -267,6 +278,10 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "allUsers", allEntries = true),
+            @CacheEvict(value = "totalUsers")
+    })
     public ImportResponse importAccounts(MultipartFile file) {
         int total = 0;
         int success = 0;

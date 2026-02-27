@@ -10,10 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface IClassEnrollmentService {
-    BigDecimal getTotalPrice();
-    List<ClassEnrollmentResponse> getTopSoldClasses();
-    List<MonthlyRevenueResponse> getMonthlyRevenue();
-    void enroll(User user, Integer itemId, Long amount);
+    void enroll(User user, Integer itemId, BigDecimal amount);
     boolean hasEnrolled(Integer classId, Integer userId);
     List<EnrollmentResponse> findByUserId(Integer userId, String keyword, String sortBy, String sortDir);
     List<ClassEnrollment> findByInstructorId(Integer instructorId);

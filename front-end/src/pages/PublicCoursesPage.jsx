@@ -16,13 +16,21 @@ function PublicCoursesPage() {
   const [totalElements, setTotalElements] = useState(0);
 
   // Filter states - Initialize from URL
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("keyword") || "",
+  );
   const [selectedCategory, setSelectedCategory] = useState(0);
-  const [selectedCategoryParam, setSelectedCategoryParam] = useState(searchParams.get("category") || "");
-  const [sortBy, setSortBy] = useState(searchParams.get("sortByPrice") || "default");
-  
+  const [selectedCategoryParam, setSelectedCategoryParam] = useState(
+    searchParams.get("category") || "",
+  );
+  const [sortBy, setSortBy] = useState(
+    searchParams.get("sortByPrice") || "default",
+  );
+
   // Pagination states
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1,
+  );
   const [totalPages, setTotalPages] = useState(1);
   const coursesPerPage = 12;
 
@@ -49,7 +57,7 @@ function PublicCoursesPage() {
     const params = new URLSearchParams();
     params.set("page", currentPage);
 
-    if(selectedCategoryParam) params.set("category", selectedCategoryParam);
+    if (selectedCategoryParam) params.set("category", selectedCategoryParam);
 
     if (searchTerm) params.set("keyword", searchTerm);
     if (sortBy !== "default") params.set("sortByPrice", sortBy);
@@ -62,24 +70,24 @@ function PublicCoursesPage() {
   };
 
   useEffect(() => {
-  if (!selectedCategoryParam) return;
-  if (categories.length === 0) return;
+    if (!selectedCategoryParam) return;
+    if (categories.length === 0) return;
 
-  const categoryObj = categories.find(
-    (c) => c.name === selectedCategoryParam
-  );
+    const categoryObj = categories.find(
+      (c) => c.name === selectedCategoryParam,
+    );
 
-  setSelectedCategory(categoryObj ? categoryObj.id : 0);
-}, [categories, selectedCategoryParam]);
+    setSelectedCategory(categoryObj ? categoryObj.id : 0);
+  }, [categories, selectedCategoryParam]);
 
-// FETCH CATEGORIES
+  // FETCH CATEGORIES
   const fetchCategories = async () => {
     const res = await fetch("http://localhost:8080/settings/categories");
     const data = await res.json();
     setCategories(data);
   };
 
-// FETCH COURSES
+  // FETCH COURSES
   const fetchCourses = async () => {
     setLoading(true);
 
@@ -122,9 +130,10 @@ function PublicCoursesPage() {
 
   const handleCategoryChange = (categoryId) => {
     if (categoryId !== 0) {
-      setSelectedCategoryParam(categories.find((c) => c.id === categoryId).name)
-    }
-    else {
+      setSelectedCategoryParam(
+        categories.find((c) => c.id === categoryId).name,
+      );
+    } else {
       setSelectedCategoryParam("");
     }
     setSelectedCategory(categoryId);
@@ -142,7 +151,10 @@ function PublicCoursesPage() {
   };
 
   const formatPrice = (price) => {
-    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
+    return price.toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
   };
 
   const renderPagination = () => {
@@ -239,15 +251,13 @@ function PublicCoursesPage() {
   return (
     <>
       <title>Public Courses</title>
-    
+
       <div className={s.courses}>
         <div className={s.courses__container}>
           {/* Header Section */}
           <div className={s.courses__header}>
             <h1 className={s.courses__title}>{t("courses.public")}</h1>
-            <p className={s.courses__subtitle}>
-              {t("courses.subtitle")}
-            </p>
+            <p className={s.courses__subtitle}>{t("courses.subtitle")}</p>
           </div>
 
           {/* Filters Section */}
@@ -298,7 +308,8 @@ function PublicCoursesPage() {
 
           {/* Results Count */}
           <div className={s.courses__results}>
-            {t("courses.showing")} {from} {t("courses.to")} {to} {t("courses.text")}
+            {t("courses.showing")} {from} {t("courses.to")} {to}{" "}
+            {t("courses.text")}
           </div>
 
           {/* Courses Grid */}
@@ -344,17 +355,26 @@ function PublicCoursesPage() {
 
                     <div className={s.card__footer}>
                       <div className={s.card__price}>
-                        {course.salePrice &&
-                        course.salePrice < course.listedPrice ? (
+                        {course.salePrice === 0 && (
                           <>
                             <span className={s.card__price_original}>
                               {formatPrice(course.listedPrice)}
                             </span>
-                            <span className={s.card__price_sale}>
-                              {formatPrice(course.salePrice)}
-                            </span>
+                            <span className={s.card__price_sale}>FREE</span>
                           </>
-                        ) : (
+                        )}
+                        {course.salePrice !== null &&
+                          course.salePrice !== 0 && (
+                            <>
+                              <span className={s.card__price_original}>
+                                {formatPrice(course.listedPrice)}
+                              </span>
+                              <span className={s.card__price_sale}>
+                                {formatPrice(course.salePrice)}
+                              </span>
+                            </>
+                          )}
+                        {course.salePrice === null && (
                           <span className={s.card__price_normal}>
                             {formatPrice(course.listedPrice)}
                           </span>
