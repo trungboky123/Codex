@@ -1,33 +1,16 @@
-function getAccessToken() {
-  return localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-}
-
-function saveAccessToken(token) {
-  if (localStorage.getItem('accessToken')) {
-    localStorage.setItem('accessToken', token);
-  }
-  else {
-    sessionStorage.setItem('accessToken', token);
-  }
-}
-
-function clearAccessToken() {
-  localStorage.removeItem('accessToken');
-  sessionStorage.removeItem('accessToken');
-}
-
 export default async function authFetch(url, options = {}) {
-  const token = getAccessToken();
-
   let res = await fetch(url, {
     ...options,
-    headers: {
-      ...(options.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    }
+    credentials: "include"
   });
 
   if (res.status !== 401) return res;
+
+  const data = await res.json();
+
+  if (data.message !== "Access token expired") {
+    return res;
+  }
 
   const refreshRes = await fetch("http://localhost:8080/auth/refresh", {
     method: "POST",
@@ -35,18 +18,11 @@ export default async function authFetch(url, options = {}) {
   });
 
   if (!refreshRes.ok) {
-    clearAccessToken();
     throw new Error("UNAUTHORIZED");
   }
 
-  const data = await refreshRes.json();
-  saveAccessToken(data.accessToken);
-
   return fetch(url, {
     ...options,
-    headers: {
-      ...(options.headers || {}),
-      Authorization: `Bearer ${data.accessToken}`
-    }
+    credentials: "include"
   });
 }

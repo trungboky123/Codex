@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import s from "../css/Login.module.scss";
 import { jwtDecode } from "jwt-decode";
 import { useTranslation } from "react-i18next";
+import logo from "../images/logo.png";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ function LoginPage() {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({ usernameOrEmail, password }),
+      body: JSON.stringify({ usernameOrEmail, password, rememberMe: rememberMe }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -48,11 +49,6 @@ function LoginPage() {
     } else {
       setIsSignedIn(true);
       setMessage(data.message);
-      if (rememberMe) {
-        localStorage.setItem("accessToken", data.accessToken);
-      } else {
-        sessionStorage.setItem("accessToken", data.accessToken);
-      }
 
       const role = jwtDecode(data.accessToken).roles;
       setTimeout(() => {
@@ -82,7 +78,7 @@ function LoginPage() {
             <div className={s["login__logo"]}>
               <Link to="/home">
                 <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB-bPDeH5tq3NmV-weR7J6MjCfIeblCnf9tA&s"
+                  src={logo}
                   alt="Logo"
                   className={s["login__logo-img"]}
                 />

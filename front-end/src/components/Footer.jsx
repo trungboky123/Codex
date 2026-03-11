@@ -51,7 +51,7 @@ function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>{t("footer.copyright")} © 2026 <b>Code X</b>. {t("footer.rightsReserved")}</p>
+        <p>{t("footer.copyright")} © 2026 <b>Étudify</b>. {t("footer.rightsReserved")}</p>
       </div>
     </footer>
   );

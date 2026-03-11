@@ -132,9 +132,11 @@ export default function MyEnrollmentsPage() {
   async function handleViewDetails(itemId, type) {
     try {
       if (type === "Course") {
-        const res = await fetch(`http://localhost:8080/courses/${itemId}`);
-        const data = await res.json();
-        navigate(`/public-course-details/${data.slug}/${itemId}`);
+        const courseRes = await fetch(`http://localhost:8080/courses/${itemId}`);
+        const chapterRes = await fetch(`http://localhost:8080/chapters/${itemId}`);
+        const courseData = await courseRes.json();
+        const chapterData = await chapterRes.json();
+        navigate(`/course/${itemId}/${courseData.slug}/${chapterData.content[0].slug}/${chapterData.content[0].lessons[0].slug}`);
       } else {
         const res = await fetch(`http://localhost:8080/classes/${itemId}`);
         const data = await res.json();
@@ -308,9 +310,7 @@ export default function MyEnrollmentsPage() {
                       {item.categories?.length > 0 && (
                         <div className={s.categoryTags}>
                           {item.categories.map((cat) => (
-                            <span className={s.categoryTag}>
-                              {cat}
-                            </span>
+                            <span className={s.categoryTag}>{cat}</span>
                           ))}
                         </div>
                       )}

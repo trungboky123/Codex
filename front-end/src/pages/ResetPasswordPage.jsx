@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import s from "../css/ResetPassword.module.scss";
+import logo from "../images/logo.png";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -192,7 +193,7 @@ export default function ResetPasswordPage() {
             <div className={s.forgotPassword__logo}>
               <Link to="/home">
                 <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB-bPDeH5tq3NmV-weR7J6MjCfIeblCnf9tA&s"
+                  src={logo}
                   alt="Logo"
                   className={s.forgotPassword__logoImg}
                 />

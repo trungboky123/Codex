@@ -7,11 +7,8 @@ import main.configuration.MailService;
 import main.dto.request.CreateCourseRequest;
 import main.dto.mail.SaleEvent;
 import main.dto.request.UpdateCourseRequest;
-import main.dto.response.CourseResponse;
-import main.dto.response.ImportResponse;
-import main.entity.Course;
-import main.entity.Setting;
-import main.entity.User;
+import main.dto.response.*;
+import main.entity.*;
 import main.repository.CourseRepository;
 import main.repository.SettingRepository;
 import main.repository.UserRepository;
@@ -45,8 +42,6 @@ public class CourseService implements ICourseService {
     private final ModelMapper modelMapper;
     private final Slugify slugify;
     private final CloudinaryService cloudinaryService;
-    private final WishlistRepository wishlistRepository;
-    private final MailService mailService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -284,6 +279,53 @@ public class CourseService implements ICourseService {
         }
 
         return new ImportResponse(total, success, total - success, errors);
+    }
+
+    @Override
+    public CourseContentResponse getCourseContent(Integer courseId) {
+        Course course = courseRepository.getCourseContent(courseId).orElseThrow(() -> new RuntimeException("Course not found!"));
+        CourseContentResponse response = modelMapper.map(course, CourseContentResponse.class);
+        response.setSlug(slugify.slugify(response.getName()));
+        for (ChapterContentResponse chapter : response.getChapters()) {
+            chapter.setSlug(slugify.slugify(chapter.getName()));
+
+            for (LessonContentResponse lesson : chapter.getLessons()) {
+                lesson.setSlug(slugify.slugify(lesson.getName()));
+            }
+        }
+        return response;
+    }
+
+    @Override
+    public CourseContentResponse getPreviewCourseContent(Integer courseId) {
+        Course course = courseRepository.getCourseContent(courseId).orElseThrow(() -> new RuntimeException("Course not found!"));
+        CourseContentResponse response = modelMapper.map(course, CourseContentResponse.class);
+        for (ChapterContentResponse chapter : response.getChapters()) {
+            for (LessonContentResponse lesson : chapter.getLessons()) {
+                if (!lesson.getIsPreview()) {
+                    lesson.setVideoUrl(null);
+                    lesson.setContent(null);
+                    lesson.setPdfUrl(null);
+                }
+            }
+        }
+
+        for (ChapterContentResponse chapter : response.getChapters()) {
+            chapter.setSlug(slugify.slugify(chapter.getName()));
+
+            for (LessonContentResponse lesson : chapter.getLessons()) {
+                lesson.setSlug(slugify.slugify(lesson.getName()));
+            }
+        }
+        response.setSlug(slugify.slugify(response.getName()));
+        return response;
+    }
+
+    @Override
+    public List<CourseResponse> findByInstructorId(Integer id) {
+        User instructor = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        List<Course> courses = courseRepository.findByInstructor(instructor);
+        return courses.stream().map(course -> modelMapper.map(course, CourseResponse.class)).toList();
     }
 
     private void importSingleCourse(Row row) {

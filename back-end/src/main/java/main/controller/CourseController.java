@@ -2,11 +2,16 @@ package main.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import main.configuration.CustomUserDetails;
 import main.dto.request.CreateCourseRequest;
 import main.dto.request.UpdateCourseRequest;
+import main.dto.response.CourseContentResponse;
 import main.dto.response.CourseResponse;
 import main.dto.response.ImportResponse;
+import main.service.interfaces.IChapterService;
+import main.service.interfaces.ICourseEnrollmentService;
 import main.service.interfaces.ICourseService;
+import main.service.interfaces.ILessonService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,8 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +37,7 @@ import java.util.Map;
 @RequestMapping("/courses")
 public class CourseController {
     private final ICourseService courseService;
+    private final ICourseEnrollmentService courseEnrollmentService;
 
     @GetMapping("/highlighted")
     public ResponseEntity<?> getHighlightedCourses() {
@@ -152,5 +160,37 @@ public class CourseController {
 
         ImportResponse response = courseService.importCourses(file);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/contents/{id}")
+    public ResponseEntity<?> getEnrolledCourseWithContents(Authentication authentication, @PathVariable Integer id) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        if (!courseEnrollmentService.hasEnrolled(id, userDetails.getId())) {
+            return ResponseEntity.status(401).build();
+        }
+
+        CourseContentResponse response = courseService.getCourseContent(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/contents/preview/{id}")
+    public ResponseEntity<?> getPreviewCourseWithContents(@PathVariable Integer id) {
+        CourseContentResponse response = courseService.getPreviewCourseContent(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/instructor")
+    public ResponseEntity<?> getCoursesByInstructorId(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        List<CourseResponse> responses = courseService.findByInstructorId(userDetails.getId());
+        return ResponseEntity.ok(responses);
     }
 }

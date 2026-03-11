@@ -4,7 +4,7 @@ import defaultAvatar from "../images/default-avatar.png";
 import "../css/Header.css";
 import authFetch from "../function/authFetch";
 import { useTranslation } from "react-i18next";
-import { jwtDecode } from "jwt-decode";
+import logo from "../images/logo.png";
 
 function Header() {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ function Header() {
     email: "",
     username: "",
     avatarUrl: "",
+    role: null
   });
   const emptyUser = { fullName: "", email: "", username: "", avatarUrl: "" };
   const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
@@ -46,8 +47,6 @@ function Header() {
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("accessToken");
     setUser(emptyUser);
     setRole("");
     setUserDropdownOpen(false);
@@ -61,21 +60,20 @@ function Header() {
   async function getMe() {
     const res = await authFetch("http://localhost:8080/users/me", {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
     });
+
+    if (!res.ok) {
+      return;
+    }
+
     const data = await res.json();
     setUser(data);
+    setRole(data.role?.name);
   }
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
-    if (token) {
-      setRole(jwtDecode(token).roles[0]);
-      getMe();
-    }
-  }, [navigate]);
+    getMe();
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -109,11 +107,7 @@ function Header() {
       <div className="container">
         {/* Brand */}
         <Link to="/home" className="navbar-brand">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB-bPDeH5tq3NmV-weR7J6MjCfIeblCnf9tA&s"
-            alt=""
-            style={{ height: "45px" }}
-          />
+          <img src={logo} alt="" style={{ height: "45px" }} />
         </Link>
 
         {/* Bootstrap toggler — còn giữ để mobile collapse hoạt động */}
@@ -232,11 +226,17 @@ function Header() {
                       </Link>
                       <Link
                         className="hd-item"
-                        to={role === "ROLE_ADMIN" ? "/admin/dashboard" : "/instructor/student-list"}
+                        to={
+                          role === "ROLE_ADMIN"
+                            ? "/admin/dashboard"
+                            : "/instructor/student-list"
+                        }
                         onClick={() => setUserDropdownOpen(false)}
                       >
                         <i className="bi bi-grid"></i>
-                        {role === "ROLE_ADMIN" ? "Dashboard" : "Instructor Pages"}
+                        {role === "ROLE_ADMIN"
+                          ? "Dashboard"
+                          : "Instructor Pages"}
                       </Link>
                       <div className="hd-divider"></div>
                       <button className="hd-item danger" onClick={handleLogout}>

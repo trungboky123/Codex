@@ -37,7 +37,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT SUM(p.amount) " +
             "FROM Payment p " +
-            "WHERE p.status = 'Paid' AND MONTH(p.createdAt) = MONTH(CURRENT_DATE)")
+            "WHERE p.status = 'Paid' AND MONTH(p.createdAt) = MONTH(CURRENT_DATE) AND YEAR(p.createdAt) = YEAR(CURRENT_DATE)")
     BigDecimal sumAmount();
 
     @Query("SELECT new main.dto.response.MonthlyRevenueResponse(MONTH(p.createdAt), SUM(p.amount)) " +

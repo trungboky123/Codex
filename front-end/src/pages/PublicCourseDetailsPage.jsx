@@ -27,6 +27,7 @@ export default function PublicCourseDetailsPage() {
       avatarUrl: "",
       email: "",
     },
+    slug: "",
     duration: "",
     description: "",
   });
@@ -166,25 +167,34 @@ export default function PublicCourseDetailsPage() {
     });
   };
 
-  const handleGetCourse = async(courseId) => {
-    const res = await authFetch(`http://localhost:8080/enrollments/free-course/${courseId}`, {
-      method: "POST"
-    });
+  const handleGetCourse = async (courseId) => {
+    const res = await authFetch(
+      `http://localhost:8080/enrollments/free-course/${courseId}`,
+      {
+        method: "POST",
+      },
+    );
     if (res.ok) {
       setHasEnrolled(true);
-      const res = await authFetch(`http://localhost:8080/wishlist/find?itemId=${courseId}&type=course`, {
-        method: "GET",
-      });
+      const res = await authFetch(
+        `http://localhost:8080/wishlist/find?itemId=${courseId}&type=course`,
+        {
+          method: "GET",
+        },
+      );
       if (res.ok) {
-        await authFetch(`http://localhost:8080/wishlist/remove?itemId=${courseId}&type=course`, {
-          method: "DELETE"
-        });
+        await authFetch(
+          `http://localhost:8080/wishlist/remove?itemId=${courseId}&type=course`,
+          {
+            method: "DELETE",
+          },
+        );
       }
     }
   };
 
   const handleGoToMyCourse = () => {
-    navigate("/my-courses");
+    navigate("/my-enrollments?type=courses");
   };
 
   const formatPrice = (price) => {
@@ -278,7 +288,10 @@ export default function PublicCourseDetailsPage() {
                   />
                 </div>
 
-                <div className={s.courseDescription} dangerouslySetInnerHTML={{ __html: course.description }}></div>
+                <div
+                  className={s.courseDescription}
+                  dangerouslySetInnerHTML={{ __html: course.description }}
+                ></div>
               </div>
 
               {/* Instructor */}
@@ -365,9 +378,12 @@ export default function PublicCourseDetailsPage() {
                                 <div className={s.lessonsRight}>
                                   {(lesson.isPreview === 1 ||
                                     lesson.isPreview === true) && (
-                                    <span className={s.previewBadge}>
+                                    <Link
+                                      to={`/course/${course.id}/${course.slug}/${chapter.slug}/${lesson.slug}`}
+                                      className={s.previewBadge}
+                                    >
                                       Preview
-                                    </span>
+                                    </Link>
                                   )}
                                 </div>
                               </div>
@@ -396,14 +412,23 @@ export default function PublicCourseDetailsPage() {
                 <div className={s.price}>
                   <div className={s.priceHeader}>
                     <div className={s.priceCard}>
-                      <span className={s.priceSale}>
-                        {course.salePrice !== null && course.salePrice !== 0 && formatPrice(course.salePrice)}
-                        {course.salePrice === 0 && <span>Free</span>}
-                      </span>
-                      {course.salePrice !== null && (
-                        <span className={s.priceListed}>
-                          {formatPrice(course.listedPrice)}
-                        </span>
+                      {course.salePrice !== null ? (
+                        <>
+                          <span className={s.priceSale}>
+                            {course.salePrice !== 0 &&
+                              formatPrice(course.salePrice)}
+                            {course.salePrice === 0 && <span>Free</span>}
+                          </span>
+                          <span className={s.priceListed}>
+                            {formatPrice(course.listedPrice)}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={s.priceSale}>
+                            {formatPrice(course.listedPrice)}
+                          </span>
+                        </>
                       )}
                     </div>
                     {course.salePrice !== null && (

@@ -290,6 +290,13 @@ public class ClassService implements IClassService {
         return new ImportResponse(total, success, total - success, errors);
     }
 
+    @Override
+    public List<ClassResponse> findByInstructorId(Integer id) {
+        User instructor = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Instructor not found!"));
+        List<Class> clazz = classRepository.findByInstructor(instructor);
+        return clazz.stream().map(c -> modelMapper.map(c, ClassResponse.class)).toList();
+    }
+
     private void importSingleCourse(Row row) {
         List<Setting> categories = new ArrayList<>();
         String name = XLSXUtil.getCell(row, 0);

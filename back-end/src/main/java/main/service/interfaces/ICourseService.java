@@ -2,6 +2,7 @@ package main.service.interfaces;
 
 import main.dto.request.CreateCourseRequest;
 import main.dto.request.UpdateCourseRequest;
+import main.dto.response.CourseContentResponse;
 import main.dto.response.CourseResponse;
 import main.dto.response.ImportResponse;
 import org.springframework.data.domain.Page;
@@ -20,5 +21,7 @@ public interface ICourseService {
     void updateCourse(Integer id, UpdateCourseRequest request, MultipartFile thumbnail);
     void createCourse(CreateCourseRequest request, MultipartFile thumbnail);
     ImportResponse importCourses(MultipartFile file);
-
+    CourseContentResponse getCourseContent(Integer courseId);
+    CourseContentResponse getPreviewCourseContent(Integer courseId);
+    List<CourseResponse> findByInstructorId(Integer id);
 }

@@ -46,6 +46,7 @@ import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import InstructorRoute from "./routes/InstructorRoute";
 import InstructorLayout from "./layouts/InstructorLayout";
 import StudentListPage from "./instructor pages/StudentListPage";
+import MyCourseDetails from "./pages/MyCourseDetails";
 
 const router = createBrowserRouter([
   {
@@ -178,6 +179,10 @@ const router = createBrowserRouter([
         element: <TransactionHistoryPage/>,
       }
     ],
+  },
+  {
+    path: "/course/:id/:courseSlug/:chapterSlug/:lessonSlug",
+    element: <MyCourseDetails/>
   },
   {
     path: "/login",

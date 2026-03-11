@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import s from "../css/Register.module.scss";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import logo from "../images/logo.png";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +77,7 @@ function RegisterPage() {
             <div className={s["register__logo"]}>
               <Link to={"/home"}>
                 <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB-bPDeH5tq3NmV-weR7J6MjCfIeblCnf9tA&s"
+                  src={logo}
                   alt="Logo"
                   className="logo"
                   style={{ width: "150px", margin: "0" }}

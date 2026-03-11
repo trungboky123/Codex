@@ -57,19 +57,11 @@ export default function InstructorHeader({ sidebarCollapsed }) {
   }, []);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
-    if (token) {
-      getMe();
-    }
-  }, [navigate]);
+    getMe()
+  }, []);
 
   const handleLogout = async () => {
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("accessToken");
     setUser(null);
-
     await fetch("http://localhost:8080/auth/logout", {
       method: "POST",
       credentials: "include",
@@ -86,8 +78,12 @@ export default function InstructorHeader({ sidebarCollapsed }) {
   async function getMe() {
     const res = await authFetch("http://localhost:8080/users/me", {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
     });
+
+    if (!res.ok) {
+      return;
+    }
+
     const data = await res.json();
     setUser(data);
   }

@@ -52,7 +52,7 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
         if (course.getListedPrice() != null && course.getSalePrice() != null) {
-            if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0 || course.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
+            if (course.getListedPrice().compareTo(BigDecimal.ZERO) > 0 && course.getSalePrice().compareTo(BigDecimal.ZERO) > 0) {
                 throw new RuntimeException("This course is not free!");
             }
         }
@@ -68,6 +68,7 @@ public class CourseEnrollmentService implements ICourseEnrollmentService {
         payment.setItemId(courseId);
         payment.setItemType("Course");
         payment.setAmount(BigDecimal.ZERO);
+        payment.setMethod("FREE");
         payment.setCreatedAt(LocalDateTime.now());
 
         paymentRepository.save(payment);

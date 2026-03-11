@@ -190,7 +190,12 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public BigDecimal totalRevenue() {
-        return paymentRepository.sumAmount();
+        BigDecimal revenue = paymentRepository.sumAmount();
+        if (revenue == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return revenue;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package main.repository;
 
 import main.entity.Class;
+import main.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -52,4 +53,6 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     );
 
     boolean existsByNameEqualsIgnoreCase(String name);
+
+    List<Class> findByInstructor(User instructor);
 }

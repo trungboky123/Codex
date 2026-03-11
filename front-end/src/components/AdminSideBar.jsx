@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next";
 export default function AdminSidebar({ onCollapseChange }) {
   const { t } = useTranslation();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem("sidebarCollapsed") === "true";
+  });
 
   const menuItems = [
     {
@@ -46,13 +48,17 @@ export default function AdminSidebar({ onCollapseChange }) {
   };
 
   const toggleSidebar = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
+    setIsCollapsed((prev) => {
+      const newState = !prev;
 
-    // Notify parent component about collapse state change
-    if (onCollapseChange) {
-      onCollapseChange(newState);
-    }
+      localStorage.setItem("sidebarCollapsed", newState);
+
+      if (onCollapseChange) {
+        onCollapseChange(newState);
+      }
+
+      return newState;
+    });
   };
 
   // Notify parent on mount
@@ -61,6 +67,10 @@ export default function AdminSidebar({ onCollapseChange }) {
       onCollapseChange(isCollapsed);
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isCollapsed);
+  }, [isCollapsed]);
 
   return (
     <aside className={`${s.sidebar} ${isCollapsed ? s.collapsed : ""}`}>

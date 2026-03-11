@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next";
 export default function InstructorSideBar({ onCollapseChange }) {
   const { t } = useTranslation();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem("sidebarCollapsed") === "true";
+  });
 
   const menuItems = [
     {
@@ -31,13 +33,17 @@ export default function InstructorSideBar({ onCollapseChange }) {
   };
 
   const toggleSidebar = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
+    setIsCollapsed((prev) => {
+      const newState = !prev;
 
-    // Notify parent component about collapse state change
-    if (onCollapseChange) {
-      onCollapseChange(newState);
-    }
+      localStorage.setItem("sidebarCollapsed", newState);
+
+      if (onCollapseChange) {
+        onCollapseChange(newState);
+      }
+
+      return newState;
+    });
   };
 
   // Notify parent on mount
@@ -52,7 +58,7 @@ export default function InstructorSideBar({ onCollapseChange }) {
       {/* Header */}
       <div className={s.header}>
         <div className={s.logo}>
-          {!isCollapsed && <span className={s.logoText}>Code X</span>}
+          {!isCollapsed && <span className={s.logoText}>Étudify</span>}
         </div>
         <button onClick={toggleSidebar} className={s.toggleBtn}>
           <i className="bi bi-list"></i>

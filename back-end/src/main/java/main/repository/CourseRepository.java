@@ -1,6 +1,7 @@
 package main.repository;
 
 import main.entity.Course;
+import main.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
@@ -56,4 +58,12 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             @Param("status") Boolean status,
             Sort sort
     );
+
+    @Query("SELECT DISTINCT c FROM Course c " +
+            "LEFT JOIN c.chapters ct " +
+            "LEFT JOIN ct.lessons l " +
+            "WHERE c.id = :id AND c.status = true AND ct.status = true AND l.status = true")
+    Optional<Course> getCourseContent(@Param("id") Integer id);
+
+    List<Course> findByInstructor(User instructor);
 }

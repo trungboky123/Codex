@@ -1,7 +1,7 @@
 jwt:
   secret: 1234567890abcdef1234567890abcdef
   access-expiration: 900000
-  refresh-expiration: 604800000
+  refresh-expiration: 2592000000
 
 spring:
   datasource:

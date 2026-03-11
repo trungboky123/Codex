@@ -22,6 +22,7 @@ import main.service.interfaces.IUserService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -64,13 +65,27 @@ public class AuthController {
             String accessToken = jwtService.generateAccessToken(userDetails);
             RefreshToken token = refreshTokenService.createRefreshToken(user);
 
-            Cookie cookie = new Cookie("refreshToken", token.getToken());
-            cookie.setHttpOnly(true);
-            cookie.setSecure(false);
-            cookie.setPath("/");
-            cookie.setMaxAge(7 * 24 * 60 * 60);
+            System.out.println(request.isRememberMe());
 
-            response.addCookie(cookie);
+            Cookie cookie1 = new Cookie("refreshToken", token.getToken());
+            cookie1.setHttpOnly(true);
+            cookie1.setSecure(false);
+            cookie1.setPath("/");
+            if (request.isRememberMe()) {
+                cookie1.setMaxAge(30 * 24 * 60 * 60);
+            }
+            else {
+                cookie1.setMaxAge(24 * 60 * 60);
+            }
+
+            Cookie cookie2 = new Cookie("accessToken", accessToken);
+            cookie2.setHttpOnly(true);
+            cookie2.setSecure(false);
+            cookie2.setPath("/");
+            cookie2.setMaxAge(15 * 60);
+
+            response.addCookie(cookie1);
+            response.addCookie(cookie2);
 
             return ResponseEntity.ok(Map.of(
                     "message", messageSource.getMessage("login.success", null, locale),
@@ -82,39 +97,59 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+
         if (refreshToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "message", "Refresh Token Missing",
-                    "code", "NO_REFRESH_TOKEN"
-            ));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        RefreshToken token = refreshTokenService.findByToken(refreshToken).map(refreshTokenService::verifyExpiration).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"));
+        RefreshToken token = refreshTokenService
+                .findByToken(refreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"));
 
         User user = token.getUser();
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+
+        UserDetails userDetails =
+                customUserDetailsService.loadUserByUsername(user.getUsername());
+
         String newAccessToken = jwtService.generateAccessToken(userDetails);
 
-        return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken
-        ));
+        Cookie cookie = new Cookie("accessToken", newAccessToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(15 * 60);
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
         Cookie cookie = WebUtils.getCookie(request, "refreshToken");
 
         if (cookie != null) {
             refreshTokenService.deleteByToken(cookie.getValue());
-            cookie.setValue(null);
-            cookie.setSecure(false);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(0);
-
-            response.addCookie(cookie);
         }
+
+        Cookie cookie1 = new Cookie("refreshToken", null);
+        cookie1.setHttpOnly(true);
+        cookie1.setSecure(false);
+        cookie1.setPath("/");
+        cookie1.setMaxAge(0);
+
+        Cookie cookie2 = new Cookie("accessToken", null);
+        cookie2.setHttpOnly(true);
+        cookie2.setSecure(false);
+        cookie2.setPath("/");
+        cookie2.setMaxAge(0);
+
+        response.addCookie(cookie1);
+        response.addCookie(cookie2);
 
         return ResponseEntity.ok().build();
     }

@@ -28,6 +28,7 @@ public class User {
     private String avatarUrl;
 
     @ManyToOne
+
     @JoinColumn(name = "role_id")
     private Setting role;
 

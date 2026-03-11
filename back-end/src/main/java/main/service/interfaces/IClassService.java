@@ -19,4 +19,5 @@ public interface IClassService {
     void updateClass(Integer id, UpdateClassRequest request, MultipartFile thumbnail);
     void createClass(CreateClassRequest request, MultipartFile thumbnail);
     ImportResponse importClasses(MultipartFile file);
+    List<ClassResponse> findByInstructorId(Integer id);
 }

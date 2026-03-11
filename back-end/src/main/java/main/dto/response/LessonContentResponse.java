@@ -3,10 +3,13 @@ package main.dto.response;
 import lombok.Data;
 
 @Data
-public class LessonResponse {
+public class LessonContentResponse {
     private Integer id;
     private String name;
-    private Boolean isPreview;
     private String slug;
+    private String videoUrl;
+    private String pdfUrl;
+    private Boolean isPreview;
+    private String content;
     private Boolean status;
 }

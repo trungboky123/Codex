@@ -6,6 +6,7 @@ import main.configuration.CustomUserDetails;
 import main.dto.request.CreateUserRequest;
 import main.dto.request.UpdateUserRequest;
 import main.dto.response.ImportResponse;
+import main.dto.response.SettingResponse;
 import main.dto.response.UserResponse;
 import main.service.interfaces.IUserService;
 import org.apache.poi.ss.usermodel.*;
@@ -47,6 +48,11 @@ public class UserController {
         userResponse.setFullName(userDetails.getFullName());
         userResponse.setEmail(userDetails.getEmail());
         userResponse.setAvatarUrl(userDetails.getAvatarUrl());
+
+        SettingResponse settingResponse = new SettingResponse();
+        settingResponse.setName(userDetails.getAuthorities().iterator().next().getAuthority());
+
+        userResponse.setRole(settingResponse);
 
         return ResponseEntity.ok(userResponse);
     }

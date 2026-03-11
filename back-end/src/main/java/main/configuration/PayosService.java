@@ -26,8 +26,6 @@ public class PayosService {
     @Value("${payos.checksum-key}")
     private String checkSumKey;
 
-    private final PaymentRepository paymentRepository;
-
     public Map<String, Object> createPayment(Payment payment) {
         RestTemplate restTemplate = new RestTemplate();
 

@@ -1,20 +1,33 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 import s from "../css/StudentList.module.scss";
 import authFetch from "../function/authFetch";
 
 export default function StudentListPage() {
   const navigate = useNavigate();
   const { sidebarCollapsed } = useOutletContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sortBy, setSortBy] = useState("id");
+  const [sortDir, setSortDir] = useState("asc");
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("all");
-  const [selectedCourseName, setSelectedCourseName] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("keyword") || "",
+  );
+  const [selectedCourse, setSelectedCourse] = useState(
+    courses.find((c) => c.name === searchParams.get("course"))?.id || 0,
+  );
+  const [selectedCourseName, setSelectedCourseName] = useState(
+    searchParams.get("course") || ""
+  );
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedClassName, setSelectedClassName] = useState("");
 
@@ -23,22 +36,28 @@ export default function StudentListPage() {
   const classDropdownRef = useRef(null);
   const [courseDropdownOpen, setCourseDropdownOpen] = useState(false);
   const [classDropdownOpen, setClassDropdownOpen] = useState(false);
-  
+
   async function fetchStudents() {
     setLoading(true);
-    const res = await authFetch("http://localhost:8080/enrollments/student-list", {
-      method: "GET"
-    });
+    const res = await authFetch(
+      "http://localhost:8080/enrollments/student-list",
+      {
+        method: "GET",
+      },
+    );
     const data = await res.json();
     setStudents(data);
     setLoading(false);
   }
-  const mockCourses = [
-    { id: 1, name: "React Fundamentals" },
-    { id: 2, name: "Advanced JavaScript" },
-    { id: 3, name: "UI/UX Design" },
-    { id: 4, name: "Python Basics" },
-  ];
+
+  async function fetchCourses() {
+    setLoading(true);
+    const res = await authFetch("http://localhost:8080/courses/instructor", {
+      method: "GET",
+    });
+    const data = await res.json();
+    setCourses(data);
+  }
 
   const mockClasses = [
     { id: 1, name: "Web Dev Bootcamp 2024" },
@@ -46,11 +65,13 @@ export default function StudentListPage() {
   ];
 
   useEffect(() => {
-    // REPLACE with your API calls
-    fetchStudents();
-    setCourses(mockCourses);
+    fetchCourses();
     setClasses(mockClasses);
   }, []);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [selectedCourse]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -314,11 +335,7 @@ export default function StudentListPage() {
                             <button
                               className={`${s.actionBtn} ${student.status ? s.actionDeactivate : s.actionActivate}`}
                               onClick={() => handleToggleStatus(student.id)}
-                              title={
-                                student.status
-                                  ? "Deactivate"
-                                  : "Activate"
-                              }
+                              title={student.status ? "Deactivate" : "Activate"}
                             >
                               <i
                                 className={`bi ${student.status ? "bi-x-circle" : "bi-check-circle"}`}

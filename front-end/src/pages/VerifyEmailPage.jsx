@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import s from "../css/VerifyEmail.module.scss";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import logo from "../images/logo.png";
 
 export default function VerifyEmailPage() {
   const location = useLocation();
@@ -157,7 +158,7 @@ export default function VerifyEmailPage() {
                 <div className={s["verify__logo-container"]}>
                   <Link to="/home">
                     <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB-bPDeH5tq3NmV-weR7J6MjCfIeblCnf9tA&s"
+                      src={logo}
                       alt="Logo"
                       className={s["verify__logo"]}
                       style={{ width: "150px", margin: "0" }}
